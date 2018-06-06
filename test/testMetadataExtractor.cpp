@@ -6,15 +6,18 @@
 
 class TestMetadataExtractor : public QObject {
 Q_OBJECT
+    MetadataExtractor* m;
+    QStringList fileList;
 private slots:
-    void initTestCase() { qDebug("called before everything else"); }
+    void initTestCase()
+    {
+        m = new MetadataExtractor(TEST_DATA_DIR"/appimagetool-x86_64.AppImage");
+    }
     void listFilesTest()
     {
-
-        MetadataExtractor m(TEST_DATA_DIR"/azpainter_x86_64.AppImage");
         try {
-            auto fileList = m.loadFileList();
-            qWarning() << fileList;
+            fileList = m->loadFileList();
+            qInfo() << fileList;
         }
         catch (std::runtime_error& e) {
             QFAIL(e.what());
@@ -23,16 +26,24 @@ private slots:
     }
     void parseDesktopFileTest()
     {
-        MetadataExtractor m(TEST_DATA_DIR"/azpainter_x86_64.AppImage");
         try {
-            auto files = m.loadFileList();
-            qWarning() << m.parseDesktopFile(files);
-
-        } catch (std::runtime_error &e) {
+            qInfo() << m->extractDesktopFileData(fileList);
+        }
+        catch (std::runtime_error& e) {
             QFAIL(e.what());
         }
     }
-    void cleanupTestCase() { qDebug("called after myFirstTest and mySecondTest"); }
+
+    void parseAppStreamFileTest()
+    {
+        try {
+            qInfo() << m->extractAppStreamFileData(fileList);
+        }
+        catch (std::runtime_error& e) {
+            QFAIL(e.what());
+        }
+    }
+    void cleanupTestCase() { delete (m); }
 };
 
 QTEST_MAIN(TestMetadataExtractor)

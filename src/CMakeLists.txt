@@ -5,7 +5,11 @@ add_library(app_core OBJECT
     entities/Application.cpp
     entities/Application.h
     entities/MetadataExtractor.cpp
-    entities/MetadataExtractor.h entities/DesktopFileMetadataExtractor.cpp entities/DesktopFileMetadataExtractor.h)
+    entities/MetadataExtractor.h
+    entities/DesktopFileMetadataExtractor.cpp
+    entities/DesktopFileMetadataExtractor.h
+    entities/AppStreamMetadataExtractor.cpp
+    entities/AppStreamMetadataExtractor.h)
 
 
 target_compile_options(app_core PUBLIC -fPIC -fexceptions)

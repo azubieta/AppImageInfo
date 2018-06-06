@@ -10,6 +10,7 @@
 
 #include "MetadataExtractor.h"
 #include "DesktopFileMetadataExtractor.h"
+#include "AppStreamMetadataExtractor.h"
 
 MetadataExtractor::MetadataExtractor(const QString& path)
         :path(path) { }
@@ -26,7 +27,7 @@ QStringList MetadataExtractor::loadFileList()
     appimage_string_list_free(rawFileList);
     return fileList;
 }
-QVariantMap MetadataExtractor::parseDesktopFile(QStringList list)
+QVariantMap MetadataExtractor::extractDesktopFileData(QStringList list)
 {
     QSharedPointer<QDir> tmpDir{tryGetTmpDir(), [](QDir* dir) {
       dir->removeRecursively();
@@ -87,4 +88,33 @@ void MetadataExtractor::tryExtractFile(const QString& filePath, const QDir* targ
 
     if (!targetDir->exists(filePath))
         throw std::runtime_error(std::string("Failed to extract file: ")+filePath.toStdString());
+}
+QVariantMap MetadataExtractor::extractAppStreamFileData(QStringList list)
+{
+
+    QSharedPointer<QDir> tmpDir{tryGetTmpDir(), [](QDir* dir) {
+      dir->removeRecursively();
+      delete dir;
+    }};
+
+    auto appStreamFileName = tryGetAppStreamFileName(list);
+    tryExtractFile(appStreamFileName, tmpDir.data());
+
+    AppStreamMetadataExtractor extractor(appStreamFileName);
+    return extractor.getContent();
+}
+QString MetadataExtractor::tryGetAppStreamFileName(QStringList list)
+{
+    QString fileName;
+
+    for (auto file : list)
+        if (file.contains("usr/share/metainfo") && file.endsWith(".appdata.xml", Qt::CaseInsensitive)) {
+            fileName = file;
+            break;
+        }
+
+    if (fileName.isEmpty())
+        throw std::runtime_error(std::string("Not .appdata.xml file found."));
+
+    return fileName;
 }
