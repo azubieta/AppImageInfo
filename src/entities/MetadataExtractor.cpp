@@ -100,7 +100,7 @@ QVariantMap MetadataExtractor::extractAppStreamFileData(QStringList list)
     auto appStreamFileName = tryGetAppStreamFileName(list);
     tryExtractFile(appStreamFileName, tmpDir.data());
 
-    AppStreamMetadataExtractor extractor(appStreamFileName);
+    AppStreamMetadataExtractor extractor(tmpDir->absoluteFilePath(appStreamFileName));
     return extractor.getContent();
 }
 QString MetadataExtractor::tryGetAppStreamFileName(QStringList list)
