@@ -15,16 +15,15 @@ QVariantMap DesktopFileMetadataExtractor::getContent()
 }
 void DesktopFileMetadataExtractor::parseApplicationId()
 {
-    auto fileName = filePath.section("/", -1, -1);
-    data["id"] = fileName.section('.', 0, -2);
+    data["id"] = filePath.section("/", -1, -1);
 }
 void DesktopFileMetadataExtractor::parseLines()
 {
-    parseApplicationId();
-
     data = QVariantMap();
     currentGroupName = QString();
     currentGroup = QVariantMap();
+
+    parseApplicationId();
 
     for (const auto& line: fileContent) {
         auto cleanLine = removeComments(line);
