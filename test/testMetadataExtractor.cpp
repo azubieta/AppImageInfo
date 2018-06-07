@@ -3,6 +3,8 @@
 #include <QDebug>
 
 #include <entities/MetadataExtractor.h>
+#include <entities/DesktopFileMetadataExtractor.h>
+#include <entities/AppStreamMetadataExtractor.h>
 
 class TestMetadataExtractor : public QObject {
 Q_OBJECT
@@ -27,7 +29,8 @@ private slots:
     void parseDesktopFileTest()
     {
         try {
-            qInfo() << m->extractDesktopFileData(fileList);
+            DesktopFileMetadataExtractor e(TEST_DATA_DIR"/appimagetool.desktop");
+            qInfo() << e.getContent();
         }
         catch (std::runtime_error& e) {
             QFAIL(e.what());
@@ -37,7 +40,8 @@ private slots:
     void parseAppStreamFileTest()
     {
         try {
-            qInfo() << m->extractAppStreamFileData(fileList);
+            AppStreamMetadataExtractor e(TEST_DATA_DIR"/appimagetool.appdata.xml");
+            qInfo() << e.getContent();
         }
         catch (std::runtime_error& e) {
             QFAIL(e.what());
