@@ -18,6 +18,8 @@ target_include_directories(app_core PUBLIC
     ${Qt5Core_INCLUDE_DIRS} )
 
 
-add_executable(appimage_releases_indexer main.cpp $<TARGET_OBJECTS:app_core>)
+add_executable(appimage_metadata_extractor main.cpp $<TARGET_OBJECTS:app_core>)
 
-target_link_libraries(appimage_releases_indexer ${APPIMAGEKIT_LIBRARIES} Qt5::Core)
+target_link_libraries(appimage_metadata_extractor ${APPIMAGEKIT_LIBRARIES} Qt5::Core)
+
+target_compile_definitions(appimage_metadata_extractor PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
