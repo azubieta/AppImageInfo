@@ -38,6 +38,8 @@ QVariantMap AppStreamMetadataExtractor::getContent()
             if ("url"==tokenName)
                 readUrl();
 
+            if ("releases"==tokenName)
+                data["releases"] = readReleases();
         }
     }
     if (xml.hasError())
@@ -45,6 +47,44 @@ QVariantMap AppStreamMetadataExtractor::getContent()
 
     xml.clear();
     return data;
+}
+QVariantList AppStreamMetadataExtractor::readReleases()
+{
+    QVariantList releases;
+    while (!xml.atEnd() && !(token==QXmlStreamReader::EndElement && tokenName=="releases")) {
+        if (token==QXmlStreamReader::StartElement && tokenName=="release")
+            releases << readRelease();
+
+        token = xml.readNext();
+        tokenName = xml.name().toString();
+    }
+    return releases;
+}
+QVariantMap AppStreamMetadataExtractor::readRelease()
+{
+    QVariantMap release;
+    release["version"] = xml.attributes().value("version").toString();
+    release["date"] = xml.attributes().value("date").toString();
+    release["urgency"] = xml.attributes().value("urgency").toString();
+    release["timestamp"] = xml.attributes().value("timestamp").toString();
+
+    while (!xml.atEnd() && !(token==QXmlStreamReader::EndElement && tokenName=="release")) {
+        if (token==QXmlStreamReader::StartElement) {
+            if (tokenName=="location")
+                release["location"] = xml.readElementText();
+
+            if (tokenName=="checksum") {
+                auto checksumType = xml.attributes().value("type").toString();
+                release[checksumType] = xml.readElementText();
+            }
+
+            if (tokenName=="description")
+                release["description"] = readHtml();
+        }
+        token = xml.readNext();
+        tokenName = xml.name().toString();
+    }
+    return release;
 }
 void AppStreamMetadataExtractor::readUrl()
 {

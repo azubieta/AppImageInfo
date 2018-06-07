@@ -25,6 +25,8 @@ protected:
     QVariantMap readScreenShot();
     QString readHtml();
     void readUrl();
+    QVariantList readReleases();
+    QVariantMap readRelease();
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_APPSTREAMMETADATAEXTRACTOR_H
