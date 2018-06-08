@@ -15,14 +15,24 @@ MetadataMerger::MetadataMerger() { }
 QVariantMap MetadataMerger::merge()
 {
     data = QVariantMap();
+    auto desktopEntry = desktop["Desktop Entry"].toMap();
     data["id"] = appstream.contains("id") ? appstream.value("id") : desktop.value("id");
-    data["name"] = desktop.value("Name");
-    data["description"] = appstream.contains("description") ? appstream.value("description") : desktop.value("Comment");
-    data["categories"] = desktop.value("Categories");
+    data["name"] = desktopEntry.value("Name");
+    mergeDescription(desktopEntry);
+    data["categories"] = desktopEntry.value("Categories");
     data["developer_name"] = appstream.value("developer_name");
     data["links"] = appstream.value("urls");
     data["screenshots"] = appstream.value("screenshots");
     data["releases"] = appstream.value("releases");
-    data["MimeType"] = desktop.value("MimeType");
+    data["MimeType"] = desktopEntry.value("MimeType");
     return data;
+}
+void MetadataMerger::mergeDescription(const QMap<QString, QVariant>& desktopEntry)
+{
+    QVariantMap description;
+    if (appstream.contains("description"))
+        description["default"] = appstream.value("description");
+    else
+        description = desktopEntry.value("Comment").toMap();
+    data["description"] = description;
 }

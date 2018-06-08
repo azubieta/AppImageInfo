@@ -19,6 +19,7 @@ public:
 
     QVariantMap merge();
 
+    void mergeDescription(const QMap<QString, QVariant>& desktopEntry);
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H

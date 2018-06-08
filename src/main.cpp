@@ -16,7 +16,6 @@ int main(int argc, char** argv)
     MetadataExtractor extractor;
     parseArguments(app, extractor);
 
-    extractor.loadFileList();
     QVariantMap metadata = extractor.extractMetadata();
     printResult(metadata);
 
