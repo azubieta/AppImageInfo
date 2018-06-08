@@ -9,7 +9,9 @@ add_library(app_core OBJECT
     entities/DesktopFileMetadataExtractor.cpp
     entities/DesktopFileMetadataExtractor.h
     entities/AppStreamMetadataExtractor.cpp
-    entities/AppStreamMetadataExtractor.h)
+    entities/AppStreamMetadataExtractor.h
+    entities/MetadataMerger.cpp
+    entities/MetadataMerger.h)
 
 
 target_compile_options(app_core PUBLIC -fPIC -fexceptions)

@@ -3,14 +3,16 @@
 //
 
 #include <appimage/appimage.h>
-#include <QtCore/QStringList>
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
-#include <QtCore/QSharedPointer>
+#include <QStringList>
+#include <QDir>
+#include <QSettings>
+#include <QSharedPointer>
+#include <QDebug>
 
 #include "MetadataExtractor.h"
 #include "DesktopFileMetadataExtractor.h"
 #include "AppStreamMetadataExtractor.h"
+#include "MetadataMerger.h"
 
 MetadataExtractor::MetadataExtractor(const QString& path)
         :path(path) { }
@@ -133,6 +135,25 @@ void MetadataExtractor::setPath(const QString& path)
 QVariantMap MetadataExtractor::extractMetadata()
 {
     list = loadFileList();
-    QVariantMap desktopFile = extractDesktopFileData();
-    return QVariantMap();
+    QVariantMap desktop;
+    QVariantMap appstream;
+    try {
+        desktop = extractDesktopFileData();
+    }
+    catch (std::runtime_error& e) {
+        qWarning() << e.what();
+    }
+
+    try {
+        appstream = extractAppStreamFileData();
+    }
+    catch (std::runtime_error& e) {
+        qWarning() << e.what();
+    }
+
+    MetadataMerger merger;
+    merger.setAppStream(appstream);
+    merger.setDesktop(desktop);
+
+    return merger.merge();
 }

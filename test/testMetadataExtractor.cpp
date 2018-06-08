@@ -47,6 +47,10 @@ private slots:
             QFAIL(e.what());
         }
     }
+    void mergeAllSources()
+    {
+        qInfo() << m->extractMetadata();
+    }
     void cleanupTestCase() { delete (m); }
 };
 

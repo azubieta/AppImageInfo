@@ -1,10 +1,12 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QDebug>
+#include <QJsonDocument>
 
 #include "entities/MetadataExtractor.h"
 
 void parseArguments(const QCoreApplication& app, MetadataExtractor& extractor);
+void printResult(const QVariantMap& metadata);
 int main(int argc, char** argv)
 {
     QCoreApplication app(argc, argv);
@@ -14,9 +16,17 @@ int main(int argc, char** argv)
     MetadataExtractor extractor;
     parseArguments(app, extractor);
 
-    qInfo() << extractor.loadFileList();
+    extractor.loadFileList();
     QVariantMap metadata = extractor.extractMetadata();
+    printResult(metadata);
+
     return 0;
+}
+void printResult(const QVariantMap& metadata)
+{
+    auto doc = QJsonDocument::fromVariant(metadata);
+    QTextStream textStream(stdout);
+    textStream << doc.toJson();
 }
 
 void parseArguments(const QCoreApplication& app, MetadataExtractor& extractor)
