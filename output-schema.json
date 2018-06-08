@@ -1,0 +1,29 @@
+{
+  "type":"object",
+  "properties":{
+    "id":{
+      "type":"string",
+      "required":true
+    },
+    "name":{
+      "type":"object",
+      "required":true,
+      "properties": {
+        "LOCALE": {
+          "type": "string",
+          "comment": "Localized string"
+        }
+      }
+    },
+    "description": {
+      "type":"object",
+      "required":true,
+      "properties": {
+        "LOCALE": {
+          "type": "string",
+          "comment": "Localized string"
+        }
+      }
+    }
+  }
+}
