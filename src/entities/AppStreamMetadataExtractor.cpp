@@ -167,5 +167,5 @@ QString AppStreamMetadataExtractor::readHtml()
         }
     }
     while (!xml.atEnd() && xml.name()!=terminatingElement);
-    return html;
+    return html.simplified().trimmed();
 }

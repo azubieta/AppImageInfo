@@ -20,9 +20,10 @@ public:
     void setBinary(const QVariantMap& binary);
 
     QVariantMap merge();
-
+protected:
     void mergeDescription(const QMap<QString, QVariant>& desktopEntry);
     void mergeRelease();
+    void removeEmptyFields();
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H

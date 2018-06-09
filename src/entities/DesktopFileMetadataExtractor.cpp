@@ -95,8 +95,15 @@ QVariant DesktopFileMetadataExtractor::extractValue(const QString& cleanLine, co
     static const QSet<QString> arrayValues{"OnlyShowIn", "NotShowIn", "Actions", "MimeType", "Categories",
                                            "Implements", "Keywords"};
     QVariant value = cleanLine.section('=', 1, -1);;
-    if (arrayValues.contains(key))
-        value = value.toString().split(";");
+    if (arrayValues.contains(key)) {
+        auto rawList = value.toString().split(";");
+        QVariantList list;
+        for (const auto& item: rawList)
+            if (!item.isEmpty())
+                list << item.trimmed();
+        value = list;
+    }
+
     return value;
 }
 bool DesktopFileMetadataExtractor::isKeyEntry(const QString& cleanLine) const { return cleanLine.contains("="); }

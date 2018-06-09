@@ -29,13 +29,24 @@ QVariantMap MetadataMerger::merge()
     data["architecture"] = binary["architecture"];
     data["sha512checksum"] = binary["sha512checksum"];
     data["size"] = binary["size"];
+
+    removeEmptyFields();
     return data;
+}
+void MetadataMerger::removeEmptyFields()
+{
+
+    for (const auto& key: data.keys()) {
+        const auto& value = data.value(key);
+        if (value.isNull() || !value.isValid())
+            data.remove(key);
+    }
 }
 void MetadataMerger::mergeRelease()
 {
     QVariantMap release;
     auto appStreamReleases = appStream.value("releases").toList();
-    if (appStreamReleases.size() > 0) {
+    if (appStreamReleases.size()>0) {
         QMap<QString, QVariant> latestAppStreamRelease;
         latestAppStreamRelease = appStreamReleases.first().toMap();
 
@@ -46,7 +57,8 @@ void MetadataMerger::mergeRelease()
         release["changes"] = latestAppStreamRelease["description"];
     }
 
-    data["release"] = release;
+    if (!release.isEmpty())
+        data["release"] = release;
 }
 void MetadataMerger::mergeDescription(const QMap<QString, QVariant>& desktopEntry)
 {
