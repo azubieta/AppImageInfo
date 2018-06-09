@@ -5,6 +5,7 @@
 #include <entities/MetadataExtractor.h>
 #include <entities/DesktopFileMetadataExtractor.h>
 #include <entities/AppStreamMetadataExtractor.h>
+#include <entities/BinaryMetadataExtractor.h>
 
 class TestMetadataExtractor : public QObject {
 Q_OBJECT
@@ -46,6 +47,17 @@ private slots:
         catch (std::runtime_error& e) {
             QFAIL(e.what());
         }
+    }
+    void extractBinaryMetadata()
+    {
+        try {
+            BinaryMetadataExtractor extractor(TEST_DATA_DIR"/appimagetool-x86_64.AppImage");
+            qInfo() << extractor.getMetadata();
+        }
+        catch (std::runtime_error& e) {
+            QFAIL(e.what());
+        }
+
     }
     void mergeAllSources()
     {

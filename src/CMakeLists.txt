@@ -11,7 +11,7 @@ add_library(app_core OBJECT
     entities/AppStreamMetadataExtractor.cpp
     entities/AppStreamMetadataExtractor.h
     entities/MetadataMerger.cpp
-    entities/MetadataMerger.h)
+    entities/MetadataMerger.h entities/BinaryMetadataExtractor.cpp entities/BinaryMetadataExtractor.h)
 
 
 target_compile_options(app_core PUBLIC -fPIC -fexceptions)
