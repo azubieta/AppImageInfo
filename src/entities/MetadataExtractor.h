@@ -21,8 +21,8 @@ public:
     QVariantMap extractMetadata();
 protected:
     QVariantMap extractDesktopFileData();
-
     QVariantMap extractAppStreamFileData();
+    QVariantMap extractBinaryFileData();
 
     QString getDesktopFileName(const QStringList& list) const;
     QString tryGetDesktopFileName(const QStringList& list) const;

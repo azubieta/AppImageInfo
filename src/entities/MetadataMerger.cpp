@@ -9,30 +9,55 @@ void MetadataMerger::setDesktop(const QVariantMap& desktop)
 }
 void MetadataMerger::setAppStream(const QVariantMap& appstream)
 {
-    MetadataMerger::appstream = appstream;
+    MetadataMerger::appStream = appstream;
 }
 MetadataMerger::MetadataMerger() { }
 QVariantMap MetadataMerger::merge()
 {
     data = QVariantMap();
     auto desktopEntry = desktop["Desktop Entry"].toMap();
-    data["id"] = appstream.contains("id") ? appstream.value("id") : desktop.value("id");
+    data["id"] = appStream.contains("id") ? appStream.value("id") : desktop.value("id");
     data["name"] = desktopEntry.value("Name");
     mergeDescription(desktopEntry);
     data["categories"] = desktopEntry.value("Categories");
-    data["developer_name"] = appstream.value("developer_name");
-    data["links"] = appstream.value("urls");
-    data["screenshots"] = appstream.value("screenshots");
-    data["releases"] = appstream.value("releases");
+    data["developer_name"] = appStream.value("developer_name");
+    data["links"] = appStream.value("urls");
+    data["screenshots"] = appStream.value("screenshots");
+    mergeRelease();
     data["MimeType"] = desktopEntry.value("MimeType");
+
+    data["architecture"] = binary["architecture"];
+    data["sha512checksum"] = binary["sha512checksum"];
+    data["size"] = binary["size"];
     return data;
+}
+void MetadataMerger::mergeRelease()
+{
+    QVariantMap release;
+    auto appStreamReleases = appStream.value("releases").toList();
+    if (appStreamReleases.size() > 0) {
+        QMap<QString, QVariant> latestAppStreamRelease;
+        latestAppStreamRelease = appStreamReleases.first().toMap();
+
+        release["version"] = latestAppStreamRelease["version"];
+        release["date"] = latestAppStreamRelease["date"];
+        release["urgency"] = latestAppStreamRelease["urgency"];
+        release["channel"] = latestAppStreamRelease["type"];
+        release["changes"] = latestAppStreamRelease["description"];
+    }
+
+    data["release"] = release;
 }
 void MetadataMerger::mergeDescription(const QMap<QString, QVariant>& desktopEntry)
 {
     QVariantMap description;
-    if (appstream.contains("description"))
-        description["default"] = appstream.value("description");
+    if (appStream.contains("description"))
+        description["default"] = appStream.value("description");
     else
         description = desktopEntry.value("Comment").toMap();
     data["description"] = description;
+}
+void MetadataMerger::setBinary(const QVariantMap& binary)
+{
+    MetadataMerger::binary = binary;
 }

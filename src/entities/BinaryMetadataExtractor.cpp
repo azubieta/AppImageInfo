@@ -3,6 +3,7 @@
 //
 #include <QDebug>
 #include <QProcess>
+#include <QFileInfo>
 #include "BinaryMetadataExtractor.h"
 
 BinaryMetadataExtractor::BinaryMetadataExtractor(const QString& target)
@@ -13,7 +14,14 @@ QVariantMap BinaryMetadataExtractor::getMetadata()
     QVariantMap data;
     data["architecture"] = getBinaryArch();
     data["sha512checksum"] = getSha512CheckSum();
+    data["size"] = getFileSize();
     return data;
+}
+qint64 BinaryMetadataExtractor::getFileSize() const
+{
+    QFileInfo fileInfo(target);
+    qint64 size =  fileInfo.size();
+    return size;
 }
 QString BinaryMetadataExtractor::getSha512CheckSum() const
 {

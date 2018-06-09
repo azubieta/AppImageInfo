@@ -9,17 +9,20 @@
 
 class MetadataMerger {
     QVariantMap desktop;
-    QVariantMap appstream;
+    QVariantMap appStream;
+    QVariantMap binary;
     QVariantMap data;
 public:
 
     MetadataMerger();
     void setDesktop(const QVariantMap& desktop);
     void setAppStream(const QVariantMap& appstream);
+    void setBinary(const QVariantMap& binary);
 
     QVariantMap merge();
 
     void mergeDescription(const QMap<QString, QVariant>& desktopEntry);
+    void mergeRelease();
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H

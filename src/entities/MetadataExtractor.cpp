@@ -12,6 +12,7 @@
 #include "MetadataExtractor.h"
 #include "DesktopFileMetadataExtractor.h"
 #include "AppStreamMetadataExtractor.h"
+#include "BinaryMetadataExtractor.h"
 #include "MetadataMerger.h"
 
 MetadataExtractor::MetadataExtractor(const QString& path)
@@ -136,7 +137,8 @@ QVariantMap MetadataExtractor::extractMetadata()
 {
     list = loadFileList();
     QVariantMap desktop;
-    QVariantMap appstream;
+    QVariantMap appStream;
+    QVariantMap binary;
     try {
         desktop = extractDesktopFileData();
     }
@@ -145,15 +147,28 @@ QVariantMap MetadataExtractor::extractMetadata()
     }
 
     try {
-        appstream = extractAppStreamFileData();
+        appStream = extractAppStreamFileData();
+    }
+    catch (std::runtime_error& e) {
+        qWarning() << e.what();
+    }
+
+    try {
+        binary = extractBinaryFileData();
     }
     catch (std::runtime_error& e) {
         qWarning() << e.what();
     }
 
     MetadataMerger merger;
-    merger.setAppStream(appstream);
+    merger.setAppStream(appStream);
     merger.setDesktop(desktop);
+    merger.setBinary(binary);
 
     return merger.merge();
+}
+QVariantMap MetadataExtractor::extractBinaryFileData()
+{
+    BinaryMetadataExtractor extractor(path);
+    return extractor.getMetadata();
 }

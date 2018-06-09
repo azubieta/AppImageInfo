@@ -12,8 +12,10 @@ class BinaryMetadataExtractor {
 public:
     BinaryMetadataExtractor(const QString& target);
     QVariantMap getMetadata();
+protected:
     QString getBinaryArch() const;
     QString getSha512CheckSum() const;
+    qint64 getFileSize() const;
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H
