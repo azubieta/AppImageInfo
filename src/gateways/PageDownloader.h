@@ -14,10 +14,13 @@ Q_OBJECT
     bool working;
     bool errored;
 public:
-    PageDownloader(const QString& url, QObject* parent = nullptr);
+    explicit PageDownloader(const QString& url, QObject* parent = nullptr);
     ~PageDownloader() override;
     bool isWorking() const;
     bool isErrored() const;
+
+    const QString& getUrl() const;
+    void setUrl(const QString& url);
 public slots:
     void download();
     QByteArray getData();

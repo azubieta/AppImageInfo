@@ -2,7 +2,7 @@
 #include <QNetworkRequest>
 
 PageDownloader::PageDownloader(const QString& url, QObject* parent)
-        :QObject(parent), url(url)
+        :QObject(parent), url(url), working(false), errored(false)
 {
     connect(&manager, &QNetworkAccessManager::finished, this, &PageDownloader::handleDownloadFinished);
 }
@@ -44,4 +44,12 @@ bool PageDownloader::isWorking() const
 bool PageDownloader::isErrored() const
 {
     return errored;
+}
+const QString& PageDownloader::getUrl() const
+{
+    return url;
+}
+void PageDownloader::setUrl(const QString& url)
+{
+    PageDownloader::url = url;
 }
