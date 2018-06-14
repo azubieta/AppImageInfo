@@ -9,6 +9,7 @@
 #include <QString>
 
 #include "../gateways/PageDownloader.h"
+#include "../gateways/GitHubApiClient.h"
 
 class GitHubProjectIndexer : public QObject {
 Q_OBJECT
@@ -18,17 +19,9 @@ Q_OBJECT
     QString path;
     QString user;
     QString repo;
-    PageDownloader* repoPageDownloader;
-    PageDownloader* userPageDownloader;
-    PageDownloader* releasesPageDownloader;
-    QVariantMap repoData;
-    QVariantMap developerData;
-    QVariantList releasesData;
-    bool repoPageFinished;
-    bool userPageFinished;
-    bool releasesPageFinished;
 
     QVariantList appImages;
+    GitHubApiClient ghClient;
 public:
     explicit GitHubProjectIndexer(const QString& url, QObject* parent = nullptr);
 
@@ -41,16 +34,11 @@ signals:
     void completed();
 
 protected slots:
-    void handleRepoInfo();
-    void handleDeveloperInfo();
-    void handleReleasesInfo();
+    void handleGitHubApiDataReady();
 
 private:
     QString extractPath(const QString& url);
-    void queryRepoInfo();
-    void queryDeveloperInfo();
-    void queryReleasesInfo();
-    void checkAllTasksCompletion();
+
     void downloadRelease(QMap<QString, QVariant> map);
 };
 

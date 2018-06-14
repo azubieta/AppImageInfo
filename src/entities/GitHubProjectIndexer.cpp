@@ -4,8 +4,7 @@
 #include <QVariantList>
 
 GitHubProjectIndexer::GitHubProjectIndexer(const QString& url, QObject* parent)
-        :QObject(parent), url(url), running(false), repoPageDownloader(nullptr), repoPageFinished(false),
-         userPageFinished(false), releasesPageFinished(false)
+        :QObject(parent), url(url), running(false)
 {
     path = extractPath(url);
     user = path.section("/", 0, 0);
@@ -31,143 +30,35 @@ void GitHubProjectIndexer::run()
         throw std::runtime_error("GitHubProjectIndexer already running!");
 
     running = true;
-    queryRepoInfo();
-    queryDeveloperInfo();
-    queryReleasesInfo();
+
+    ghClient.setUser(user);
+    ghClient.setRepo(repo);
+    connect(&ghClient, &GitHubApiClient::completed, this, &GitHubProjectIndexer::handleGitHubApiDataReady);
+
+    ghClient.fetch();
 }
-void GitHubProjectIndexer::queryRepoInfo()
-{
-    repoPageDownloader = new PageDownloader("https://api.github.com/repos/"+path);
-    connect(repoPageDownloader, &PageDownloader::finished, this, &GitHubProjectIndexer::handleRepoInfo);
 
-    repoPageDownloader->download();
-}
-void GitHubProjectIndexer::handleRepoInfo()
-{
-    if (repoPageDownloader->isErrored())
-        qWarning() << "Unable to download repo information";
-
-    QByteArray rawData = repoPageDownloader->getData();
-    repoPageDownloader->deleteLater();
-    repoPageDownloader = nullptr;
-
-    auto doc = QJsonDocument::fromJson(rawData);
-    auto gitHubRepoData = doc.toVariant().toMap();
-    repoData["description"] = gitHubRepoData["description"];
-    repoData["homepage"] = gitHubRepoData["homepage"];
-    repoData["stargazers_count"] = gitHubRepoData["stargazers_count"];
-    repoData["development_page"] = gitHubRepoData["html_url"];
-    if (gitHubRepoData["has_wiki"].toBool())
-        repoData["wiki_page"] = repoData["development_page"].toString()+"/wiki";
-
-    auto license = gitHubRepoData["license"].toMap();
-    repoData["licence"] = license["name"];
-
-    qInfo() << gitHubRepoData;
-    qInfo() << repoData;
-
-    repoPageFinished = true;
-    checkAllTasksCompletion();
-}
-void GitHubProjectIndexer::checkAllTasksCompletion()
-{
-    if (repoPageFinished && userPageFinished && releasesPageFinished) {
-        running = false;
-        emit completed();
-    }
-}
 const QString& GitHubProjectIndexer::getPath() const
 {
     return path;
 }
-void GitHubProjectIndexer::queryDeveloperInfo()
-{
-    userPageDownloader = new PageDownloader("https://api.github.com/users/"+user);
-    connect(userPageDownloader, &PageDownloader::finished, this, &GitHubProjectIndexer::handleDeveloperInfo);
-
-    userPageDownloader->download();
-}
-void GitHubProjectIndexer::handleDeveloperInfo()
-{
-    if (userPageDownloader->isErrored())
-        qWarning() << "Unable to download user information";
-
-    QByteArray rawData = userPageDownloader->getData();
-    userPageDownloader->deleteLater();
-    userPageDownloader = nullptr;
-
-    auto doc = QJsonDocument::fromJson(rawData);
-    auto gitHubUserData = doc.toVariant().toMap();
-
-    developerData["name"] = gitHubUserData["name"];
-    developerData["avatar_url"] = gitHubUserData["avatar_url"];
-    developerData["bio"] = gitHubUserData["bio"];
-    developerData["url"] = gitHubUserData["url"];
-    developerData["blog"] = gitHubUserData["blog"];
-    developerData["type"] = gitHubUserData["type"];
-
-    qInfo() << developerData;
-    qInfo() << gitHubUserData;
-    userPageFinished = true;
-    checkAllTasksCompletion();
-}
-void GitHubProjectIndexer::queryReleasesInfo()
-{
-    releasesPageDownloader = new PageDownloader("https://api.github.com/repos/"+path+"/releases");
-    connect(releasesPageDownloader, &PageDownloader::finished, this, &GitHubProjectIndexer::handleReleasesInfo);
-
-    releasesPageDownloader->download();
-}
-void GitHubProjectIndexer::handleReleasesInfo()
-{
-    if (releasesPageDownloader->isErrored())
-        qWarning() << "Unable to download releases information";
-
-    QByteArray rawData = releasesPageDownloader->getData();
-    releasesPageDownloader->deleteLater();
-    releasesPageDownloader = nullptr;
-
-    auto doc = QJsonDocument::fromJson(rawData);
-    auto gitHubReleasesData = doc.toVariant().toList();
-
-    for (const auto variant: gitHubReleasesData) {
-        QVariantMap release;
-        const auto gitHubRelease = variant.toMap();
-
-        release["version"] = gitHubRelease["tag_name"];
-        release["channel"] = gitHubRelease["prerelease"].toBool() ? "development" : "stable";
-        release["date"] = gitHubRelease["published_at"];
-        release["description"] = gitHubRelease["body"];
-        release["source"] = gitHubRelease["tarball_url"];
-
-        const auto assetsVariant = gitHubRelease["assets"].toList();
-        for (const auto assetVariant: assetsVariant) {
-            const auto asset = assetVariant.toMap();
-            const auto url = asset["browser_download_url"].toString();
-            if (url.endsWith("AppImage")) {
-                auto fileRelease = release;
-                fileRelease["download_url"] = url;
-                releasesData << fileRelease;
-            }
-        }
-    }
-
-    releasesPageFinished = true;
-    checkAllTasksCompletion();
-}
 void GitHubProjectIndexer::processNextRelease()
 {
-    if (!releasesData.isEmpty()) {
-        auto release = releasesData.first().toMap();
-        releasesData.removeFirst();
-        downloadRelease(release);
-    }
-    else
-            emit completed();
+//    if (!releasesData.isEmpty()) {
+//        auto release = releasesData.first().toMap();
+//        releasesData.removeFirst();
+//        downloadRelease(release);
+//    }
+//    else
+    emit completed();
 }
 void GitHubProjectIndexer::downloadRelease(QMap<QString, QVariant> map)
 {
 
+}
+void GitHubProjectIndexer::handleGitHubApiDataReady()
+{
+    processNextRelease();
 }
 
 
