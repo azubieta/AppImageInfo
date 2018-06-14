@@ -25,7 +25,7 @@ public slots:
     void download();
     QByteArray getData();
 signals:
-    void downloaded();
+    void finished();
 
 protected slots:
     void handleDownloadFinished(QNetworkReply* reply);

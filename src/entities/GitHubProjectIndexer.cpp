@@ -1,6 +1,7 @@
 #include <QRegExp>
 #include <QtCore/QJsonDocument>
 #include "GitHubProjectIndexer.h"
+#include <QVariantList>
 
 GitHubProjectIndexer::GitHubProjectIndexer(const QString& url, QObject* parent)
         :QObject(parent), url(url), running(false), repoPageDownloader(nullptr), repoPageFinished(false),
@@ -37,7 +38,7 @@ void GitHubProjectIndexer::run()
 void GitHubProjectIndexer::queryRepoInfo()
 {
     repoPageDownloader = new PageDownloader("https://api.github.com/repos/"+path);
-    connect(repoPageDownloader, &PageDownloader::downloaded, this, &GitHubProjectIndexer::handleRepoInfo);
+    connect(repoPageDownloader, &PageDownloader::finished, this, &GitHubProjectIndexer::handleRepoInfo);
 
     repoPageDownloader->download();
 }
@@ -82,7 +83,7 @@ const QString& GitHubProjectIndexer::getPath() const
 void GitHubProjectIndexer::queryDeveloperInfo()
 {
     userPageDownloader = new PageDownloader("https://api.github.com/users/"+user);
-    connect(userPageDownloader, &PageDownloader::downloaded, this, &GitHubProjectIndexer::handleDeveloperInfo);
+    connect(userPageDownloader, &PageDownloader::finished, this, &GitHubProjectIndexer::handleDeveloperInfo);
 
     userPageDownloader->download();
 }
@@ -113,7 +114,7 @@ void GitHubProjectIndexer::handleDeveloperInfo()
 void GitHubProjectIndexer::queryReleasesInfo()
 {
     releasesPageDownloader = new PageDownloader("https://api.github.com/repos/"+path+"/releases");
-    connect(releasesPageDownloader, &PageDownloader::downloaded, this, &GitHubProjectIndexer::handleReleasesInfo);
+    connect(releasesPageDownloader, &PageDownloader::finished, this, &GitHubProjectIndexer::handleReleasesInfo);
 
     releasesPageDownloader->download();
 }
@@ -139,21 +140,34 @@ void GitHubProjectIndexer::handleReleasesInfo()
         release["description"] = gitHubRelease["body"];
         release["source"] = gitHubRelease["tarball_url"];
 
-        QStringList assets;
         const auto assetsVariant = gitHubRelease["assets"].toList();
         for (const auto assetVariant: assetsVariant) {
             const auto asset = assetVariant.toMap();
             const auto url = asset["browser_download_url"].toString();
-            if (url.endsWith("AppImage"))
-                assets << url;
+            if (url.endsWith("AppImage")) {
+                auto fileRelease = release;
+                fileRelease["download_url"] = url;
+                releasesData << fileRelease;
+            }
         }
-        release["assets"] = assets;
-
-        releaseData << release;
     }
 
     releasesPageFinished = true;
     checkAllTasksCompletion();
+}
+void GitHubProjectIndexer::processNextRelease()
+{
+    if (!releasesData.isEmpty()) {
+        auto release = releasesData.first().toMap();
+        releasesData.removeFirst();
+        downloadRelease(release);
+    }
+    else
+            emit completed();
+}
+void GitHubProjectIndexer::downloadRelease(QMap<QString, QVariant> map)
+{
+
 }
 
 

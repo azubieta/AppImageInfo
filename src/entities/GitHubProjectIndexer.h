@@ -23,16 +23,19 @@ Q_OBJECT
     PageDownloader* releasesPageDownloader;
     QVariantMap repoData;
     QVariantMap developerData;
-    QVariantList releaseData;
+    QVariantList releasesData;
     bool repoPageFinished;
     bool userPageFinished;
     bool releasesPageFinished;
+
+    QVariantList appImages;
 public:
     explicit GitHubProjectIndexer(const QString& url, QObject* parent = nullptr);
 
     static bool isGitHubProject(QString url);
 
     void run();
+    void processNextRelease();
     const QString& getPath() const;
 signals:
     void completed();
@@ -48,6 +51,7 @@ private:
     void queryDeveloperInfo();
     void queryReleasesInfo();
     void checkAllTasksCompletion();
+    void downloadRelease(QMap<QString, QVariant> map);
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_GITHUBPROJECTINDEXER_H

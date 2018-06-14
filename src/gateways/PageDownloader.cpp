@@ -35,7 +35,7 @@ void PageDownloader::handleDownloadFinished(QNetworkReply* reply)
     data = reply->readAll();
     reply->deleteLater();
 
-    emit downloaded();
+    emit finished();
 }
 bool PageDownloader::isWorking() const
 {
