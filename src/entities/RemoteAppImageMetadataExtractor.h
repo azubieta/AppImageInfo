@@ -16,11 +16,14 @@ class RemoteAppImageMetadataExtractor : public QObject {
 Q_OBJECT
     QString url;
     QVariantMap metadata;
-    QTemporaryFile file;
+    QString tmpFile;
     QSharedPointer<FileDownloader> downloader;
 public:
     explicit RemoteAppImageMetadataExtractor(const QString& url, QObject* parent = nullptr);
     void run();
+
+    const QVariantMap &getMetadata() const;
+
 signals:
     void completed();
 

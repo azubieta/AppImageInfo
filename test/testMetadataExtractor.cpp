@@ -73,6 +73,7 @@ private slots:
         extractor.run();
         spy.wait();
         QCOMPARE(spy.count(), 1);
+        qInfo() << extractor.getMetadata();
     }
     void cleanupTestCase() { delete (m); }
 };

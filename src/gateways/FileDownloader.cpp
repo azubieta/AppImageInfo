@@ -36,6 +36,7 @@ void FileDownloader::start()
 
 
     QNetworkRequest request(url);
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
     reply.reset(manager.get(request));
     connect(reply.data(), &QIODevice::readyRead, this, &FileDownloader::handleReadyRead);
 
@@ -47,8 +48,13 @@ void FileDownloader::handleDownloadFinished(QNetworkReply* reply)
     working = false;
     errored = reply->error()!=QNetworkReply::NoError;
 
-    handleReadyRead();
+    if (errored)
+        file.remove();
+    else
+        handleReadyRead();
+
     reply->deleteLater();
+    file.close();
 
     emit finished();
 }

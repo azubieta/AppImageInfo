@@ -54,10 +54,8 @@ private slots:
         d.start();
         spy.wait();
 
-        QFile f(tmp_file_path);
-        Q_ASSERT(!f.exists());
         Q_ASSERT(d.isFailed());
-        f.remove();
+        Q_ASSERT(!QFile::exists(tmp_file_path));
     }
 };
 
