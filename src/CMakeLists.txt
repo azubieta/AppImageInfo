@@ -17,7 +17,7 @@ add_library(app_core OBJECT
     entities/BinaryMetadataExtractor.cpp
     entities/BinaryMetadataExtractor.h
     gateways/PageDownloader.cpp
-    gateways/PageDownloader.h entities/Indexer.cpp entities/Indexer.h entities/GitHubProjectIndexer.cpp entities/GitHubProjectIndexer.h gateways/FileDownloader.cpp gateways/FileDownloader.h gateways/GitHubApiClient.cpp gateways/GitHubApiClient.h)
+    gateways/PageDownloader.h entities/Indexer.cpp entities/Indexer.h entities/GitHubProjectIndexer.cpp entities/GitHubProjectIndexer.h gateways/FileDownloader.cpp gateways/FileDownloader.h gateways/GitHubApiClient.cpp gateways/GitHubApiClient.h entities/RemoteAppImageMetadataExtractor.cpp entities/RemoteAppImageMetadataExtractor.h)
 
 
 target_compile_options(app_core PUBLIC -fPIC -fexceptions)
