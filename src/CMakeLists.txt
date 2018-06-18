@@ -27,7 +27,7 @@ target_include_directories(app_core PUBLIC
         ${Qt5Network_INCLUDE_DIRS})
 
 
-add_executable(appimage_metadata_extractor main.cpp $<TARGET_OBJECTS:app_core>)
+add_executable(appimage_metadata_extractor extractor_main.cpp $<TARGET_OBJECTS:app_core>)
 
 target_link_libraries(appimage_metadata_extractor ${APPIMAGEKIT_LIBRARIES} Qt5::Core Qt5::Network)
 
