@@ -1,17 +1,18 @@
 {
+  "format": 1,
   "id": "example-app.desktop",
   "name": {
     "null": "this is used in the case that there is no locale info about this text",
     "en": "Example App",
-    "es": "Aplicacin de ejemplo"
+    "es": "Aplicación de ejemplo"
   },
   "abstract": {
     "en": "Domostrative Application.",
-    "es": "Applicaci�n demostrativa."
+    "es": "Applicación demostrativa."
   },
   "description": {
     "en": "<p>English long description of example app</p>",
-    "es": "<p>Descripcion en Espa�ol de la Aplicaci�n de Ejemplo</p>"
+    "es": "<p>Descripción en Español de la Aplicación de Ejemplo</p>"
   },
   "license": "gpl3",
   "categories": [
@@ -51,7 +52,8 @@
           "url": "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage",
           "architecture": "x86-64",
           "sha512checksum": "a big and fussy checksum",
-          "size": 1882040
+          "size": 1882040,
+          "type": 2
         }
       ]
     }
