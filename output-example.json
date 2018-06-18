@@ -34,7 +34,8 @@
   "developer": {
     "name": "Bob",
     "logo": "https://bob.blog/logo.sng",
-    "website": "https://github.com/AppImage"
+    "website": "https://github.com/AppImage",
+    "pubkey": "gpg public key"
   },
   "releases": [
     {
