@@ -1,27 +1,317 @@
+
+
 {
-  "type":"object",
-  "properties":{
-    "id":{
-      "type":"string",
-      "required":true
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "id": {
+      "$id": "/properties/id",
+      "type": "string",
+      "title": "The Id Schema ",
+      "default": "",
+      "examples": [
+        "example-app.desktop"
+      ]
     },
-    "name":{
-      "type":"object",
-      "required":true,
+    "name": {
+      "$id": "/properties/name",
+      "type": "object",
       "properties": {
-        "LOCALE": {
+        "en": {
+          "$id": "/properties/name/properties/en",
           "type": "string",
-          "comment": "Localized string"
+          "title": "The En Schema ",
+          "default": "",
+          "examples": [
+            "Example App"
+          ]
+        },
+        "es": {
+          "$id": "/properties/name/properties/es",
+          "type": "string",
+          "title": "The Es Schema ",
+          "default": "",
+          "examples": [
+            "Aplicacion de ejemplo"
+          ]
+        }
+      }
+    },
+    "abstract": {
+      "$id": "/properties/abstract",
+      "type": "object",
+      "properties": {
+        "en": {
+          "$id": "/properties/abstract/properties/en",
+          "type": "string",
+          "title": "The En Schema ",
+          "default": "",
+          "examples": [
+            "Domostrative Application."
+          ]
+        },
+        "es": {
+          "$id": "/properties/abstract/properties/es",
+          "type": "string",
+          "title": "The Es Schema ",
+          "default": "",
+          "examples": [
+            "Applicaci'on demostrativa."
+          ]
         }
       }
     },
     "description": {
-      "type":"object",
-      "required":true,
+      "$id": "/properties/description",
+      "type": "object",
       "properties": {
-        "LOCALE": {
+        "en": {
+          "$id": "/properties/description/properties/en",
           "type": "string",
-          "comment": "Localized string"
+          "title": "The En Schema ",
+          "default": "",
+          "examples": [
+            "<p>English long description of example app</p>"
+          ]
+        },
+        "es": {
+          "$id": "/properties/description/properties/es",
+          "type": "string",
+          "title": "The Es Schema ",
+          "default": "",
+          "examples": [
+            "<p>Descripcion en Espa~nol de la Aplicaci@oacuten de Ejemplo</p>"
+          ]
+        }
+      }
+    },
+    "license": {
+      "$id": "/properties/license",
+      "type": "string",
+      "title": "The License Schema ",
+      "default": "",
+      "examples": [
+        "gpl3"
+      ]
+    },
+    "categories": {
+      "$id": "/properties/categories",
+      "type": "array",
+      "items": {
+        "$id": "/properties/categories/items",
+        "type": "string",
+        "title": "The 0th Schema ",
+        "default": "",
+        "examples": [
+          "Development"
+        ]
+      }
+    },
+    "keywords": {
+      "$id": "/properties/keywords",
+      "type": "array",
+      "items": {
+        "$id": "/properties/keywords/items",
+        "type": "string",
+        "title": "The 0th Schema ",
+        "default": "",
+        "examples": [
+          "application",
+          "application",
+          "example",
+          "ejemplo"
+        ]
+      }
+    },
+    "screenshots": {
+      "$id": "/properties/screenshots",
+      "type": "array",
+      "items": {
+        "$id": "/properties/screenshots/items",
+        "type": "string",
+        "title": "The 0th Schema ",
+        "default": "",
+        "examples": [
+          ""
+        ]
+      }
+    },
+    "icon": {
+      "$id": "/properties/icon",
+      "type": "array",
+      "items": {
+        "$id": "/properties/icon/items",
+        "type": "string",
+        "title": "The 0th Schema ",
+        "default": "",
+        "examples": [
+          ""
+        ]
+      }
+    },
+    "links": {
+      "$id": "/properties/links",
+      "type": "object",
+      "properties": {
+        "homepage": {
+          "$id": "/properties/links/properties/homepage",
+          "type": "string",
+          "title": "The Homepage Schema ",
+          "default": "",
+          "examples": [
+            "https://github.com/AppImage/AppImageKit"
+          ]
+        },
+        "help": {
+          "$id": "/properties/links/properties/help",
+          "type": "string",
+          "title": "The Help Schema ",
+          "default": "",
+          "examples": [
+            "https://github.com/AppImage/AppImageKit/wiki"
+          ]
+        },
+        "donations": {
+          "$id": "/properties/links/properties/donations",
+          "type": "string",
+          "title": "The Donations Schema ",
+          "default": "",
+          "examples": [
+            "https://www.paypal.me/azubieta"
+          ]
+        }
+      }
+    },
+    "developer": {
+      "$id": "/properties/developer",
+      "type": "object",
+      "properties": {
+        "name": {
+          "$id": "/properties/developer/properties/name",
+          "type": "string",
+          "title": "The Name Schema ",
+          "default": "",
+          "examples": [
+            "Bob"
+          ]
+        },
+        "logo": {
+          "$id": "/properties/developer/properties/logo",
+          "type": "string",
+          "title": "The Logo Schema ",
+          "default": "",
+          "examples": [
+            "https://bob.blog/logo.sng"
+          ]
+        },
+        "website": {
+          "$id": "/properties/developer/properties/website",
+          "type": "string",
+          "title": "The Website Schema ",
+          "default": "",
+          "examples": [
+            "https://github.com/AppImage"
+          ]
+        }
+      }
+    },
+    "releases": {
+      "$id": "/properties/releases",
+      "type": "array",
+      "items": {
+        "$id": "/properties/releases/items",
+        "type": "object",
+        "properties": {
+          "version": {
+            "$id": "/properties/releases/items/properties/version",
+            "type": "string",
+            "title": "The Version Schema ",
+            "default": "",
+            "examples": [
+              "0.1.0"
+            ]
+          },
+          "release_date": {
+            "$id": "/properties/releases/items/properties/release_date",
+            "type": "string",
+            "title": "The Release_date Schema ",
+            "default": "",
+            "examples": [
+              "10/10/2017"
+            ]
+          },
+          "changelog": {
+            "$id": "/properties/releases/items/properties/changelog",
+            "type": "object",
+            "properties": {
+              "en": {
+                "$id": "/properties/releases/items/properties/changelog/properties/en",
+                "type": "string",
+                "title": "The En Schema ",
+                "default": "",
+                "examples": [
+                  "<p>The application was created.</p>"
+                ]
+              },
+              "es": {
+                "$id": "/properties/releases/items/properties/changelog/properties/es",
+                "type": "string",
+                "title": "The Es Schema ",
+                "default": "",
+                "examples": [
+                  "<p>La applicaci'on fue creada.</p>"
+                ]
+              }
+            }
+          },
+          "files": {
+            "$id": "/properties/releases/items/properties/files",
+            "type": "array",
+            "items": {
+              "$id": "/properties/releases/items/properties/files/items",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "$id": "/properties/releases/items/properties/files/items/properties/url",
+                  "type": "string",
+                  "title": "The Url Schema ",
+                  "default": "",
+                  "examples": [
+                    "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+                  ]
+                },
+                "architecture": {
+                  "$id": "/properties/releases/items/properties/files/items/properties/architecture",
+                  "type": "string",
+                  "title": "The Architecture Schema ",
+                  "default": "",
+                  "examples": [
+                    "x86-64"
+                  ]
+                },
+                "sha512checksum": {
+                  "$id": "/properties/releases/items/properties/files/items/properties/sha512checksum",
+                  "type": "string",
+                  "title": "The Sha512checksum Schema ",
+                  "default": "",
+                  "examples": [
+                    "a big and fussy checksum"
+                  ]
+                },
+                "size": {
+                  "$id": "/properties/releases/items/properties/files/items/properties/size",
+                  "type": "integer",
+                  "title": "The Size Schema ",
+                  "default": 0,
+                  "examples": [
+                    1882040
+                  ]
+                }
+              }
+            }
+          }
         }
       }
     }

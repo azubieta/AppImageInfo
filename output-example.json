@@ -1,0 +1,57 @@
+{
+  "id": "example-app.desktop",
+  "name": {
+    "en": "Example App",
+    "es": "Aplicacion de ejemplo"
+  },
+  "abstract": {
+    "en": "Domostrative Application.",
+    "es": "Applicaci'on demostrativa."
+  },
+  "description": {
+    "en": "<p>English long description of example app</p>",
+    "es": "<p>Descripcion en Espa~nol de la Aplicaci@oacuten de Ejemplo</p>"
+  },
+  "license": "gpl3",
+  "categories": [
+    "Development"
+  ],
+  "keywords": [
+    "application",
+    "application",
+    "example",
+    "ejemplo"
+  ],
+  "screenshots": [
+    ""
+  ],
+  "icon": [""],
+  "links": {
+    "homepage": "https://github.com/AppImage/AppImageKit",
+    "help": "https://github.com/AppImage/AppImageKit/wiki",
+    "donations": "https://www.paypal.me/azubieta"
+  },
+  "developer": {
+    "name": "Bob",
+    "logo": "https://bob.blog/logo.sng",
+    "website": "https://github.com/AppImage"
+  },
+  "releases": [
+    {
+      "version": "0.1.0",
+      "release_date": "10/10/2017",
+      "changelog": {
+        "en": "<p>The application was created.</p>",
+        "es": "<p>La applicaci'on fue creada.</p>"
+      },
+      "files": [
+        {
+          "url": "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage",
+          "architecture": "x86-64",
+          "sha512checksum": "a big and fussy checksum",
+          "size": 1882040
+        }
+      ]
+    }
+  ]
+}
