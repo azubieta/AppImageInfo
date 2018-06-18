@@ -9,7 +9,7 @@
 class PageDownloader : public QObject {
 Q_OBJECT
     QString url;
-    QNetworkAccessManager manager;
+    QNetworkAccessManager *manager;
     QByteArray data;
     bool working;
     bool errored;

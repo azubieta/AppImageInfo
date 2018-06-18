@@ -6,6 +6,15 @@
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
   "properties": {
+    "format": {
+      "$id": "/properties/format",
+      "type": "integer",
+      "title": "The Format Schema ",
+      "default": 0,
+      "examples": [
+        1
+      ]
+    },
     "id": {
       "$id": "/properties/id",
       "type": "string",
@@ -19,6 +28,15 @@
       "$id": "/properties/name",
       "type": "object",
       "properties": {
+        "null": {
+          "$id": "/properties/name/properties/null",
+          "type": "string",
+          "title": "The Null Schema ",
+          "default": "",
+          "examples": [
+            "this is used in the case that there is no locale info about this text"
+          ]
+        },
         "en": {
           "$id": "/properties/name/properties/en",
           "type": "string",
@@ -34,7 +52,7 @@
           "title": "The Es Schema ",
           "default": "",
           "examples": [
-            "Aplicacion de ejemplo"
+            "Aplicación de ejemplo"
           ]
         }
       }
@@ -58,7 +76,7 @@
           "title": "The Es Schema ",
           "default": "",
           "examples": [
-            "Applicaci'on demostrativa."
+            "Applicación demostrativa."
           ]
         }
       }
@@ -82,7 +100,7 @@
           "title": "The Es Schema ",
           "default": "",
           "examples": [
-            "<p>Descripcion en Espa~nol de la Aplicaci@oacuten de Ejemplo</p>"
+            "<p>Descripción en Español de la Aplicación de Ejemplo</p>"
           ]
         }
       }
@@ -119,7 +137,7 @@
         "default": "",
         "examples": [
           "application",
-          "application",
+          "applicación",
           "example",
           "ejemplo"
         ]
@@ -130,12 +148,63 @@
       "type": "array",
       "items": {
         "$id": "/properties/screenshots/items",
-        "type": "string",
-        "title": "The 0th Schema ",
-        "default": "",
-        "examples": [
-          ""
-        ]
+        "type": "object",
+        "properties": {
+          "caption": {
+            "$id": "/properties/screenshots/items/properties/caption",
+            "type": "string",
+            "title": "The Caption Schema ",
+            "default": "",
+            "examples": [
+              "Update from Ubuntu with AppImageUpdate"
+            ]
+          },
+          "height": {
+            "$id": "/properties/screenshots/items/properties/height",
+            "type": "integer",
+            "title": "The Height Schema ",
+            "default": 0,
+            "examples": [
+              0
+            ]
+          },
+          "language": {
+            "$id": "/properties/screenshots/items/properties/language",
+            "type": "integer",
+            "title": "The Language Schema ",
+            "default": 0,
+            "examples": [
+              0
+            ]
+          },
+          "type": {
+            "$id": "/properties/screenshots/items/properties/type",
+            "type": "string",
+            "title": "The Type Schema ",
+            "default": "",
+            "examples": [
+              ""
+            ]
+          },
+          "url": {
+            "$id": "/properties/screenshots/items/properties/url",
+            "type": "string",
+            "title": "The Url Schema ",
+            "default": "",
+            "examples": [
+              "https://cloud.githubusercontent.com/assets/2480569/19410850/0390fe9c-92f6-11e6-9882-3ca6d360a190.jpg"
+            ]
+          },
+          "width": {
+            "$id": "/properties/screenshots/items/properties/width",
+            "type": "integer",
+            "title": "The Width Schema ",
+            "default": 0,
+            "examples": [
+              0
+            ]
+          }
+        }
       }
     },
     "icon": {
@@ -161,7 +230,7 @@
           "title": "The Homepage Schema ",
           "default": "",
           "examples": [
-            "https://github.com/AppImage/AppImageKit"
+            "https://appimage.org"
           ]
         },
         "help": {
@@ -180,6 +249,15 @@
           "default": "",
           "examples": [
             "https://www.paypal.me/azubieta"
+          ]
+        },
+        "developers": {
+          "$id": "/properties/links/properties/developers",
+          "type": "string",
+          "title": "The Developers Schema ",
+          "default": "",
+          "examples": [
+            "https://github.com/AppImage/AppImageKit"
           ]
         }
       }
@@ -214,6 +292,15 @@
           "examples": [
             "https://github.com/AppImage"
           ]
+        },
+        "pubkey": {
+          "$id": "/properties/developer/properties/pubkey",
+          "type": "string",
+          "title": "The Pubkey Schema ",
+          "default": "",
+          "examples": [
+            "gpg public key"
+          ]
         }
       }
     },
@@ -242,6 +329,15 @@
               "10/10/2017"
             ]
           },
+          "channel": {
+            "$id": "/properties/releases/items/properties/channel",
+            "type": "string",
+            "title": "The Channel Schema ",
+            "default": "",
+            "examples": [
+              "stable"
+            ]
+          },
           "changelog": {
             "$id": "/properties/releases/items/properties/changelog",
             "type": "object",
@@ -261,7 +357,7 @@
                 "title": "The Es Schema ",
                 "default": "",
                 "examples": [
-                  "<p>La applicaci'on fue creada.</p>"
+                  "<p>La applicación fue creada.</p>"
                 ]
               }
             }
@@ -308,6 +404,15 @@
                   "examples": [
                     1882040
                   ]
+                },
+                "type": {
+                  "$id": "/properties/releases/items/properties/files/items/properties/type",
+                  "type": "integer",
+                  "title": "The Type Schema ",
+                  "default": 0,
+                  "examples": [
+                    2
+                  ]
                 }
               }
             }
@@ -317,3 +422,4 @@
     }
   }
 }
+

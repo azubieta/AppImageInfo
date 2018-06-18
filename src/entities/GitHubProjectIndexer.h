@@ -7,9 +7,12 @@
 
 #include <QObject>
 #include <QString>
+#include <QVariantMap>
+#include <QVariantList>
 
 #include "../gateways/PageDownloader.h"
 #include "../gateways/GitHubApiClient.h"
+#include "RemoteAppImageMetadataExtractor.h"
 
 class GitHubProjectIndexer : public QObject {
 Q_OBJECT
@@ -19,27 +22,60 @@ Q_OBJECT
     QString path;
     QString user;
     QString repo;
+    QVariantMap appInfo;
+    QVariantMap appName;
+    QVariantMap appAbstract;
+    QVariantMap appDescription;
+    QVariantMap appDeveloper;
+    QVariantMap appLinks;
+    QStringList appCategories;
+    QVariantList appReleases;
+    QVariantMap appCurrentRelease;
+    QVariantList appCurrentReleaseFiles;
 
-    QVariantList appImages;
     GitHubApiClient ghClient;
+
+    QVariantList ghReleases;
+    QStringList ghReleaseFiles;
+
+    RemoteAppImageMetadataExtractor *extractor;
 public:
-    explicit GitHubProjectIndexer(const QString& url, QObject* parent = nullptr);
+    explicit GitHubProjectIndexer(const QString &url, QObject *parent = nullptr);
 
     static bool isGitHubProject(QString url);
 
     void run();
-    void processNextRelease();
-    const QString& getPath() const;
+
+    const QString &getPath() const;
+
+    const QVariantMap &getAppInfo() const;
+
 signals:
+
     void completed();
 
 protected slots:
+
     void handleGitHubApiDataReady();
 
-private:
-    QString extractPath(const QString& url);
+    void handleReleaseFileInfoExtractionCompleted();
 
-    void downloadRelease(QMap<QString, QVariant> map);
+private:
+    void processNextRelease();
+
+    QString extractPath(const QString &url);
+
+    QVariantMap extractDeveloperInfo() const;
+
+    void processNextReleaseFile();
+
+    void fillMissingAppInfoFields(const QVariantMap &fileInfo);
+
+    QVariantMap getAppReleaseFileInfo(const QVariantMap &fileInfo, const QString &url) const;
+
+    void resetCurrentRelease(const QMap<QString, QVariant> &latestRelease);
+
+    void addCurrentReleaseToAppInfo();
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_GITHUBPROJECTINDEXER_H

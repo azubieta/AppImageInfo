@@ -20,18 +20,28 @@
   ],
   "keywords": [
     "application",
-    "application",
+    "applicación",
     "example",
     "ejemplo"
   ],
   "screenshots": [
+    {
+      "caption": "Update from Ubuntu with AppImageUpdate",
+      "height": 0,
+      "language": 0,
+      "type": "",
+      "url": "https://cloud.githubusercontent.com/assets/2480569/19410850/0390fe9c-92f6-11e6-9882-3ca6d360a190.jpg",
+      "width": 0
+    }
+  ],
+  "icon": [
     ""
   ],
-  "icon": [""],
   "links": {
-    "homepage": "https://github.com/AppImage/AppImageKit",
+    "homepage": "https://appimage.org",
     "help": "https://github.com/AppImage/AppImageKit/wiki",
-    "donations": "https://www.paypal.me/azubieta"
+    "donations": "https://www.paypal.me/azubieta",
+    "developers": "https://github.com/AppImage/AppImageKit"
   },
   "developer": {
     "name": "Bob",
@@ -43,9 +53,10 @@
     {
       "version": "0.1.0",
       "release_date": "10/10/2017",
+      "channel": "stable",
       "changelog": {
         "en": "<p>The application was created.</p>",
-        "es": "<p>La applicaci�n fue creada.</p>"
+        "es": "<p>La applicación fue creada.</p>"
       },
       "files": [
         {

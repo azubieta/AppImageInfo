@@ -17,12 +17,15 @@ Q_OBJECT
     QString url;
     QVariantMap metadata;
     QString tmpFile;
-    QSharedPointer<FileDownloader> downloader;
+    FileDownloader* downloader;
 public:
     explicit RemoteAppImageMetadataExtractor(const QString& url, QObject* parent = nullptr);
+
     void run();
 
     const QVariantMap &getMetadata() const;
+
+    const QString &getUrl() const;
 
 signals:
     void completed();

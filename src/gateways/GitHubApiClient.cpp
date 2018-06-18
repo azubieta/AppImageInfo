@@ -4,12 +4,12 @@
 
 #include <QJsonDocument>
 #include "GitHubApiClient.h"
-GitHubApiClient::GitHubApiClient(QObject* parent)
-        :QObject(parent), repoPageDownloader(nullptr), repoPageFinished(false),
-         userPageFinished(false), releasesPageFinished(false) { }
 
-void GitHubApiClient::fetch()
-{
+GitHubApiClient::GitHubApiClient(QObject *parent)
+        : QObject(parent), repoPageDownloader(nullptr), repoPageFinished(false),
+          userPageFinished(false), releasesPageFinished(false), running(false) {}
+
+void GitHubApiClient::fetch() {
     if (running)
         throw std::runtime_error("GitHubProjectIndexer already running!");
 
@@ -19,15 +19,15 @@ void GitHubApiClient::fetch()
     queryDeveloperInfo();
     queryReleasesInfo();
 }
-void GitHubApiClient::queryRepoInfo()
-{
-    repoPageDownloader = new PageDownloader("https://api.github.com/repos/"+user+"/"+repo);
+
+void GitHubApiClient::queryRepoInfo() {
+    repoPageDownloader = new PageDownloader("https://api.github.com/repos/" + user + "/" + repo);
     connect(repoPageDownloader, &PageDownloader::finished, this, &GitHubApiClient::handleRepoInfo);
 
     repoPageDownloader->download();
 }
-void GitHubApiClient::handleRepoInfo()
-{
+
+void GitHubApiClient::handleRepoInfo() {
     if (repoPageDownloader->isErrored())
         qWarning() << "Unable to download repo information";
 
@@ -42,26 +42,23 @@ void GitHubApiClient::handleRepoInfo()
     repoData["stargazers_count"] = gitHubRepoData["stargazers_count"];
     repoData["development_page"] = gitHubRepoData["html_url"];
     if (gitHubRepoData["has_wiki"].toBool())
-        repoData["wiki_page"] = repoData["development_page"].toString()+"/wiki";
+        repoData["wiki_page"] = repoData["development_page"].toString() + "/wiki";
 
     auto license = gitHubRepoData["license"].toMap();
     repoData["licence"] = license["name"];
 
-    qInfo() << gitHubRepoData;
-    qInfo() << repoData;
-
     repoPageFinished = true;
     checkAllTasksCompletion();
 }
-void GitHubApiClient::queryDeveloperInfo()
-{
-    userPageDownloader = new PageDownloader("https://api.github.com/users/"+user);
+
+void GitHubApiClient::queryDeveloperInfo() {
+    userPageDownloader = new PageDownloader("https://api.github.com/users/" + user);
     connect(userPageDownloader, &PageDownloader::finished, this, &GitHubApiClient::handleDeveloperInfo);
 
     userPageDownloader->download();
 }
-void GitHubApiClient::handleDeveloperInfo()
-{
+
+void GitHubApiClient::handleDeveloperInfo() {
     if (userPageDownloader->isErrored())
         qWarning() << "Unable to download user information";
 
@@ -79,21 +76,19 @@ void GitHubApiClient::handleDeveloperInfo()
     developerData["blog"] = gitHubUserData["blog"];
     developerData["type"] = gitHubUserData["type"];
 
-    qInfo() << developerData;
-    qInfo() << gitHubUserData;
     userPageFinished = true;
     checkAllTasksCompletion();
 }
-void GitHubApiClient::queryReleasesInfo()
-{
-    releasesPageDownloader = new PageDownloader("https://api.github.com/repos/"+user+"/"+repo+"/releases");
+
+void GitHubApiClient::queryReleasesInfo() {
+    releasesPageDownloader = new PageDownloader("https://api.github.com/repos/" + user + "/" + repo + "/releases");
 
     connect(releasesPageDownloader, &PageDownloader::finished, this, &GitHubApiClient::handleReleasesInfo);
 
     releasesPageDownloader->download();
 }
-void GitHubApiClient::handleReleasesInfo()
-{
+
+void GitHubApiClient::handleReleasesInfo() {
     if (releasesPageDownloader->isErrored())
         qWarning() << "Unable to download releases information";
 
@@ -113,47 +108,47 @@ void GitHubApiClient::handleReleasesInfo()
         release["date"] = gitHubRelease["published_at"];
         release["description"] = gitHubRelease["body"];
         release["source"] = gitHubRelease["tarball_url"];
+        QStringList files;
 
         const auto assetsVariant = gitHubRelease["assets"].toList();
         for (const auto assetVariant: assetsVariant) {
             const auto asset = assetVariant.toMap();
             const auto url = asset["browser_download_url"].toString();
-            if (url.endsWith("AppImage")) {
-                auto fileRelease = release;
-                fileRelease["download_url"] = url;
-                releasesData << fileRelease;
-            }
+            if (url.endsWith("AppImage"))
+                files << url;
         }
+
+        release["files"] = files;
+        releasesData << release;
     }
 
     releasesPageFinished = true;
     checkAllTasksCompletion();
 }
 
-void GitHubApiClient::checkAllTasksCompletion()
-{
+void GitHubApiClient::checkAllTasksCompletion() {
     if (repoPageFinished && userPageFinished && releasesPageFinished) {
         running = false;
         emit completed();
     }
 }
-void GitHubApiClient::setUser(const QString& user)
-{
+
+void GitHubApiClient::setUser(const QString &user) {
     GitHubApiClient::user = user;
 }
-void GitHubApiClient::setRepo(const QString& repo)
-{
+
+void GitHubApiClient::setRepo(const QString &repo) {
     GitHubApiClient::repo = repo;
 }
-const QVariantMap& GitHubApiClient::getRepoData() const
-{
+
+const QVariantMap &GitHubApiClient::getRepoData() const {
     return repoData;
 }
-const QVariantMap& GitHubApiClient::getDeveloperData() const
-{
+
+const QVariantMap &GitHubApiClient::getDeveloperData() const {
     return developerData;
 }
-const QVariantList& GitHubApiClient::getReleasesData() const
-{
+
+const QVariantList &GitHubApiClient::getReleasesData() const {
     return releasesData;
 }

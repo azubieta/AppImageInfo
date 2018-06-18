@@ -7,17 +7,17 @@
 #include "MetadataExtractor.h"
 
 RemoteAppImageMetadataExtractor::RemoteAppImageMetadataExtractor(const QString &url, QObject *parent)
-        : QObject(parent), url(url) {
+        : QObject(parent), url(url), downloader(nullptr) {
 
     tmpFile = QDir::tempPath() + "/" + QUuid::createUuid().toString().mid(2, 34) + ".AppImage";
-    downloader.reset(new FileDownloader(url, tmpFile));
+    downloader = new FileDownloader(url, tmpFile, this);
+    qInfo() << "Downloading " << url;
 }
 
 void RemoteAppImageMetadataExtractor::run() {
-    connect(downloader.data(), &FileDownloader::finished, this,
+    connect(downloader, &FileDownloader::finished, this,
             &RemoteAppImageMetadataExtractor::handleDownloadFinished);
     downloader->start();
-
 }
 
 void RemoteAppImageMetadataExtractor::handleDownloadFinished() {
@@ -32,11 +32,14 @@ void RemoteAppImageMetadataExtractor::handleDownloadFinished() {
             qWarning() << "Unable to extract AppImage metadata from " << tmpFile;
         }
 
-    QFile f(tmpFile);
-    f.remove();
+    QFile::remove(tmpFile);
     emit completed();
 }
 
 const QVariantMap &RemoteAppImageMetadataExtractor::getMetadata() const {
     return metadata;
+}
+
+const QString &RemoteAppImageMetadataExtractor::getUrl() const {
+    return url;
 }

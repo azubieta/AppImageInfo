@@ -17,9 +17,9 @@ Q_OBJECT
     QString target;
     bool errored;
     bool working;
-    QNetworkAccessManager manager;
+    QNetworkAccessManager* manager;
     QFile file;
-    QSharedPointer<QNetworkReply> reply;
+    QNetworkReply *reply;
 public:
     FileDownloader(const QString& url, QString target, QObject* parent = nullptr);
 

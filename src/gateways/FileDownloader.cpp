@@ -3,28 +3,26 @@
 //
 
 #include "FileDownloader.h"
-FileDownloader::FileDownloader(const QString& url, QString target, QObject* parent)
-        :QObject(parent), url(url), errored(false), working(false), file(nullptr), target(target)
-{
 
-
-    connect(&manager, &QNetworkAccessManager::finished, this, &FileDownloader::handleDownloadFinished);
-
+FileDownloader::FileDownloader(const QString &url, QString target, QObject *parent)
+        : QObject(parent), url(url), errored(false), working(false), manager(new QNetworkAccessManager(this)),
+          file(nullptr), target(target), reply(nullptr) {
+    connect(manager, &QNetworkAccessManager::finished, this, &FileDownloader::handleDownloadFinished);
 }
-bool FileDownloader::isFailed() const
-{
+
+bool FileDownloader::isFailed() const {
     return errored;
 }
-const QString& FileDownloader::getUrl() const
-{
+
+const QString &FileDownloader::getUrl() const {
     return url;
 }
-const QString& FileDownloader::getTarget() const
-{
+
+const QString &FileDownloader::getTarget() const {
     return target;
 }
-void FileDownloader::start()
-{
+
+void FileDownloader::start() {
     if (working)
         throw std::runtime_error("Download already running.");
 
@@ -32,21 +30,21 @@ void FileDownloader::start()
 
     file.setFileName(target);
     if (!file.open(QIODevice::WriteOnly))
-        throw std::runtime_error("Unable to open file: "+target.toStdString());
+        throw std::runtime_error("Unable to open file: " + target.toStdString());
 
 
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-    reply.reset(manager.get(request));
-    connect(reply.data(), &QIODevice::readyRead, this, &FileDownloader::handleReadyRead);
+    reply = manager->get(request);
+    connect(reply, &QIODevice::readyRead, this, &FileDownloader::handleReadyRead);
 
     working = true;
     errored = false;
 }
-void FileDownloader::handleDownloadFinished(QNetworkReply* reply)
-{
+
+void FileDownloader::handleDownloadFinished(QNetworkReply *reply) {
     working = false;
-    errored = reply->error()!=QNetworkReply::NoError;
+    errored = reply->error() != QNetworkReply::NoError;
 
     if (errored)
         file.remove();
@@ -58,8 +56,8 @@ void FileDownloader::handleDownloadFinished(QNetworkReply* reply)
 
     emit finished();
 }
-void FileDownloader::handleReadyRead()
-{
+
+void FileDownloader::handleReadyRead() {
     const auto data = reply->readAll();
     file.write(data);
 }

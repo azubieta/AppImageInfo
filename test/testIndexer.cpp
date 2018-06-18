@@ -4,6 +4,7 @@
 
 #include <gateways/PageDownloader.h>
 #include <entities/GitHubProjectIndexer.h>
+#include <QtCore/QJsonDocument>
 
 class TestIndexer : public QObject {
 Q_OBJECT
@@ -11,7 +12,7 @@ Q_OBJECT
 private slots:
     void initTestCase()
     {
-        gitHubProjectIndexer = new GitHubProjectIndexer("https://github.com/z-------------/cumulonimbus");
+        gitHubProjectIndexer = new GitHubProjectIndexer("https://github.com/AppImage/AppImageKit");
     };
     void testGitHubProjectMatch()
     {
@@ -29,9 +30,11 @@ private slots:
         QSignalSpy spy(gitHubProjectIndexer, &GitHubProjectIndexer::completed);
 
         gitHubProjectIndexer->run();
-        spy.wait();
+        spy.wait(60000);
 
         QCOMPARE(spy.count(), 1);
+        auto doc = QJsonDocument::fromVariant(gitHubProjectIndexer->getAppInfo());
+        qInfo() << doc.toJson();
     }
     void cleanupTestCase()
     {

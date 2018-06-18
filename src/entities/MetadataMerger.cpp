@@ -29,6 +29,7 @@ QVariantMap MetadataMerger::merge()
     data["architecture"] = binary["architecture"];
     data["sha512checksum"] = binary["sha512checksum"];
     data["size"] = binary["size"];
+    data["type"] = binary["type"];
 
     removeEmptyFields();
     return data;
@@ -64,7 +65,7 @@ void MetadataMerger::mergeDescription(const QMap<QString, QVariant>& desktopEntr
 {
     QVariantMap description;
     if (appStream.contains("description"))
-        description["default"] = appStream.value("description");
+        description["null"] = appStream.value("description");
     else
         description = desktopEntry.value("Comment").toMap();
     data["description"] = description;

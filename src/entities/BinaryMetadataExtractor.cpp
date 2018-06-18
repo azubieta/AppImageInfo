@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QProcess>
 #include <QFileInfo>
+#include <appimage/appimage.h>
+
 #include "BinaryMetadataExtractor.h"
 
 BinaryMetadataExtractor::BinaryMetadataExtractor(const QString& target)
@@ -15,6 +17,7 @@ QVariantMap BinaryMetadataExtractor::getMetadata()
     data["architecture"] = getBinaryArch();
     data["sha512checksum"] = getSha512CheckSum();
     data["size"] = getFileSize();
+    data["type"] = getAppImageType();
     return data;
 }
 qint64 BinaryMetadataExtractor::getFileSize() const
@@ -55,5 +58,9 @@ QString BinaryMetadataExtractor::getBinaryArch() const
 
     process->deleteLater();
     return arch;
+}
+
+int BinaryMetadataExtractor::getAppImageType() const {
+    return appimage_get_type(target.toStdString().c_str(), false);
 }
 
