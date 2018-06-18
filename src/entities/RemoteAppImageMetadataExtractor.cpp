@@ -9,7 +9,7 @@
 RemoteAppImageMetadataExtractor::RemoteAppImageMetadataExtractor(const QString &url, QObject *parent)
         : QObject(parent), url(url) {
 
-    tmpFile = QDir::tempPath() + "/" + QUuid::createUuid().toString().mid(2,34) + ".AppImage";
+    tmpFile = QDir::tempPath() + "/" + QUuid::createUuid().toString().mid(2, 34) + ".AppImage";
     downloader.reset(new FileDownloader(url, tmpFile));
 }
 
@@ -32,6 +32,8 @@ void RemoteAppImageMetadataExtractor::handleDownloadFinished() {
             qWarning() << "Unable to extract AppImage metadata from " << tmpFile;
         }
 
+    QFile f(tmpFile);
+    f.remove();
     emit completed();
 }
 
