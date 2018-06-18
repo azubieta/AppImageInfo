@@ -161,6 +161,11 @@ void GitHubProjectIndexer::fillMissingAppInfoFields(const QVariantMap &fileInfo)
     if (!appInfo.contains("icon") && fileInfo.contains("icon"))
         appInfo["icon"] = fileInfo["icon"];
 
+    const auto fileAbstract = fileInfo["abstract"].toMap();
+    for (auto key: fileAbstract.keys())
+        if (!appAbstract.contains(key))
+            appAbstract[key] = fileAbstract[key];
+
     const auto fileDescription = fileInfo["description"].toMap();
     for (auto key: fileDescription.keys())
         if (!appDescription.contains(key))

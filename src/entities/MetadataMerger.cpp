@@ -19,6 +19,7 @@ QVariantMap MetadataMerger::merge()
     data["id"] = appStream.contains("id") ? appStream.value("id") : desktop.value("id");
     data["name"] = desktopEntry.value("Name");
     mergeDescription(desktopEntry);
+    data["abstract"] = desktopEntry.value("Comment").toMap();
     data["categories"] = desktopEntry.value("Categories");
     data["developer_name"] = appStream.value("developer_name");
     data["links"] = appStream.value("urls");
@@ -66,8 +67,7 @@ void MetadataMerger::mergeDescription(const QMap<QString, QVariant>& desktopEntr
     QVariantMap description;
     if (appStream.contains("description"))
         description["null"] = appStream.value("description");
-    else
-        description = desktopEntry.value("Comment").toMap();
+
     data["description"] = description;
 }
 void MetadataMerger::setBinary(const QVariantMap& binary)
