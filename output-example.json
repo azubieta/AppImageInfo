@@ -1,6 +1,7 @@
 {
   "id": "example-app.desktop",
   "name": {
+    "null": "this is used in the case that there is no locale info about this text",
     "en": "Example App",
     "es": "Aplicacin de ejemplo"
   },
