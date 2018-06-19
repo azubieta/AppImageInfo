@@ -37,3 +37,7 @@ target_include_directories(app_core PUBLIC
 add_executable(appimage_indexer app/indexer_main.cpp app/Indexer.cpp app/Indexer.h $<TARGET_OBJECTS:app_core>)
 target_link_libraries(appimage_indexer ${APPIMAGEKIT_LIBRARIES} Qt5::Core Qt5::Network)
 target_compile_definitions(appimage_indexer PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
+
+install(TARGETS appimage_indexer DESTINATION bin COMPONENT binaries)
+install(FILES app/res/appimage-indexer.desktop DESTINATION share/applications/ COMPONENT desktop)
+install(FILES app/res/appimage-indexer.svg DESTINATION share/icons/hicolor/scalable/apps/ COMPONENT desktop)
