@@ -2,10 +2,11 @@
 // Created by alexis on 6/18/18.
 //
 
-#include "GitHubProjectIndexer.h"
-#include <QtCore/QJsonDocument>
 #include <QRegExp>
+#include <QJsonDocument>
+
 #include "AppInfoBuilder.h"
+#include "GitHubProjectIndexer.h"
 
 void AppInfoBuilder::fillMissingAppInfoFields(const QVariantMap &fileInfo) {
     if (!appInfo.contains("id"))
@@ -39,6 +40,10 @@ void AppInfoBuilder::fillMissingAppInfoFields(const QVariantMap &fileInfo) {
     for (auto key: fileLinks.keys())
         if (!appLinks.contains(key))
             appLinks[key] = fileLinks[key];
+
+    auto keywords = appInfo["keywords"].toStringList();
+    keywords << fileInfo["keywords"].toStringList();
+    appInfo["keywords"] = keywords;
 }
 
 QVariantMap AppInfoBuilder::build() const {

@@ -3,22 +3,24 @@
 //
 
 #include "FileMetadataMerger.h"
-void MetadataMerger::setDesktop(const QVariantMap& desktop)
-{
+
+void MetadataMerger::setDesktop(const QVariantMap &desktop) {
     MetadataMerger::desktop = desktop;
 }
-void MetadataMerger::setAppStream(const QVariantMap& appstream)
-{
+
+void MetadataMerger::setAppStream(const QVariantMap &appstream) {
     MetadataMerger::appStream = appstream;
 }
-MetadataMerger::MetadataMerger() { }
-QVariantMap MetadataMerger::merge()
-{
+
+MetadataMerger::MetadataMerger() {}
+
+QVariantMap MetadataMerger::merge() {
     data = QVariantMap();
     auto desktopEntry = desktop["Desktop Entry"].toMap();
     data["id"] = appStream.contains("id") ? appStream.value("id") : desktop.value("id");
     data["name"] = desktopEntry.value("Name");
     mergeDescription(desktopEntry);
+    data["keywords"] = getDesktopGenericNamesAsKeywords(desktopEntry);
     data["abstract"] = desktopEntry.value("Comment").toMap();
     data["categories"] = desktopEntry.value("Categories");
     data["developer_name"] = appStream.value("developer_name");
@@ -36,20 +38,28 @@ QVariantMap MetadataMerger::merge()
     removeEmptyFields();
     return data;
 }
-void MetadataMerger::removeEmptyFields()
-{
 
-    for (const auto& key: data.keys()) {
-        const auto& value = data.value(key);
+QStringList MetadataMerger::getDesktopGenericNamesAsKeywords(const QVariantMap &desktopEntry) const {
+    QStringList keywords;
+    auto genericNames = desktopEntry["GenericName"].toMap();
+    for (auto key: genericNames.keys())
+        keywords << genericNames[key].toStringList();
+    return keywords;
+}
+
+void MetadataMerger::removeEmptyFields() {
+
+    for (const auto &key: data.keys()) {
+        const auto &value = data.value(key);
         if (value.isNull() || !value.isValid())
             data.remove(key);
     }
 }
-void MetadataMerger::mergeRelease()
-{
+
+void MetadataMerger::mergeRelease() {
     QVariantMap release;
     auto appStreamReleases = appStream.value("releases").toList();
-    if (appStreamReleases.size()>0) {
+    if (appStreamReleases.size() > 0) {
         QMap<QString, QVariant> latestAppStreamRelease;
         latestAppStreamRelease = appStreamReleases.first().toMap();
 
@@ -63,15 +73,15 @@ void MetadataMerger::mergeRelease()
     if (!release.isEmpty())
         data["release"] = release;
 }
-void MetadataMerger::mergeDescription(const QMap<QString, QVariant>& desktopEntry)
-{
+
+void MetadataMerger::mergeDescription(const QMap<QString, QVariant> &desktopEntry) {
     QVariantMap description;
     if (appStream.contains("description"))
         description["null"] = appStream.value("description");
 
     data["description"] = description;
 }
-void MetadataMerger::setBinary(const QVariantMap& binary)
-{
+
+void MetadataMerger::setBinary(const QVariantMap &binary) {
     MetadataMerger::binary = binary;
 }

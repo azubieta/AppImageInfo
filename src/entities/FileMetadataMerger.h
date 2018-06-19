@@ -24,6 +24,8 @@ protected:
     void mergeDescription(const QMap<QString, QVariant>& desktopEntry);
     void mergeRelease();
     void removeEmptyFields();
+
+    QStringList getDesktopGenericNamesAsKeywords(const QVariantMap &desktopEntry) const;
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H
