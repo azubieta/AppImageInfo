@@ -1,0 +1,21 @@
+language: cpp
+compiler: gcc
+dist: trusty
+
+install:
+  - sudo apt-get update
+  - sudo apt-get -y install cmake git qtbase5-dev qt5-qmake libqt5core5a libcurl4-openssl-dev librsvg2-bin libfuse-dev desktop-file-utils
+
+script:
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release ..
+  - make
+  - DESTDIR=AppDir make install
+  - ./linuxdeploy-x86_64.AppImage --init-appdir --appdir=AppDir
+  - ./linuxdeploy-plugin-appimage-x86_64.AppImage --appdir=AppDir
+
+after_success:
+  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+  - if [ "$TRAVIS_BRANCH" != "master" ]; then export TRAVIS_EVENT_TYPE=pull_request; fi
+  - bash upload.sh build/AppImage*.AppImage*
