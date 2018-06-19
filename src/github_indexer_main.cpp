@@ -52,15 +52,23 @@ QString parseArguments(const QCoreApplication &app) {
     parser.setApplicationDescription("Utility to metadata from AppImage files published as GitHub repo releases.");
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addPositionalArgument("url", QCoreApplication::translate("main", "Url to the repo."));
+    parser.addPositionalArgument("url", QCoreApplication::translate("main", "Github project url."));
 
     parser.process(app);
 
+    QString url;
     const QStringList args = parser.positionalArguments();
     if (args.isEmpty() || args.length() > 1)
         parser.showHelp(1);
     else
-        return args.at(0);
+        url = args.at(0);
+
+    if (!GitHubProjectIndexer::isGitHubProject(url)) {
+        qWarning() << url << " is not a github project url";
+        parser.showHelp();
+    }
+
+    return url;
 }
 
-#include "indexer_main.moc"
+#include "github_indexer_main.moc"
