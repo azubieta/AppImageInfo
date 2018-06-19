@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QJsonDocument>
 
-#include "entities/MetadataExtractor.h"
+#include "../entities/MetadataExtractor.h"
 
 void parseArguments(const QCoreApplication& app, MetadataExtractor& extractor);
 void printResult(const QVariantMap& metadata);

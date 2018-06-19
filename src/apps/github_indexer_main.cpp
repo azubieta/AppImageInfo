@@ -2,7 +2,7 @@
 #include <QtCore/QJsonDocument>
 #include <QtCore/QTextStream>
 #include <QtCore/QCommandLineParser>
-#include "entities/GitHubProjectIndexer.h"
+#include "../entities/GitHubProjectIndexer.h"
 
 QString parseArguments(const QCoreApplication &app);
 

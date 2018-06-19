@@ -25,14 +25,14 @@ target_include_directories(app_core PUBLIC
         ${Qt5Network_INCLUDE_DIRS})
 
 
-add_executable(appimage_metadata_extractor extractor_main.cpp $<TARGET_OBJECTS:app_core>)
+add_executable(appimage_metadata_extractor apps/extractor_main.cpp $<TARGET_OBJECTS:app_core>)
 
 target_link_libraries(appimage_metadata_extractor ${APPIMAGEKIT_LIBRARIES} Qt5::Core Qt5::Network)
 
 target_compile_definitions(appimage_metadata_extractor PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 
-add_executable(github_appimage_indexer github_indexer_main.cpp $<TARGET_OBJECTS:app_core>)
+add_executable(github_appimage_indexer apps/github_indexer_main.cpp $<TARGET_OBJECTS:app_core>)
 
 target_link_libraries(github_appimage_indexer ${APPIMAGEKIT_LIBRARIES} Qt5::Core Qt5::Network)
 
