@@ -24,8 +24,8 @@ add_library(app_core OBJECT
         gateways/GitHubApiClient.h
         entities/RemoteAppImageMetadataExtractor.cpp
         entities/RemoteAppImageMetadataExtractor.h
-        entities/AppInfoAssembler.h
-        entities/AppInfoAssembler.cpp)
+        entities/AppInfoBuilder.h
+        entities/AppInfoBuilder.cpp)
 
 
 target_compile_options(app_core PUBLIC -fPIC -fexceptions)

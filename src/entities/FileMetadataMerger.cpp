@@ -31,6 +31,7 @@ QVariantMap MetadataMerger::merge()
     data["sha512checksum"] = binary["sha512checksum"];
     data["size"] = binary["size"];
     data["type"] = binary["type"];
+    data["file_date"] = binary["date"];
 
     removeEmptyFields();
     return data;

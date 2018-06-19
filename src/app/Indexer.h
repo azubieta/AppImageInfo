@@ -30,6 +30,8 @@ protected slots:
     void handleRemoteAppImageMetadataExtractorCompleted();
 
     void printMetadataAsJson(const QVariantMap &metadata) const;
+
+    QVariantMap buildAppInfo(const QVariantMap &metadata) const;
 };
 
 

@@ -13,7 +13,7 @@
 #include "../gateways/PageDownloader.h"
 #include "../gateways/GitHubApiClient.h"
 #include "RemoteAppImageMetadataExtractor.h"
-#include "AppInfoAssembler.h"
+#include "AppInfoBuilder.h"
 
 class GitHubProjectIndexer : public QObject {
 Q_OBJECT
@@ -29,7 +29,7 @@ Q_OBJECT
 
     GitHubApiClient ghClient;
 
-    AppInfoAssembler appInfoAssembler;
+    AppInfoBuilder appInfoAssembler;
     QVariantList ghReleases;
     QStringList ghReleaseFiles;
 

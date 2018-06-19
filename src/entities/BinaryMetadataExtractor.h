@@ -17,6 +17,8 @@ protected:
     QString getSha512CheckSum() const;
     qint64 getFileSize() const;
     int getAppImageType() const;
+
+    QDateTime getTime() const;
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H

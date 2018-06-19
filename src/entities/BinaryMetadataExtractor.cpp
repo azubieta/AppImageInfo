@@ -5,35 +5,43 @@
 #include <QProcess>
 #include <QFileInfo>
 #include <appimage/appimage.h>
+#include <QtCore/QDateTime>
 
 #include "BinaryMetadataExtractor.h"
 
-BinaryMetadataExtractor::BinaryMetadataExtractor(const QString& target)
-        :target(target) { }
+BinaryMetadataExtractor::BinaryMetadataExtractor(const QString &target)
+        : target(target) {}
 
-QVariantMap BinaryMetadataExtractor::getMetadata()
-{
+QVariantMap BinaryMetadataExtractor::getMetadata() {
     QVariantMap data;
     data["architecture"] = getBinaryArch();
     data["sha512checksum"] = getSha512CheckSum();
     data["size"] = getFileSize();
     data["type"] = getAppImageType();
+    data["date"] = getTime();
+
     return data;
 }
-qint64 BinaryMetadataExtractor::getFileSize() const
-{
+
+QDateTime BinaryMetadataExtractor::getTime() const {
+    QFileInfo f(target);
+    auto date = f.birthTime();
+    return date;
+}
+
+qint64 BinaryMetadataExtractor::getFileSize() const {
     QFileInfo fileInfo(target);
-    qint64 size =  fileInfo.size();
+    qint64 size = fileInfo.size();
     return size;
 }
-QString BinaryMetadataExtractor::getSha512CheckSum() const
-{
+
+QString BinaryMetadataExtractor::getSha512CheckSum() const {
     auto process = new QProcess();
     QStringList arguments{target};
     process->start("sha512sum", arguments);
 
     process->waitForFinished();
-    if (process->exitCode()!=0)
+    if (process->exitCode() != 0)
         throw std::runtime_error(process->errorString().toStdString());
     QString rawOutput = process->readAll();
     QString sha512checksum = rawOutput.section(" ", 0, 0).trimmed();
@@ -41,8 +49,8 @@ QString BinaryMetadataExtractor::getSha512CheckSum() const
     process->deleteLater();
     return sha512checksum;
 }
-QString BinaryMetadataExtractor::getBinaryArch() const
-{
+
+QString BinaryMetadataExtractor::getBinaryArch() const {
     auto process = new QProcess();
     QStringList arguments;
     arguments << "-b" << "-e" << "ascii" << "-e" << "apptype" << "-e" << "encoding" <<
@@ -51,7 +59,7 @@ QString BinaryMetadataExtractor::getBinaryArch() const
 
     process->start("file", arguments);
     process->waitForFinished();
-    if (process->exitCode()!=0)
+    if (process->exitCode() != 0)
         throw std::runtime_error(process->errorString().toStdString());
     QString rawOutput = process->readAll();
     QString arch = rawOutput.section(",", 1, 1).trimmed();

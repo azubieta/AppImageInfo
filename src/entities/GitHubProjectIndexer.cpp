@@ -2,7 +2,7 @@
 #include <QtCore/QJsonDocument>
 #include "GitHubProjectIndexer.h"
 #include "RemoteAppImageMetadataExtractor.h"
-#include "AppInfoAssembler.h"
+#include "AppInfoBuilder.h"
 
 GitHubProjectIndexer::GitHubProjectIndexer(const QString &url, QObject *parent)
         : QObject(parent), url(url), running(false), extractor(nullptr) {
@@ -146,7 +146,7 @@ QVariantMap GitHubProjectIndexer::extractDeveloperInfo() const {
 }
 
 QVariantMap GitHubProjectIndexer::getAppInfo() {
-    return appInfoAssembler.getAppInfo();
+    return appInfoAssembler.build();
 }
 
 

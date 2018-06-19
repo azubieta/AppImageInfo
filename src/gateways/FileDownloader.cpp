@@ -46,13 +46,17 @@ void FileDownloader::handleDownloadFinished(QNetworkReply *reply) {
     working = false;
     errored = reply->error() != QNetworkReply::NoError;
 
-    if (errored)
-        file.remove();
-    else
-        handleReadyRead();
+    headers["last-modified"] = reply->header(QNetworkRequest::LastModifiedHeader);
 
-    reply->deleteLater();
-    file.close();
+    if (reply->operation() == QNetworkAccessManager::GetOperation) {
+        if (errored)
+            file.remove();
+        else
+            handleReadyRead();
+
+        reply->deleteLater();
+        file.close();
+    }
 
     emit finished();
 }
@@ -60,5 +64,18 @@ void FileDownloader::handleDownloadFinished(QNetworkReply *reply) {
 void FileDownloader::handleReadyRead() {
     const auto data = reply->readAll();
     file.write(data);
+}
+
+const QVariantMap &FileDownloader::getHeaders() const {
+    return headers;
+}
+
+void FileDownloader::queryLastModificationDate() {
+    QNetworkRequest request(url);
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    manager->head(request);
+
+    working = true;
+    errored = false;
 }
 

@@ -19,6 +19,7 @@ Q_OBJECT
     bool working;
     QNetworkAccessManager* manager;
     QFile file;
+    QVariantMap headers;
     QNetworkReply *reply;
 public:
     FileDownloader(const QString& url, QString target, QObject* parent = nullptr);
@@ -27,7 +28,10 @@ public:
     const QString& getUrl() const;
     const QString& getTarget() const;
 
+    const QVariantMap &getHeaders() const;
+
 public slots:
+    void queryLastModificationDate();
     void start();
 
 protected slots:

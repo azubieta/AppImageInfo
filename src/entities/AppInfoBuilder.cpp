@@ -5,9 +5,9 @@
 #include "GitHubProjectIndexer.h"
 #include <QtCore/QJsonDocument>
 #include <QRegExp>
-#include "AppInfoAssembler.h"
+#include "AppInfoBuilder.h"
 
-void AppInfoAssembler::fillMissingAppInfoFields(const QVariantMap &fileInfo) {
+void AppInfoBuilder::fillMissingAppInfoFields(const QVariantMap &fileInfo) {
     if (!appInfo.contains("id"))
         appInfo["id"] = fileInfo["id"];
 
@@ -41,7 +41,7 @@ void AppInfoAssembler::fillMissingAppInfoFields(const QVariantMap &fileInfo) {
             appLinks[key] = fileLinks[key];
 }
 
-QVariantMap AppInfoAssembler::getAppInfo() const {
+QVariantMap AppInfoBuilder::build() const {
     QVariantMap outputAppInfo = appInfo;
     outputAppInfo["name"] = appName;
     outputAppInfo["abstract"] = appAbstract;
@@ -54,86 +54,86 @@ QVariantMap AppInfoAssembler::getAppInfo() const {
     return outputAppInfo;
 }
 
-void AppInfoAssembler::setAppInfo(const QVariantMap &appInfo) {
-    AppInfoAssembler::appInfo = appInfo;
+void AppInfoBuilder::setAppInfo(const QVariantMap &appInfo) {
+    AppInfoBuilder::appInfo = appInfo;
 }
 
-const QVariantMap &AppInfoAssembler::getAppName() const {
+const QVariantMap &AppInfoBuilder::getAppName() const {
     return appName;
 }
 
-void AppInfoAssembler::setAppName(const QVariantMap &appName) {
-    AppInfoAssembler::appName = appName;
+void AppInfoBuilder::setAppName(const QVariantMap &appName) {
+    AppInfoBuilder::appName = appName;
 }
 
-const QVariantMap &AppInfoAssembler::getAppAbstract() const {
+const QVariantMap &AppInfoBuilder::getAppAbstract() const {
     return appAbstract;
 }
 
-void AppInfoAssembler::setAppAbstract(const QVariantMap &appAbstract) {
-    AppInfoAssembler::appAbstract = appAbstract;
+void AppInfoBuilder::setAppAbstract(const QVariantMap &appAbstract) {
+    AppInfoBuilder::appAbstract = appAbstract;
 }
 
-const QVariantMap &AppInfoAssembler::getAppDescription() const {
+const QVariantMap &AppInfoBuilder::getAppDescription() const {
     return appDescription;
 }
 
-void AppInfoAssembler::setAppDescription(const QVariantMap &appDescription) {
-    AppInfoAssembler::appDescription = appDescription;
+void AppInfoBuilder::setAppDescription(const QVariantMap &appDescription) {
+    AppInfoBuilder::appDescription = appDescription;
 }
 
-const QVariantMap &AppInfoAssembler::getAppDeveloper() const {
+const QVariantMap &AppInfoBuilder::getAppDeveloper() const {
     return appDeveloper;
 }
 
-void AppInfoAssembler::setAppDeveloper(const QVariantMap &appDeveloper) {
-    AppInfoAssembler::appDeveloper = appDeveloper;
+void AppInfoBuilder::setAppDeveloper(const QVariantMap &appDeveloper) {
+    AppInfoBuilder::appDeveloper = appDeveloper;
 }
 
-const QVariantMap &AppInfoAssembler::getAppLinks() const {
+const QVariantMap &AppInfoBuilder::getAppLinks() const {
     return appLinks;
 }
 
-void AppInfoAssembler::setAppLinks(const QVariantMap &appLinks) {
-    AppInfoAssembler::appLinks = appLinks;
+void AppInfoBuilder::setAppLinks(const QVariantMap &appLinks) {
+    AppInfoBuilder::appLinks = appLinks;
 }
 
-const QStringList &AppInfoAssembler::getAppCategories() const {
+const QStringList &AppInfoBuilder::getAppCategories() const {
     return appCategories;
 }
 
-void AppInfoAssembler::setAppCategories(const QStringList &appCategories) {
-    AppInfoAssembler::appCategories = appCategories;
+void AppInfoBuilder::setAppCategories(const QStringList &appCategories) {
+    AppInfoBuilder::appCategories = appCategories;
 }
 
-const QVariantList &AppInfoAssembler::getAppReleases() const {
+const QVariantList &AppInfoBuilder::getAppReleases() const {
     return appReleases;
 }
 
-void AppInfoAssembler::setAppReleases(const QVariantList &appReleases) {
-    AppInfoAssembler::appReleases = appReleases;
+void AppInfoBuilder::setAppReleases(const QVariantList &appReleases) {
+    AppInfoBuilder::appReleases = appReleases;
 }
 
-void AppInfoAssembler::addRelease(const QVariantMap &release) {
+void AppInfoBuilder::addRelease(const QVariantMap &release) {
     appReleases << release;
 }
 
-void AppInfoAssembler::setFormat(int format) {
-    AppInfoAssembler::appInfo["format"] = format;
+void AppInfoBuilder::setFormat(int format) {
+    AppInfoBuilder::appInfo["format"] = format;
 }
 
-void AppInfoAssembler::setKeyWords(const QStringList keywords) {
+void AppInfoBuilder::setKeyWords(const QStringList keywords) {
     appInfo["keywords"] = keywords;
 }
 
-void AppInfoAssembler::setLicense(QString license) {
+void AppInfoBuilder::setLicense(QString license) {
     appInfo["license"] = license;
 }
 
-void AppInfoAssembler::addDescription(const QString &locale, const QString &description) {
+void AppInfoBuilder::addDescription(const QString &locale, const QString &description) {
     appDescription[locale] = description;
 }
 
-void AppInfoAssembler::addLink(const QString &type, const QString &url) {
+void AppInfoBuilder::addLink(const QString &type, const QString &url) {
     appLinks[type] = url;
 }

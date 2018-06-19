@@ -10,7 +10,7 @@
 #include <QVariantMap>
 #include "../gateways/PageDownloader.h"
 
-class AppInfoAssembler {
+class AppInfoBuilder {
 
     QVariantMap appInfo;
     QVariantMap appName;
@@ -24,7 +24,7 @@ class AppInfoAssembler {
 public:
     void fillMissingAppInfoFields(const QVariantMap &fileInfo);
 
-    QVariantMap getAppInfo() const;
+    QVariantMap build() const;
 
     void setAppInfo(const QVariantMap &appInfo);
 

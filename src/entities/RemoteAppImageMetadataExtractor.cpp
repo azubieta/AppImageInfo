@@ -27,6 +27,8 @@ void RemoteAppImageMetadataExtractor::handleDownloadFinished() {
         try {
             FileMetadataExtractor extractor(tmpFile);
             metadata = extractor.extractMetadata();
+            auto httpHeaders = downloader->getHeaders();
+            metadata["url_date"] = httpHeaders["last-modified"];
         }
         catch (...) {
             qWarning() << "Unable to extract AppImage metadata from " << tmpFile;
