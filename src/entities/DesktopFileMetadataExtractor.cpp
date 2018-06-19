@@ -59,7 +59,7 @@ void DesktopFileMetadataExtractor::handleKeyEntry(const QString& cleanLine)
     auto value = extractValue(cleanLine, key);
 
     if (isLocaleStringKey(key)) {
-        auto localeStringsGroup = currentGroup.value("key", QVariantMap()).toMap();
+        auto localeStringsGroup = currentGroup.value(key, QVariantMap()).toMap();
         localeStringsGroup[locale] = value;
         currentGroup[key] = localeStringsGroup;
     }
