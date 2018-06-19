@@ -1,4 +1,3 @@
-find_package(AppImageKit REQUIRED)
 find_package(Qt5 REQUIRED Core Network)
 
 set(CMAKE_AUTOMOC ON)
@@ -30,9 +29,13 @@ add_library(app_core OBJECT
 
 target_compile_options(app_core PUBLIC -fPIC -fexceptions)
 target_include_directories(app_core PUBLIC
-        ${APPIMAGEKIT_INCLUDE_DIRECTORIES}
+        ${APPIMAGEKIT_INCLUDE_DIRS}
         ${Qt5Core_INCLUDE_DIRS}
         ${Qt5Network_INCLUDE_DIRS})
+
+if (NOT AppImageKit_FOUND)
+    add_dependencies(app_core AppImageKit)
+endif ()
 
 add_executable(appimage_indexer app/indexer_main.cpp app/Indexer.cpp app/Indexer.h $<TARGET_OBJECTS:app_core>)
 target_link_libraries(appimage_indexer ${APPIMAGEKIT_LIBRARIES} Qt5::Core Qt5::Network)
