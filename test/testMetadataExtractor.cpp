@@ -2,7 +2,7 @@
 #include <QTest>
 #include <QDebug>
 
-#include <entities/MetadataExtractor.h>
+#include <entities/FileMetadataExtractor.h>
 #include <entities/DesktopFileMetadataExtractor.h>
 #include <entities/AppStreamMetadataExtractor.h>
 #include <entities/BinaryMetadataExtractor.h>
@@ -11,12 +11,12 @@
 
 class TestMetadataExtractor : public QObject {
 Q_OBJECT
-    MetadataExtractor* m;
+    FileMetadataExtractor* m;
     QStringList fileList;
 private slots:
     void initTestCase()
     {
-        m = new MetadataExtractor(TEST_DATA_DIR"/appimagetool-x86_64.AppImage");
+        m = new FileMetadataExtractor(TEST_DATA_DIR"/appimagetool-x86_64.AppImage");
     }
     void listFilesTest()
     {

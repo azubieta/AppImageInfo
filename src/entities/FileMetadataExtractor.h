@@ -8,12 +8,12 @@
 #include <QDir>
 #include <QString>
 
-class MetadataExtractor {
+class FileMetadataExtractor {
     QString path;
     QStringList list;
 public:
-    MetadataExtractor();
-    explicit MetadataExtractor(const QString& path);
+    FileMetadataExtractor();
+    explicit FileMetadataExtractor(const QString& path);
     // Throws runtime_error when isn't possible to get the files list;
     QStringList loadFileList();
     const QString& getPath() const;

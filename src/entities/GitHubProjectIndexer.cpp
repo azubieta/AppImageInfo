@@ -2,7 +2,7 @@
 #include <QtCore/QJsonDocument>
 #include "GitHubProjectIndexer.h"
 #include "RemoteAppImageMetadataExtractor.h"
-#include <QVariantList>
+#include "AppInfoAssembler.h"
 
 GitHubProjectIndexer::GitHubProjectIndexer(const QString &url, QObject *parent)
         : QObject(parent), url(url), running(false), extractor(nullptr) {
@@ -57,13 +57,6 @@ void GitHubProjectIndexer::processNextRelease() {
         }
         processNextReleaseFile();
     } else {
-        appInfo["name"] = appName;
-        appInfo["abstract"] = appAbstract;
-        appInfo["description"] = appDescription;
-        appInfo["developer"] = appDeveloper;
-        appInfo["links"] = appLinks;
-        appInfo["categories"] = appCategories;
-        appInfo["releases"] = appReleases;
 
         emit completed();
     }
@@ -71,7 +64,7 @@ void GitHubProjectIndexer::processNextRelease() {
 
 void GitHubProjectIndexer::addCurrentReleaseToAppInfo() {
     appCurrentRelease["files"] = appCurrentReleaseFiles;
-    appReleases << appCurrentRelease;
+    appInfoAssembler.addRelease(appCurrentRelease);
 }
 
 void GitHubProjectIndexer::resetCurrentRelease(const QMap<QString, QVariant> &latestRelease) {
@@ -108,16 +101,16 @@ void GitHubProjectIndexer::handleGitHubApiDataReady() {
     const auto ghRepo = ghClient.getRepoData();
     ghReleases = ghClient.getReleasesData();
 
-    appInfo["format"] = 1;
-    appInfo["keywords"] = ghRepo["keywords"];
-    appInfo["licence"] = ghRepo["licence"];
+    appInfoAssembler.setFormat(1);
+    appInfoAssembler.setKeyWords(ghRepo["keywords"].toStringList());
+    appInfoAssembler.setLicense(ghRepo["licence"].toString());
 
-    appDeveloper = extractDeveloperInfo();
-    appDescription["null"] = ghRepo["description"];
+    appInfoAssembler.setAppDeveloper(extractDeveloperInfo());
+    appInfoAssembler.addDescription(QString("null"), ghRepo["description"].toString());
 
-    appLinks["homepage"] = ghRepo["homepage"];
-    appLinks["developers"] = ghRepo["development_page"];
-    appLinks["help"] = ghRepo["wiki_page"];
+    appInfoAssembler.addLink(QString("homepage"), ghRepo["homepage"].toString());
+    appInfoAssembler.addLink(QString("developers"), ghRepo["development_page"].toString());
+    appInfoAssembler.addLink(QString("help"), ghRepo["wiki_page"].toString());
 
     processNextRelease();
 }
@@ -127,7 +120,7 @@ void GitHubProjectIndexer::handleReleaseFileInfoExtractionCompleted() {
     const auto url = extractor->getUrl();
     extractor->deleteLater();
 
-    fillMissingAppInfoFields(fileInfo);
+    appInfoAssembler.fillMissingAppInfoFields(fileInfo);
 
     appCurrentReleaseFiles << getAppReleaseFileInfo(fileInfo, url);
     processNextReleaseFile();
@@ -143,40 +136,6 @@ QVariantMap GitHubProjectIndexer::getAppReleaseFileInfo(const QVariantMap &fileI
     return file;
 }
 
-void GitHubProjectIndexer::fillMissingAppInfoFields(const QVariantMap &fileInfo) {
-    if (!appInfo.contains("id"))
-        appInfo["id"] = fileInfo["id"];
-
-    const auto fileName = fileInfo["name"].toMap();
-    for (auto key: fileName.keys())
-        if (!appName.contains(key))
-            appName[key] = fileName[key];
-
-    if (appCategories.isEmpty())
-        appCategories = fileInfo["categories"].toStringList();
-
-    if (!appInfo.contains("screenshots") && fileInfo.contains("screenshots"))
-        appInfo["screenshots"] = fileInfo["screenshots"];
-
-    if (!appInfo.contains("icon") && fileInfo.contains("icon"))
-        appInfo["icon"] = fileInfo["icon"];
-
-    const auto fileAbstract = fileInfo["abstract"].toMap();
-    for (auto key: fileAbstract.keys())
-        if (!appAbstract.contains(key))
-            appAbstract[key] = fileAbstract[key];
-
-    const auto fileDescription = fileInfo["description"].toMap();
-    for (auto key: fileDescription.keys())
-        if (!appDescription.contains(key))
-            appDescription[key] = fileDescription[key];
-
-    const auto fileLinks = fileInfo["links"].toMap();
-    for (auto key: fileLinks.keys())
-        if (!appLinks.contains(key))
-            appLinks[key] = fileLinks[key];
-}
-
 QVariantMap GitHubProjectIndexer::extractDeveloperInfo() const {
     const auto ghDeveloperData = ghClient.getDeveloperData();
     QVariantMap developer;
@@ -186,8 +145,8 @@ QVariantMap GitHubProjectIndexer::extractDeveloperInfo() const {
     return developer;
 }
 
-const QVariantMap &GitHubProjectIndexer::getAppInfo() const {
-    return appInfo;
+QVariantMap GitHubProjectIndexer::getAppInfo() {
+    return appInfoAssembler.getAppInfo();
 }
 
 

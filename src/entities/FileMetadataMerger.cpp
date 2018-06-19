@@ -2,7 +2,7 @@
 // Created by alexis on 6/7/18.
 //
 
-#include "MetadataMerger.h"
+#include "FileMetadataMerger.h"
 void MetadataMerger::setDesktop(const QVariantMap& desktop)
 {
     MetadataMerger::desktop = desktop;

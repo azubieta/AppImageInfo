@@ -4,7 +4,7 @@
 
 #include <QtCore/QUuid>
 #include "RemoteAppImageMetadataExtractor.h"
-#include "MetadataExtractor.h"
+#include "FileMetadataExtractor.h"
 
 RemoteAppImageMetadataExtractor::RemoteAppImageMetadataExtractor(const QString &url, QObject *parent)
         : QObject(parent), url(url), downloader(nullptr) {
@@ -25,7 +25,7 @@ void RemoteAppImageMetadataExtractor::handleDownloadFinished() {
         qWarning() << "Download failed";
     else
         try {
-            MetadataExtractor extractor(tmpFile);
+            FileMetadataExtractor extractor(tmpFile);
             metadata = extractor.extractMetadata();
         }
         catch (...) {

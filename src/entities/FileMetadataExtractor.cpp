@@ -9,15 +9,15 @@
 #include <QSharedPointer>
 #include <QDebug>
 
-#include "MetadataExtractor.h"
+#include "FileMetadataExtractor.h"
 #include "DesktopFileMetadataExtractor.h"
 #include "AppStreamMetadataExtractor.h"
 #include "BinaryMetadataExtractor.h"
-#include "MetadataMerger.h"
+#include "FileMetadataMerger.h"
 
-MetadataExtractor::MetadataExtractor(const QString& path)
+FileMetadataExtractor::FileMetadataExtractor(const QString& path)
         :path(path) { }
-QStringList MetadataExtractor::loadFileList()
+QStringList FileMetadataExtractor::loadFileList()
 {
     QStringList fileList;
     char** rawFileList = appimage_list_files(path.toStdString().c_str());
@@ -30,7 +30,7 @@ QStringList MetadataExtractor::loadFileList()
     appimage_string_list_free(rawFileList);
     return fileList;
 }
-QVariantMap MetadataExtractor::extractDesktopFileData()
+QVariantMap FileMetadataExtractor::extractDesktopFileData()
 {
     QSharedPointer<QDir> tmpDir{tryGetTmpDir(), [](QDir* dir) {
       dir->removeRecursively();
@@ -47,7 +47,7 @@ QVariantMap MetadataExtractor::extractDesktopFileData()
 
     return data;
 }
-QDir* MetadataExtractor::getTmpDir() const
+QDir* FileMetadataExtractor::getTmpDir() const
 {
     const char* tmp_dir_path = "/tmp/appimage_indexer";
     auto tmpDir = new QDir(tmp_dir_path);
@@ -56,7 +56,7 @@ QDir* MetadataExtractor::getTmpDir() const
 
     return tmpDir;
 }
-QString MetadataExtractor::getDesktopFileName(const QStringList& list) const
+QString FileMetadataExtractor::getDesktopFileName(const QStringList& list) const
 {
     QString desktopfileName;
 
@@ -67,7 +67,7 @@ QString MetadataExtractor::getDesktopFileName(const QStringList& list) const
 
     return desktopfileName;
 }
-QDir* MetadataExtractor::tryGetTmpDir() const
+QDir* FileMetadataExtractor::tryGetTmpDir() const
 {
     auto dir = getTmpDir();
 
@@ -76,7 +76,7 @@ QDir* MetadataExtractor::tryGetTmpDir() const
 
     return dir;
 }
-QString MetadataExtractor::tryGetDesktopFileName(const QStringList& list) const
+QString FileMetadataExtractor::tryGetDesktopFileName(const QStringList& list) const
 {
     auto fileName = getDesktopFileName(list);
     if (fileName.isEmpty())
@@ -84,7 +84,7 @@ QString MetadataExtractor::tryGetDesktopFileName(const QStringList& list) const
 
     return fileName;
 }
-void MetadataExtractor::tryExtractFile(const QString& filePath, const QDir* targetDir) const
+void FileMetadataExtractor::tryExtractFile(const QString& filePath, const QDir* targetDir) const
 {
     appimage_extract_file_following_symlinks(path.toStdString().c_str(), filePath.toStdString().c_str(),
             targetDir->absoluteFilePath(filePath).toStdString().c_str());
@@ -92,7 +92,7 @@ void MetadataExtractor::tryExtractFile(const QString& filePath, const QDir* targ
     if (!targetDir->exists(filePath))
         throw std::runtime_error(std::string("Failed to extract file: ")+filePath.toStdString());
 }
-QVariantMap MetadataExtractor::extractAppStreamFileData()
+QVariantMap FileMetadataExtractor::extractAppStreamFileData()
 {
 
     QSharedPointer<QDir> tmpDir{tryGetTmpDir(), [](QDir* dir) {
@@ -106,7 +106,7 @@ QVariantMap MetadataExtractor::extractAppStreamFileData()
     AppStreamMetadataExtractor extractor(tmpDir->absoluteFilePath(appStreamFileName));
     return extractor.getContent();
 }
-QString MetadataExtractor::tryGetAppStreamFileName(QStringList list)
+QString FileMetadataExtractor::tryGetAppStreamFileName(QStringList list)
 {
     QString fileName;
 
@@ -121,19 +121,19 @@ QString MetadataExtractor::tryGetAppStreamFileName(QStringList list)
 
     return fileName;
 }
-MetadataExtractor::MetadataExtractor()
+FileMetadataExtractor::FileMetadataExtractor()
 {
 
 }
-const QString& MetadataExtractor::getPath() const
+const QString& FileMetadataExtractor::getPath() const
 {
     return path;
 }
-void MetadataExtractor::setPath(const QString& path)
+void FileMetadataExtractor::setPath(const QString& path)
 {
-    MetadataExtractor::path = path;
+    FileMetadataExtractor::path = path;
 }
-QVariantMap MetadataExtractor::extractMetadata()
+QVariantMap FileMetadataExtractor::extractMetadata()
 {
     list = loadFileList();
     QVariantMap desktop;
@@ -167,7 +167,7 @@ QVariantMap MetadataExtractor::extractMetadata()
 
     return merger.merge();
 }
-QVariantMap MetadataExtractor::extractBinaryFileData()
+QVariantMap FileMetadataExtractor::extractBinaryFileData()
 {
     BinaryMetadataExtractor extractor(path);
     return extractor.getMetadata();

@@ -13,28 +13,23 @@
 #include "../gateways/PageDownloader.h"
 #include "../gateways/GitHubApiClient.h"
 #include "RemoteAppImageMetadataExtractor.h"
+#include "AppInfoAssembler.h"
 
 class GitHubProjectIndexer : public QObject {
 Q_OBJECT
+
     static constexpr auto regEx = R"(github.com\/([\w\.\-]+\/[\w\.\-]+)[\/$]?)";
     QString url;
     bool running;
     QString path;
     QString user;
     QString repo;
-    QVariantMap appInfo;
-    QVariantMap appName;
-    QVariantMap appAbstract;
-    QVariantMap appDescription;
-    QVariantMap appDeveloper;
-    QVariantMap appLinks;
-    QStringList appCategories;
-    QVariantList appReleases;
     QVariantMap appCurrentRelease;
     QVariantList appCurrentReleaseFiles;
 
     GitHubApiClient ghClient;
 
+    AppInfoAssembler appInfoAssembler;
     QVariantList ghReleases;
     QStringList ghReleaseFiles;
 
@@ -48,7 +43,7 @@ public:
 
     const QString &getPath() const;
 
-    const QVariantMap &getAppInfo() const;
+    QVariantMap getAppInfo();
 
 signals:
 
@@ -68,8 +63,6 @@ private:
     QVariantMap extractDeveloperInfo() const;
 
     void processNextReleaseFile();
-
-    void fillMissingAppInfoFields(const QVariantMap &fileInfo);
 
     QVariantMap getAppReleaseFileInfo(const QVariantMap &fileInfo, const QString &url) const;
 
