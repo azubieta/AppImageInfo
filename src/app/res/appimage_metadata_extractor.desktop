@@ -1,4 +1,5 @@
 [Desktop Entry]
+Encoding=UTF-8
 Version=1.0
 Terminal=true
 NoDisplay=true
@@ -7,4 +8,4 @@ Name=AppImage Metadata Extractor
 Comment="Extracts metadata form AppImage files."
 Exec=appimage_metadata_extractor
 Icon=appimage_metadata_extractor
-Categories=Utils;
+Categories=Utility;
