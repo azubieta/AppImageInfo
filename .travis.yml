@@ -2,15 +2,28 @@ language: cpp
 compiler: gcc
 dist: trusty
 
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - sourceline: 'ppa:beineri/opt-qt-5.10.1-trusty'
+    packages:
+    - dpkg
+    - qt510base
+    - cmake
+    - git
+    - libcurl4-openssl-dev
+    - librsvg2-bin
+    - libfuse-dev
+    - desktop-file-utils
+
 notifications:
   email: false
 
 
-install:
-  - sudo apt-get update
-  - sudo apt-get -y install cmake git qtbase5-dev qt5-qmake libqt5core5a libcurl4-openssl-dev librsvg2-bin libfuse-dev desktop-file-utils
-
 script:
+  - /opt/qt510/bin/qt510-env.sh
+  - export QT_SELECT=qt5
   - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release .
   - make
   - DESTDIR=AppDir make install
