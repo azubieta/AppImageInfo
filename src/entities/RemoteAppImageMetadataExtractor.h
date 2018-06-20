@@ -17,9 +17,10 @@ Q_OBJECT
     QString url;
     QVariantMap metadata;
     QString tmpFile;
-    FileDownloader* downloader;
+    FileDownloader *downloader;
+    QString cacheDir;
 public:
-    explicit RemoteAppImageMetadataExtractor(const QString& url, QObject* parent = nullptr);
+    explicit RemoteAppImageMetadataExtractor(const QString &url, QObject *parent = nullptr);
 
     void run();
 
@@ -27,11 +28,23 @@ public:
 
     const QString &getUrl() const;
 
+    void setCacheDir(const QString &cacheDir);
+
 signals:
+
     void completed();
 
 protected slots:
+
     void handleDownloadFinished();
+
+    void handleUnmodified();
+
+protected:
+
+    QVariantMap getMetadataCache() const;
+
+    void saveMetadataCache() const;
 
 };
 

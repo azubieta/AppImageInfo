@@ -7,26 +7,18 @@
 FileDownloader::FileDownloader(const QString &url, QString target, QObject *parent)
         : QObject(parent), url(url), errored(false), working(false), manager(new QNetworkAccessManager(this)),
           file(nullptr), target(target), reply(nullptr) {
-    connect(manager, &QNetworkAccessManager::finished, this, &FileDownloader::handleDownloadFinished);
 }
 
 bool FileDownloader::isFailed() const {
     return errored;
 }
 
-const QString &FileDownloader::getUrl() const {
-    return url;
-}
-
-const QString &FileDownloader::getTarget() const {
-    return target;
-}
-
-void FileDownloader::start() {
+void FileDownloader::startDownload() {
     if (working)
         throw std::runtime_error("Download already running.");
 
     working = true;
+    connect(manager, &QNetworkAccessManager::finished, this, &FileDownloader::handleDownloadFinished);
 
     file.setFileName(target);
     if (!file.open(QIODevice::WriteOnly))
@@ -35,6 +27,9 @@ void FileDownloader::start() {
 
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    request.setRawHeader("If-Modified-Since", cacheDate.toString().toLocal8Bit());
+    if (reply != nullptr)
+        reply->deleteLater();
     reply = manager->get(request);
     connect(reply, &QIODevice::readyRead, this, &FileDownloader::handleReadyRead);
 
@@ -43,22 +38,29 @@ void FileDownloader::start() {
 }
 
 void FileDownloader::handleDownloadFinished(QNetworkReply *reply) {
-    working = false;
+    disconnect(manager, &QNetworkAccessManager::finished, this, &FileDownloader::handleDownloadFinished);
     errored = reply->error() != QNetworkReply::NoError;
+    working = false;
 
-    headers["last-modified"] = reply->header(QNetworkRequest::LastModifiedHeader);
+    auto lastModifiedHeader = reply->header(QNetworkRequest::LastModifiedHeader);
+    headers["last-modified"] = lastModifiedHeader;
 
     if (reply->operation() == QNetworkAccessManager::GetOperation) {
         if (errored)
             file.remove();
-        else
+        else {
             handleReadyRead();
+            file.close();
+        }
 
         reply->deleteLater();
-        file.close();
     }
 
-    emit finished();
+    auto responseCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    if (responseCode == 304 || lastModifiedHeader == cacheDate)
+            emit unmodified();
+    else
+            emit downloadCompleted();
 }
 
 void FileDownloader::handleReadyRead() {
@@ -70,12 +72,6 @@ const QVariantMap &FileDownloader::getHeaders() const {
     return headers;
 }
 
-void FileDownloader::queryLastModificationDate() {
-    QNetworkRequest request(url);
-    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-    manager->head(request);
-
-    working = true;
-    errored = false;
+void FileDownloader::setCacheDate(const QDateTime &cacheDate) {
+    FileDownloader::cacheDate = cacheDate;
 }
-

@@ -15,13 +15,18 @@
 class Indexer : public QObject {
 Q_OBJECT
     QString url;
+    QString cacheDir;
     GitHubProjectIndexer *ghIndexer;
     RemoteAppImageMetadataExtractor *appImageMetadataExtractor;
     FileMetadataExtractor *fileMetadataExtractor;
 public:
-    Indexer(const QString &url, QObject *parent = nullptr);
+    Indexer(QObject *parent = nullptr);
 
     void execute();
+
+    void setUrl(const QString &url);
+
+    void setCacheDir(const QString &cacheDir);
 
 protected slots:
 

@@ -5,7 +5,7 @@
 
 #include "Indexer.h"
 
-QString parseArguments(const QCoreApplication &app);
+void parseArguments(const QCoreApplication &app, Indexer *indexer);
 
 void printResult(const QVariantMap &metadata);
 
@@ -14,21 +14,24 @@ int main(int argc, char **argv) {
     QCoreApplication::setApplicationName(PROJECT_NAME);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
 
-    auto url = parseArguments(app);
 
-    auto indexer = new Indexer(url);
+    auto indexer = new Indexer();
+    parseArguments(app, indexer);
+
     indexer->execute();
 
     return app.exec();
 }
 
 
-QString parseArguments(const QCoreApplication &app) {
+void parseArguments(const QCoreApplication &app, Indexer *indexer) {
     QCommandLineParser parser;
     parser.setApplicationDescription(
             "Utility to extract metadata from AppImage files.");
     parser.addHelpOption();
     parser.addVersionOption();
+
+    parser.addOption({{"c", "cacheDir"}, "Directory to store AppImages metadata cache.", "directory"});
 
     parser.addPositionalArgument("url",
                                  QCoreApplication::translate("main", "Appimage url (local or remote)."
@@ -43,5 +46,6 @@ QString parseArguments(const QCoreApplication &app) {
     else
         url = args.at(0);
 
-    return url;
+    indexer->setUrl(url);
+    indexer->setCacheDir(parser.value("cacheDir"));
 }

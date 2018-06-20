@@ -93,6 +93,7 @@ void GitHubProjectIndexer::processNextReleaseFile() {
         connect(extractor, &RemoteAppImageMetadataExtractor::completed,
                 this, &GitHubProjectIndexer::handleReleaseFileInfoExtractionCompleted);
 
+        extractor->setCacheDir(cacheDir);
         extractor->run();
     }
 }
@@ -147,6 +148,10 @@ QVariantMap GitHubProjectIndexer::extractDeveloperInfo() const {
 
 QVariantMap GitHubProjectIndexer::getAppInfo() {
     return appInfoAssembler.build();
+}
+
+void GitHubProjectIndexer::setCacheDir(QString cacheDir) {
+    GitHubProjectIndexer::cacheDir = cacheDir;
 }
 
 

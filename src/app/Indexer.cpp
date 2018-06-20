@@ -8,13 +8,14 @@
 #include "../entities/AppInfoBuilder.h"
 
 
-Indexer::Indexer(const QString &url, QObject *parent) : QObject(parent), url(url) {
+Indexer::Indexer(QObject *parent) : QObject(parent) {
 }
 
 void Indexer::execute() {
     if (GitHubProjectIndexer::isGitHubProject(url)) {
         ghIndexer = new GitHubProjectIndexer(url);
         connect(ghIndexer, &GitHubProjectIndexer::completed, this, &Indexer::handleGitHubProjectIndexerCompleted);
+        ghIndexer->setCacheDir(cacheDir);
         ghIndexer->run();
         return;
     }
@@ -23,6 +24,7 @@ void Indexer::execute() {
         appImageMetadataExtractor = new RemoteAppImageMetadataExtractor(url);
         connect(appImageMetadataExtractor, &RemoteAppImageMetadataExtractor::completed,
                 this, &Indexer::handleRemoteAppImageMetadataExtractorCompleted);
+        appImageMetadataExtractor->setCacheDir(cacheDir);
         appImageMetadataExtractor->run();
         return;
     }
@@ -86,4 +88,12 @@ void Indexer::printMetadataAsJson(const QVariantMap &metadata) const {
     auto doc = QJsonDocument::fromVariant(metadata);
     QTextStream textStream(stdout);
     textStream << doc.toJson();
+}
+
+void Indexer::setUrl(const QString &url) {
+    Indexer::url = url;
+}
+
+void Indexer::setCacheDir(const QString &cacheDir) {
+    Indexer::cacheDir = cacheDir;
 }

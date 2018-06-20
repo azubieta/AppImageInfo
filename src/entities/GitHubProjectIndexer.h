@@ -17,9 +17,9 @@
 
 class GitHubProjectIndexer : public QObject {
 Q_OBJECT
-
     static constexpr auto regEx = R"(github.com\/([\w\.\-]+\/[\w\.\-]+)[\/$]?)";
     QString url;
+    QString cacheDir;
     bool running;
     QString path;
     QString user;
@@ -44,6 +44,8 @@ public:
     const QString &getPath() const;
 
     QVariantMap getAppInfo();
+
+    void setCacheDir(QString cacheDir);
 
 signals:
 

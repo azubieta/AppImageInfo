@@ -35,9 +35,9 @@ private slots:
         QString tmp_file_path = "/tmp/test.download.file.html";
         QString url = "https://github.com/ZencashOfficial/arizen/";
         FileDownloader d(url, tmp_file_path);
-        QSignalSpy spy(&d, &FileDownloader::finished);
+        QSignalSpy spy(&d, &FileDownloader::downloadCompleted);
 
-        d.start();
+        d.startDownload();
         spy.wait();
 
         QFile f(tmp_file_path);
@@ -50,8 +50,8 @@ private slots:
         QString tmp_file_path = "/tmp/test.download.file.html";
         QString url = "https://nowere.com/provably/is/not/going/to/work";
         FileDownloader d(url, tmp_file_path);
-        QSignalSpy spy(&d, &FileDownloader::finished);
-        d.start();
+        QSignalSpy spy(&d, &FileDownloader::downloadCompleted);
+        d.startDownload();
         spy.wait();
 
         Q_ASSERT(d.isFailed());

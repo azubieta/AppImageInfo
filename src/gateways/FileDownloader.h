@@ -17,29 +17,38 @@ Q_OBJECT
     QString target;
     bool errored;
     bool working;
-    QNetworkAccessManager* manager;
+    QNetworkAccessManager *manager;
     QFile file;
     QVariantMap headers;
     QNetworkReply *reply;
+    QDateTime cacheDate;
 public:
-    FileDownloader(const QString& url, QString target, QObject* parent = nullptr);
+    FileDownloader(const QString &url, QString target, QObject *parent = nullptr);
 
     bool isFailed() const;
-    const QString& getUrl() const;
-    const QString& getTarget() const;
 
     const QVariantMap &getHeaders() const;
 
+    void setCacheDate(const QDateTime &cacheDate);
+
 public slots:
-    void queryLastModificationDate();
-    void start();
+
+    void startDownload();
 
 protected slots:
-    void handleDownloadFinished(QNetworkReply* reply);
+
+    void handleDownloadFinished(QNetworkReply *reply);
+
     void handleReadyRead();
 
 signals:
-    void finished();
+
+    void downloadCompleted();
+
+    void headersReady(const QVariantMap headers);
+
+    void unmodified();
+
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_FILEDOWNLOADER_H
