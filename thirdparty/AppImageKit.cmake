@@ -6,7 +6,7 @@ if (NOT AppImageKit_FOUND)
 
     ExternalProject_Add(AppImageKit
             GIT_REPOSITORY https://github.com/AppImage/AppImageKit.git
-            GIT_TAG azubieta/fix_disable_tests_targets
+            GIT_TAG appimagetool/master
             GIT_SUBMODULES ""
             CONFIGURE_COMMAND ${CMAKE_COMMAND} -G${CMAKE_GENERATOR} -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} <SOURCE_DIR>
             BUILD_COMMAND make libappimage
