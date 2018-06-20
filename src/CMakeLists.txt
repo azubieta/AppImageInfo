@@ -15,16 +15,11 @@ add_library(app_core OBJECT
         entities/BinaryMetadataExtractor.h
         gateways/PageDownloader.cpp
         gateways/PageDownloader.h
-        entities/GitHubProjectIndexer.cpp
-        entities/GitHubProjectIndexer.h
         gateways/FileDownloader.cpp
         gateways/FileDownloader.h
         gateways/GitHubApiClient.cpp
         gateways/GitHubApiClient.h
-        entities/RemoteAppImageMetadataExtractor.cpp
-        entities/RemoteAppImageMetadataExtractor.h
-        entities/AppInfoBuilder.h
-        entities/AppInfoBuilder.cpp)
+        )
 
 
 target_compile_options(app_core PUBLIC -fPIC -fexceptions)
@@ -37,10 +32,10 @@ if (NOT AppImageKit_FOUND)
     add_dependencies(app_core AppImageKit)
 endif ()
 
-add_executable(appimage_indexer app/indexer_main.cpp app/Indexer.cpp app/Indexer.h $<TARGET_OBJECTS:app_core>)
-target_link_libraries(appimage_indexer ${APPIMAGEKIT_LIBRARIES} Qt5::Core Qt5::Network)
-target_compile_definitions(appimage_indexer PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
+add_executable(appimage_metadata_extractor app/main.cpp $<TARGET_OBJECTS:app_core>)
+target_link_libraries(appimage_metadata_extractor ${APPIMAGEKIT_LIBRARIES} Qt5::Core Qt5::Network)
+target_compile_definitions(appimage_metadata_extractor PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
-install(TARGETS appimage_indexer DESTINATION bin COMPONENT binaries)
-install(FILES app/res/appimage-indexer.desktop DESTINATION share/applications/ COMPONENT desktop)
-install(FILES app/res/appimage-indexer.svg DESTINATION share/icons/hicolor/scalable/apps/ COMPONENT desktop)
+install(TARGETS appimage_metadata_extractor DESTINATION bin COMPONENT binaries)
+install(FILES app/res/appimage_metadata_extractor.desktop DESTINATION share/applications/ COMPONENT desktop)
+install(FILES app/res/appimage_metadata_extractor.svg DESTINATION share/icons/hicolor/scalable/apps/ COMPONENT desktop)

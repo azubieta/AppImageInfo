@@ -1,8 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Terminal=true
-NoDisplay=true
-Type=Application
-Name=AppImage Indexer
-Exec=appimage_indexer
-Icon=appimage-indexer

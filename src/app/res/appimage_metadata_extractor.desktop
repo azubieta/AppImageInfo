@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Terminal=true
+NoDisplay=true
+Type=Application
+Name=AppImage Metadata Extractor
+Comment="Extracts metadata form AppImage files."
+Exec=appimage_metadata_extractor
+Icon=appimage_metadata_extractor
+Categories=Utils;

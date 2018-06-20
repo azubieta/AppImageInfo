@@ -6,7 +6,6 @@
 #include <entities/DesktopFileMetadataExtractor.h>
 #include <entities/AppStreamMetadataExtractor.h>
 #include <entities/BinaryMetadataExtractor.h>
-#include <entities/RemoteAppImageMetadataExtractor.h>
 #include <QtTest/QSignalSpy>
 
 class TestMetadataExtractor : public QObject {
@@ -66,15 +65,6 @@ private slots:
         qInfo() << m->extractMetadata();
     }
 
-    void remoteAppImageMetadataExtractor()
-    {
-        RemoteAppImageMetadataExtractor extractor("https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage");
-        QSignalSpy spy(&extractor, &RemoteAppImageMetadataExtractor::completed);
-        extractor.run();
-        spy.wait();
-        QCOMPARE(spy.count(), 1);
-        qInfo() << extractor.getMetadata();
-    }
     void cleanupTestCase() { delete (m); }
 };
 
