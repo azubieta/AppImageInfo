@@ -1,4 +1,4 @@
-find_package(Qt5 REQUIRED Core Network)
+find_package(Qt5 REQUIRED Core Gui)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -20,14 +20,14 @@ target_compile_options(app_core PUBLIC -fPIC -fexceptions)
 target_include_directories(app_core PUBLIC
         ${APPIMAGEKIT_INCLUDE_DIRS}
         ${Qt5Core_INCLUDE_DIRS}
-        ${Qt5Network_INCLUDE_DIRS})
+        ${Qt5Gui_INCLUDE_DIRS})
 
 if (NOT AppImageKit_FOUND)
     add_dependencies(app_core AppImageKit)
 endif ()
 
 add_executable(appimage_metadata_extractor app/main.cpp $<TARGET_OBJECTS:app_core>)
-target_link_libraries(appimage_metadata_extractor ${APPIMAGEKIT_LIBRARIES} Qt5::Core Qt5::Network)
+target_link_libraries(appimage_metadata_extractor ${APPIMAGEKIT_LIBRARIES} Qt5::Core Qt5::Gui)
 target_compile_definitions(appimage_metadata_extractor PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 install(TARGETS appimage_metadata_extractor DESTINATION bin COMPONENT binaries)

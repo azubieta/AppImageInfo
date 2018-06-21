@@ -19,6 +19,7 @@ public:
     const QString& getPath() const;
     void setPath(const QString& path);
     QVariantMap extractMetadata();
+    QPixmap extractIcon();
 protected:
     QVariantMap extractDesktopFileData();
     QVariantMap extractAppStreamFileData();
