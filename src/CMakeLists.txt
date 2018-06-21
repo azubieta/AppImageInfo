@@ -13,12 +13,6 @@ add_library(app_core OBJECT
         entities/FileMetadataMerger.h
         entities/BinaryMetadataExtractor.cpp
         entities/BinaryMetadataExtractor.h
-        gateways/PageDownloader.cpp
-        gateways/PageDownloader.h
-        gateways/FileDownloader.cpp
-        gateways/FileDownloader.h
-        gateways/GitHubApiClient.cpp
-        gateways/GitHubApiClient.h
         )
 
 
