@@ -18,6 +18,7 @@ addons:
     - librsvg2-bin
     - libfuse-dev
     - desktop-file-utils
+    - patchelf
 
 notifications:
   email: false
