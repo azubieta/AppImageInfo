@@ -167,7 +167,7 @@ QVariantMap FileMetadataExtractor::extractMetadata() {
     merger.setDesktop(desktop);
     merger.setBinary(binary);
 
-    return merger.merge();
+    return merger.getOutput();
 }
 
 QVariantMap FileMetadataExtractor::extractBinaryFileData() {

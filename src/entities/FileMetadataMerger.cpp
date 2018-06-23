@@ -14,74 +14,171 @@ void MetadataMerger::setAppStream(const QVariantMap &appstream) {
 
 MetadataMerger::MetadataMerger() {}
 
-QVariantMap MetadataMerger::merge() {
-    data = QVariantMap();
-    auto desktopEntry = desktop["Desktop Entry"].toMap();
+QVariantMap MetadataMerger::getOutput() {
+    data.clear();
+
+    data["format"] = 1;
     data["id"] = appStream.contains("id") ? appStream.value("id") : desktop.value("id");
-    data["name"] = desktopEntry.value("Name");
-    mergeDescription(desktopEntry);
-    data["keywords"] = getDesktopGenericNamesAsKeywords(desktopEntry);
-    data["abstract"] = desktopEntry.value("Comment").toMap();
-    data["categories"] = desktopEntry.value("Categories");
-    data["developer_name"] = appStream.value("developer_name");
-    data["links"] = appStream.value("urls");
-    data["screenshots"] = appStream.value("screenshots");
-    mergeRelease();
-    data["MimeType"] = desktopEntry.value("MimeType");
+    data["name"] = getName();
+    data["icon"] = getIcon();
+    data["abstract"] = getAbstract();
+    data["description"] = getDescription();
+    data["licence"] = getLicence();
+    data["categories"] = getCategories();
+    data["keywords"] = getKeywords();
+    data["languages"] = getLanguages();
+    data["developer"] = getDeveloper();
+    data["release"] = getRelease();
+    data["file"] = getFile();
+    data["screenshots"] = getScreenShots();
+    data["mime-types"] = getMimeTypes();
+    data["links"] = getLinks();
 
-    data["architecture"] = binary["architecture"];
-    data["sha512checksum"] = binary["sha512checksum"];
-    data["size"] = binary["size"];
-    data["type"] = binary["type"];
-    data["file_date"] = binary["date"];
-
-    removeEmptyFields();
+    data = removeEmptyFields(data).toMap();
     return data;
 }
 
-QStringList MetadataMerger::getDesktopGenericNamesAsKeywords(const QVariantMap &desktopEntry) const {
-    QStringList keywords;
-    auto genericNames = desktopEntry["GenericName"].toMap();
-    for (auto key: genericNames.keys())
-        keywords << genericNames[key].toStringList();
-    return keywords;
+QVariantList MetadataMerger::getCategories() const {
+    const auto desktopEntry = desktop["Desktop Entry"].toMap();
+    return desktopEntry.value("Categories").toList();
 }
 
-void MetadataMerger::removeEmptyFields() {
-
-    for (const auto &key: data.keys()) {
-        const auto &value = data.value(key);
-        if (value.isNull() || !value.isValid())
-            data.remove(key);
-    }
-}
-
-void MetadataMerger::mergeRelease() {
-    QVariantMap release;
-    auto appStreamReleases = appStream.value("releases").toList();
-    if (appStreamReleases.size() > 0) {
-        QMap<QString, QVariant> latestAppStreamRelease;
-        latestAppStreamRelease = appStreamReleases.first().toMap();
-
-        release["version"] = latestAppStreamRelease["version"];
-        release["date"] = latestAppStreamRelease["date"];
-        release["urgency"] = latestAppStreamRelease["urgency"];
-        release["channel"] = latestAppStreamRelease["type"];
-        release["changes"] = latestAppStreamRelease["description"];
-    }
-
-    if (!release.isEmpty())
-        data["release"] = release;
-}
-
-void MetadataMerger::mergeDescription(const QMap<QString, QVariant> &desktopEntry) {
+QVariantMap MetadataMerger::getDescription() const {
     QVariantMap description;
     if (appStream.contains("description"))
         description["null"] = appStream.value("description");
+    return description;
+}
 
-    data["description"] = description;
+QMap<QString, QVariant> MetadataMerger::getAbstract() const {
+    const auto desktopEntry = desktop["Desktop Entry"].toMap();
+    return desktopEntry.value("Comment").toMap();
+}
+
+const QVariant MetadataMerger::getName() const {
+    const auto desktopEntry = desktop["Desktop Entry"].toMap();
+    return desktopEntry.value("Name");
+}
+
+QStringList MetadataMerger::getKeywords() const {
+    QStringList keywords;
+    const auto desktopEntry = desktop["Desktop Entry"].toMap();
+    const auto genericNames = desktopEntry["GenericName"].toMap();
+    for (auto value: genericNames.values())
+        keywords << value.toString();
+    return keywords;
+}
+
+QVariant MetadataMerger::removeEmptyFields(QVariant variant) {
+    if (variant.type() == QVariant::Map) {
+        auto variantMap = variant.toMap();
+        for (auto key: variantMap.keys()) {
+            variantMap[key] = removeEmptyFields(variantMap[key]);
+            if (variantMap[key].isNull())
+                variantMap.remove(key);
+        }
+
+        if (variantMap.isEmpty())
+            return QVariant();
+        else
+            return variantMap;
+    }
+
+    if (variant.type() == QVariant::List) {
+        auto variantList = variant.toList();
+        for (auto &i : variantList)
+            i = removeEmptyFields(i);
+
+        variantList.removeAll(QVariant());
+        if (variantList.isEmpty())
+            return QVariant();
+        else
+            return variantList;
+    }
+
+    return variant;
 }
 
 void MetadataMerger::setBinary(const QVariantMap &binary) {
     MetadataMerger::binary = binary;
+}
+
+QVariant MetadataMerger::getIcon() {
+    // TODO: Implement icon url extraction from AppStream
+    return QVariant();
+}
+
+QVariant MetadataMerger::getLicence() {
+    QVariantMap licence;
+    licence["id"] = appStream["project_license"];
+    return licence;
+}
+
+QVariantMap MetadataMerger::getDeveloper() {
+    QVariantMap developer;
+    developer["name"] = appStream["developer_name"];
+
+    return developer;
+}
+
+QVariantMap MetadataMerger::getRelease() {
+    QVariantMap release;
+    const auto appStreamReleases = data["releases"].toList();
+    if (!appStreamReleases.isEmpty()) {
+        auto appStreamLatestRelease = appStreamReleases.first().toMap();
+        release["version"] = appStreamLatestRelease["version"];
+        release["date"] = appStreamLatestRelease.contains("date") ? appStreamLatestRelease["date"] : binary["date"];
+
+        QVariantMap changeLog;
+        changeLog["null"] = appStreamLatestRelease["description"];
+        release["changelog"] = changeLog;
+    }
+    return release;
+}
+
+QVariantMap MetadataMerger::getFile() {
+    QVariantMap file;
+    file["type"] = binary["type"];
+    file["size"] = binary["size"];
+    file["architecture"] = binary["architecture"];
+    file["sha512checksum"] = binary["sha512checksum"];
+    return file;
+}
+
+QVariantList MetadataMerger::getLanguages() {
+    QVariantList languages;
+    const auto desktopEntry = desktop["Desktop Entry"].toMap();
+    const auto genericNames = desktopEntry["Name"].toMap();
+    for (auto value: genericNames.keys())
+        languages << value;
+
+    languages.removeAll("null");
+    return languages;
+}
+
+QVariantList MetadataMerger::getScreenShots() {
+    QVariantList screenShots;
+    const auto appStreamScreenShots = appStream.value("screenshots").toList();
+    for (const auto &variant: appStreamScreenShots) {
+        const auto &appStreamScreenShot = variant.toMap();
+
+        QVariantMap screenShot;
+        screenShot["height"] = appStreamScreenShot["height"];
+        screenShot["width"] = appStreamScreenShot["width"];
+        screenShot["language"] = appStreamScreenShot["language"];
+        screenShot["caption"] = appStreamScreenShot["caption"];
+        screenShot["url"] = appStreamScreenShot["url"];
+    }
+
+    return screenShots;
+}
+
+QVariantMap MetadataMerger::getLinks() {
+    return appStream.value("urls").toMap();
+}
+
+QVariantList MetadataMerger::getMimeTypes() {
+    const auto desktopEntry = desktop["Desktop Entry"].toMap();
+    auto mimeTypes = desktopEntry.value("MimeType").toList();
+    return mimeTypes;
 }

@@ -19,13 +19,38 @@ public:
     void setAppStream(const QVariantMap& appstream);
     void setBinary(const QVariantMap& binary);
 
-    QVariantMap merge();
+    QVariantMap getOutput();
 protected:
-    void mergeDescription(const QMap<QString, QVariant>& desktopEntry);
-    void mergeRelease();
-    void removeEmptyFields();
 
-    QStringList getDesktopGenericNamesAsKeywords(const QVariantMap &desktopEntry) const;
+    QStringList getKeywords() const;
+
+    const QVariant getName() const;
+
+    QMap<QString, QVariant> getAbstract() const;
+
+    QVariantMap getDescription() const;
+
+    QVariant getIcon();
+
+    QVariant getLicence();
+
+    QVariantList getCategories() const;
+
+    QVariantMap getDeveloper();
+
+    QVariantMap getRelease();
+
+    QVariantMap getFile();
+
+    QVariantList getLanguages();
+
+    QVariantList getScreenShots();
+
+    QVariantMap getLinks();
+
+    QVariantList getMimeTypes();
+
+    QVariant removeEmptyFields(QVariant variant);
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H
