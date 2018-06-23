@@ -23,7 +23,7 @@ QVariantMap MetadataMerger::getOutput() {
     data["icon"] = getIcon();
     data["abstract"] = getAbstract();
     data["description"] = getDescription();
-    data["licence"] = getLicence();
+    data["license"] = getLicense();
     data["categories"] = getCategories();
     data["keywords"] = getKeywords();
     data["languages"] = getLanguages();
@@ -108,10 +108,10 @@ QVariant MetadataMerger::getIcon() {
     return QVariant();
 }
 
-QVariant MetadataMerger::getLicence() {
-    QVariantMap licence;
-    licence["id"] = appStream["project_license"];
-    return licence;
+QVariant MetadataMerger::getLicense() {
+    QVariantMap license;
+    license["id"] = appStream["project_license"];
+    return license;
 }
 
 QVariantMap MetadataMerger::getDeveloper() {

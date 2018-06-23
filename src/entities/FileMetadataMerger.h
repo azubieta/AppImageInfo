@@ -32,7 +32,7 @@ protected:
 
     QVariant getIcon();
 
-    QVariant getLicence();
+    QVariant getLicense();
 
     QVariantList getCategories() const;
 
