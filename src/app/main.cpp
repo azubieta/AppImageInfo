@@ -1,4 +1,4 @@
-#include <QGuiApplication>
+#include <QCoreApplication>
 #include <QJsonDocument>
 #include <QTextStream>
 #include <QCommandLineParser>
@@ -18,13 +18,13 @@ void writeAppImageInfo(const QVariantMap &metadata, const QString &outputDirPath
 
 void writeAppImageIcon(const QPixmap &icon, const QString &outputDirPath);
 
-AppConfig parseArguments(const QGuiApplication &app);
+AppConfig parseArguments(const QCoreApplication &app);
 
 
 int main(int argc, char **argv) {
-    QGuiApplication app(argc, argv);
-    QGuiApplication::setApplicationName(PROJECT_NAME);
-    QGuiApplication::setApplicationVersion(PROJECT_VERSION);
+    QCoreApplication app(argc, argv);
+    QCoreApplication::setApplicationName(PROJECT_NAME);
+    QCoreApplication::setApplicationVersion(PROJECT_VERSION);
 
     AppConfig config = parseArguments(app);
 
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 }
 
 
-AppConfig parseArguments(const QGuiApplication &app) {
+AppConfig parseArguments(const QCoreApplication &app) {
     QCommandLineParser parser;
     parser.setApplicationDescription(
             "Utility to extract metadata and icon from AppImage files."
