@@ -7,7 +7,7 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - sourceline: 'ppa:beineri/opt-qt593-trusty'
+    - sourceline: 'ppa:beineri/opt-qt-5.10.1-trusty'
     packages:
     - dpkg
     - git
@@ -16,7 +16,7 @@ addons:
     - libcurl4-openssl-dev
     - librsvg2-bin
     - libfuse-dev
-    - qt59base
+    - qt510base
     - desktop-file-utils
 
 notifications:
