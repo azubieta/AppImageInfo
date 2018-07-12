@@ -7,25 +7,23 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - sourceline: 'ppa:beineri/opt-qt-5.10.1-trusty'
+    - sourceline: 'ppa:beineri/opt-qt593-trusty'
     packages:
     - dpkg
     - git
     - wget
     - cmake
-    - qt510base
     - libcurl4-openssl-dev
     - librsvg2-bin
     - libfuse-dev
+    - qt59base
     - desktop-file-utils
 
 notifications:
   email: false
 
-
 script:
-  - . /opt/qt510/bin/qt510-env.sh
-  - export QT_SELECT=qt5
+  - source /opt/qt*/bin/qt*-env.sh
   - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release .
   - make
   - DESTDIR=AppDir make install
