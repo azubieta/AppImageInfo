@@ -4,10 +4,12 @@
 #include <QCommandLineParser>
 #include <QDebug>
 #include <QFile>
-#include <QPixmap>
 
 #include "../entities/FileMetadataExtractor.h"
 
+#define cimg_use_png 1
+
+#include <CImg.h>
 
 struct {
     QString appImagePath;
@@ -16,7 +18,7 @@ struct {
 
 void writeAppImageInfo(const QVariantMap &metadata, const QString &outputDirPath);
 
-void writeAppImageIcon(const QPixmap &icon, const QString &outputDirPath);
+void writeAppImageIcon(cimg_library::CImg<unsigned char> icon, const QString &outputDirPath);
 
 AppConfig parseArguments(const QCoreApplication &app);
 
@@ -90,7 +92,8 @@ void writeAppImageInfo(const QVariantMap &metadata, const QString &outputDirPath
     }
 }
 
-void writeAppImageIcon(const QPixmap &icon, const QString &outputDirPath) {
-    auto scaledIcon = icon.scaled(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    scaledIcon.save(outputDirPath + "/AppImageIcon.png", "PNG", 100);
+void writeAppImageIcon(cimg_library::CImg<unsigned char> icon, const QString &outputDirPath) {
+    QString path = outputDirPath + "/AppImageIcon.png";
+    icon.resize(256, 256);
+    icon.save_png(path.toStdString().c_str());
 }

@@ -4,6 +4,8 @@ project(appimage_metadata_extractor VERSION 0.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty")
+
 include(thirdparty/AppImageKit.cmake)
 
 add_subdirectory(src)

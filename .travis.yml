@@ -17,6 +17,7 @@ addons:
     - librsvg2-bin
     - libfuse-dev
     - qt510base
+    - graphicsmagick
     - desktop-file-utils
 
 notifications:
@@ -24,8 +25,7 @@ notifications:
 
 script:
   - source /opt/qt*/bin/qt*-env.sh
-  - echo "$PATH"
-  - which qmake
+  - export QT_SELECT=qt5
   - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release .
   - make
   - DESTDIR=AppDir make install

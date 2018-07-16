@@ -4,12 +4,10 @@
 
 #include <QStringList>
 #include <QDir>
-#include <QSettings>
-#include <QSharedPointer>
 #include <QDebug>
-#include <QPixmap>
-#include <appimage/appimage.h>
+#include <QSettings>
 #include <QtCore/QUuid>
+#include <appimage/appimage.h>
 
 #include "FileMetadataExtractor.h"
 #include "DesktopFileMetadataExtractor.h"
@@ -175,14 +173,17 @@ QVariantMap FileMetadataExtractor::extractBinaryFileData() {
     return extractor.getMetadata();
 }
 
-QPixmap FileMetadataExtractor::extractIcon() {
+cimg_library::CImg<unsigned char> FileMetadataExtractor::extractIcon() {
     auto tmpFile = "/tmp/appimage-icon-" + QUuid::createUuid().toString().remove('{').remove('}');
 
     appimage_extract_file_following_symlinks(path.toStdString().c_str(), ".DirIcon", tmpFile.toStdString().c_str());
 
-    QPixmap icon(tmpFile);
-    if (icon.isNull())
+    cimg_library::CImg<unsigned char> icon;
+    try {
+        icon.load(tmpFile.toStdString().c_str());
+    } catch (cimg_library::CImgException) {
         qWarning() << "Unable to extract application icon.";
+    }
     QFile::remove(tmpFile);
     return icon;
 }
