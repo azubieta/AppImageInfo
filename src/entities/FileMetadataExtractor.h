@@ -8,7 +8,6 @@
 #include <QDir>
 #include <QString>
 
-#include <CImg.h>
 
 class FileMetadataExtractor {
     QString path;
@@ -21,7 +20,7 @@ public:
     const QString& getPath() const;
     void setPath(const QString& path);
     QVariantMap extractMetadata();
-    cimg_library::CImg<unsigned char> extractIcon();
+    QByteArray extractIcon();
 protected:
     QVariantMap extractDesktopFileData();
     QVariantMap extractAppStreamFileData();

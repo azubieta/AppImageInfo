@@ -173,17 +173,19 @@ QVariantMap FileMetadataExtractor::extractBinaryFileData() {
     return extractor.getMetadata();
 }
 
-cimg_library::CImg<unsigned char> FileMetadataExtractor::extractIcon() {
+QByteArray FileMetadataExtractor::extractIcon() {
     auto tmpFile = "/tmp/appimage-icon-" + QUuid::createUuid().toString().remove('{').remove('}');
 
     appimage_extract_file_following_symlinks(path.toStdString().c_str(), ".DirIcon", tmpFile.toStdString().c_str());
 
-    cimg_library::CImg<unsigned char> icon;
-    try {
-        icon.load(tmpFile.toStdString().c_str());
-    } catch (cimg_library::CImgException) {
+    QByteArray icon;
+    QFile f(tmpFile);
+    if (f.open(QIODevice::ReadOnly)) {
+        icon = f.readAll();
+        f.close();
+        f.remove();
+    } else
         qWarning() << "Unable to extract application icon.";
-    }
-    QFile::remove(tmpFile);
+
     return icon;
 }

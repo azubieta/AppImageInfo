@@ -1,3 +1,0 @@
-[submodule "thirdparty/CImg"]
-	path = thirdparty/CImg
-	url = https://github.com/dtschump/CImg.git

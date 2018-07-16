@@ -17,9 +17,6 @@ addons:
     - librsvg2-bin
     - libfuse-dev
     - qt510base
-    - libjpeg-dev
-    - libpng-dev
-    - libmagic-dev
     - desktop-file-utils
 
 notifications:
