@@ -5,6 +5,6 @@ add_executable(test_metadata_extrator testMetadataExtractor.cpp $<TARGET_OBJECTS
 target_compile_definitions(test_metadata_extrator PRIVATE cimg_display=0)
 
 target_include_directories(test_metadata_extrator PRIVATE ${CMAKE_SOURCE_DIR}/src ${APPIMAGEKIT_INCLUDE_DIRS})
-target_link_libraries(test_metadata_extrator Qt5::Core Qt5::Test ${APPIMAGEKIT_LIBRARIES} pthread)
+target_link_libraries(test_metadata_extrator Qt5::Core Qt5::Test ${APPIMAGEKIT_LIBRARIES} CImg pthread)
 target_compile_definitions(test_metadata_extrator PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 
