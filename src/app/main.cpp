@@ -89,11 +89,16 @@ void writeAppImageInfo(const QVariantMap &metadata, const QString &outputDirPath
 }
 
 void writeAppImageIcon(QByteArray icon, const QString &outputDirPath) {
-    QString path = outputDirPath + "/AppImageIcon";
-    QFile f(path);
-    if (f.open(QIODevice::WriteOnly)) {
-        f.write(icon);
-        f.close();
-    } else
-        qWarning() << "Unable to write icon file";
+    if (icon.isEmpty()) {
+        qWarning() << "Empty icon file";
+        return;
+    } else {
+        QString path = outputDirPath + "/AppImageIcon";
+        QFile f(path);
+        if (f.open(QIODevice::WriteOnly)) {
+            f.write(icon);
+            f.close();
+        } else
+            qWarning() << "Unable to write icon file";
+    }
 }
