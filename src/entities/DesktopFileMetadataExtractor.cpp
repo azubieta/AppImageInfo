@@ -76,7 +76,7 @@ QString DesktopFileMetadataExtractor::extractLocale(const QString& full_key) con
 {
     QRegExp sep("[\\[\\]]");
     auto locale = full_key.section(sep, 1, 1);
-    locale = locale.isEmpty() ? "null" : locale;
+    locale = locale.isEmpty() ? "default" : locale;
     return locale;
 }
 QString DesktopFileMetadataExtractor::extractKey(const QString& full_key) const

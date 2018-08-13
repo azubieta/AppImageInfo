@@ -26,10 +26,10 @@
       "$id": "/properties/name",
       "type": "object",
       "properties": {
-        "null": {
-          "$id": "/properties/name/properties/null",
+        "default": {
+          "$id": "/properties/name/properties/default",
           "type": "string",
-          "title": "The Null Schema ",
+          "title": "The Default Schema ",
           "default": "",
           "examples": [
             "this is used in the case that there is no locale info about this text"

@@ -2,7 +2,7 @@ find_package(Qt5 REQUIRED Core)
 
 set(CMAKE_AUTOMOC ON)
 
-add_library(app_core OBJECT
+add_library(libappimage-info SHARED
         entities/FileMetadataExtractor.cpp
         entities/FileMetadataExtractor.h
         entities/DesktopFileMetadataExtractor.cpp
@@ -13,23 +13,41 @@ add_library(app_core OBJECT
         entities/FileMetadataMerger.h
         entities/BinaryMetadataExtractor.cpp
         entities/BinaryMetadataExtractor.h
-        )
+        ${PROJECT_SOURCE_DIR}/include/appimage/appimage-info.h lib/appimage-info-impl.cpp)
 
 
-target_compile_options(app_core PUBLIC -fPIC -fexceptions)
-target_include_directories(app_core PUBLIC
+target_include_directories(libappimage-info PRIVATE ${PROJECT_SOURCE_DIR}/include/appimage)
+set_target_properties(libappimage-info PROPERTIES PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/appimage/appimage-info.h)
+
+target_compile_options(libappimage-info PUBLIC -fPIC -fexceptions)
+target_include_directories(libappimage-info PUBLIC
         ${APPIMAGEKIT_INCLUDE_DIRS}
         ${Qt5Core_INCLUDE_DIRS}
         ${Qt5Gui_INCLUDE_DIRS})
 
+set_target_properties(libappimage-info PROPERTIES VERSION ${LIBAPPIMAGE-INFO_VERSION}
+        SOVERSION ${LIBAPPIMAGE-INFO_VERSION_MAJOR} )
+
+# Prevent CMake from adding the 'lib' prefix to the library.
+set_target_properties(libappimage-info PROPERTIES PREFIX "")
+
+install(TARGETS libappimage-info
+        LIBRARY
+        DESTINATION lib
+        COMPONENT Libraries
+        PUBLIC_HEADER
+        DESTINATION include
+        COMPONENT Development)
+
+
 if (NOT AppImageKit_FOUND)
-    add_dependencies(app_core AppImageKit)
+    add_dependencies(libappimage-info AppImageKit)
 endif ()
 
-add_executable(appimage_metadata_extractor app/main.cpp $<TARGET_OBJECTS:app_core>)
-target_link_libraries(appimage_metadata_extractor ${APPIMAGEKIT_LIBRARIES} Qt5::Core)
-target_compile_definitions(appimage_metadata_extractor PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
+add_executable(appimage-info app/main.cpp)
+target_link_libraries(appimage-info libappimage-info ${APPIMAGEKIT_LIBRARIES} Qt5::Core)
+target_compile_definitions(appimage-info PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
-install(TARGETS appimage_metadata_extractor DESTINATION bin COMPONENT binaries)
-install(FILES app/res/appimage_metadata_extractor.desktop DESTINATION share/applications/ COMPONENT desktop)
-install(FILES app/res/appimage_metadata_extractor.svg DESTINATION share/icons/hicolor/scalable/apps/ COMPONENT desktop)
+install(TARGETS appimage-info DESTINATION bin COMPONENT binaries)
+install(FILES app/res/appimage-info.desktop DESTINATION share/applications/ COMPONENT desktop)
+install(FILES app/res/appimage-info.svg DESTINATION share/icons/hicolor/scalable/apps/ COMPONENT desktop)
