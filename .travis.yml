@@ -18,6 +18,8 @@ addons:
     - libfuse-dev
     - qt510base
     - desktop-file-utils
+    - binutils-dev
+    - libmd-dev
 
 notifications:
   email: false

@@ -1,4 +1,5 @@
 find_package(Qt5 REQUIRED Core)
+find_package(OpenSSL REQUIRED)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -13,17 +14,22 @@ add_library(libappimage-info SHARED
         entities/FileMetadataMerger.h
         entities/BinaryMetadataExtractor.cpp
         entities/BinaryMetadataExtractor.h
-        ${PROJECT_SOURCE_DIR}/include/appimage/appimage-info.h lib/appimage-info-impl.cpp)
+        ${PROJECT_SOURCE_DIR}/include/appimage/appimage-info.h
+        lib/appimage-info-impl.cpp)
 
 
-target_include_directories(libappimage-info PRIVATE ${PROJECT_SOURCE_DIR}/include/appimage)
 set_target_properties(libappimage-info PROPERTIES PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/appimage/appimage-info.h)
 
 target_compile_options(libappimage-info PUBLIC -fPIC -fexceptions)
-target_include_directories(libappimage-info PUBLIC
+target_include_directories(libappimage-info
+        PUBLIC
+        ${PROJECT_SOURCE_DIR}/include
+        PRIVATE
         ${APPIMAGEKIT_INCLUDE_DIRS}
         ${Qt5Core_INCLUDE_DIRS}
-        ${Qt5Gui_INCLUDE_DIRS})
+        ${Qt5Gui_INCLUDE_DIRS}
+        ${LIBBFD_INCLUDE_DIRS})
+target_link_libraries(libappimage-info ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES} ${LIBMD_LIBRARIES})
 
 set_target_properties(libappimage-info PROPERTIES VERSION ${LIBAPPIMAGE-INFO_VERSION}
         SOVERSION ${LIBAPPIMAGE-INFO_VERSION_MAJOR} )
@@ -45,7 +51,7 @@ if (NOT AppImageKit_FOUND)
 endif ()
 
 add_executable(appimage-info app/main.cpp)
-target_link_libraries(appimage-info libappimage-info ${APPIMAGEKIT_LIBRARIES} Qt5::Core)
+target_link_libraries(appimage-info libappimage-info ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES} ${LIBMD_LIBRARIES} Qt5::Core)
 target_compile_definitions(appimage-info PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 install(TARGETS appimage-info DESTINATION bin COMPONENT binaries)

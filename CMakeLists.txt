@@ -6,8 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty")
 
-include(thirdparty/AppImageKit.cmake)
 
+include(thirdparty/AppImageKit.cmake)
+include(thirdparty/FindBfd.cmake)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBMD REQUIRED libmd)
 
 set(LIBAPPIMAGE-INFO_VERSION_MAJOR 0)
 set(LIBAPPIMAGE-INFO_VERSION_MINOR 1)

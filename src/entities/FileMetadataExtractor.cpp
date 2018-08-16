@@ -169,7 +169,7 @@ QVariantMap FileMetadataExtractor::extractMetadata() {
 }
 
 QVariantMap FileMetadataExtractor::extractBinaryFileData() {
-    BinaryMetadataExtractor extractor(path);
+    BinaryMetadataExtractor extractor(path.toStdString());
     return extractor.getMetadata();
 }
 

@@ -2,7 +2,7 @@
 // Created by alexis on 8/14/18.
 //
 
-#include "appimage-info.h"
+#include "appimage/appimage-info.h"
 
 
 void extract_desktop_file(const char *appimage_path, const char *output_path) {

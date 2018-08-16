@@ -7,15 +7,30 @@
 
 #include <QString>
 #include <QVariantMap>
-class BinaryMetadataExtractor {
-    QString target;
+#include <bfd.h>
+
+class BadFileFormat : public std::runtime_error {
 public:
-    BinaryMetadataExtractor(const QString& target);
+    explicit BadFileFormat(const std::string &__arg);
+};
+
+class BinaryMetadataExtractor {
+    std::string target;
+    bfd *abfd;
+public:
+    explicit BinaryMetadataExtractor(const std::string &target);
+
+    virtual ~BinaryMetadataExtractor();
+
     QVariantMap getMetadata();
+
 protected:
-    QString getBinaryArch() const;
     QString getSha512CheckSum() const;
+
+    std::string getBinaryArch() const;
+
     qint64 getFileSize() const;
+
     int getAppImageType() const;
 
     QDateTime getTime() const;

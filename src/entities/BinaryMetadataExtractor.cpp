@@ -1,20 +1,28 @@
 //
 // Created by alexis on 6/8/18.
 //
-#include <QDebug>
-#include <QProcess>
-#include <QFileInfo>
-#include <appimage/appimage.h>
-#include <QtCore/QDateTime>
 
+
+#include <QDebug>
+#include <QFileInfo>
+#include <QtCore/QDateTime>
+#include <appimage/appimage.h>
+#include <fstream>
+#include "sha512.h"
 #include "BinaryMetadataExtractor.h"
 
-BinaryMetadataExtractor::BinaryMetadataExtractor(const QString &target)
-        : target(target) {}
+BinaryMetadataExtractor::BinaryMetadataExtractor(const std::string &target)
+        : target(target), abfd(NULL) {
+    abfd = bfd_openr(target.c_str(), NULL);
+
+    // no section info is loaded unless we call bfd_check_format!:
+    if (!bfd_check_format(abfd, bfd_object))
+        throw BadFileFormat(bfd_errmsg(bfd_get_error()));
+}
 
 QVariantMap BinaryMetadataExtractor::getMetadata() {
     QVariantMap data;
-    data["architecture"] = getBinaryArch();
+    data["architecture"] = QString::fromStdString(getBinaryArch());
     data["sha512checksum"] = getSha512CheckSum();
     data["size"] = getFileSize();
     data["type"] = getAppImageType();
@@ -24,51 +32,52 @@ QVariantMap BinaryMetadataExtractor::getMetadata() {
 }
 
 QDateTime BinaryMetadataExtractor::getTime() const {
-    QFileInfo f(target);
-    auto date = f.birthTime();
-    return date;
+    auto date = bfd_get_mtime(abfd);
+    return QDateTime::fromSecsSinceEpoch(date);
 }
 
 qint64 BinaryMetadataExtractor::getFileSize() const {
-    QFileInfo fileInfo(target);
-    qint64 size = fileInfo.size();
-    return size;
+    return static_cast<qint64>(bfd_get_file_size(abfd));
 }
 
 QString BinaryMetadataExtractor::getSha512CheckSum() const {
-    auto process = new QProcess();
-    QStringList arguments{target};
-    process->start("sha512sum", arguments);
+    FILE *file = fopen(target.c_str(), "r");
+    if (file) {
+        SHA512_CTX sha512;
+        SHA512_Init(&sha512);
+        uint8_t buffer[1024];
 
-    process->waitForFinished();
-    if (process->exitCode() != 0)
-        throw std::runtime_error(process->errorString().toStdString());
-    QString rawOutput = process->readAll();
-    QString sha512checksum = rawOutput.section(" ", 0, 0).trimmed();
+        auto bc = fread(buffer, sizeof(uint8_t), 1024, file);
+        while (bc) {
+            SHA512_Update(&sha512, buffer, static_cast<size_t>(bc));
+            bc = fread(buffer, sizeof(uint8_t), 1024, file);
+        }
 
-    process->deleteLater();
-    return sha512checksum;
+        unsigned char hash[SHA512_DIGEST_LENGTH];
+        SHA512_Final(hash, &sha512);
+
+        char mdString[SHA512_DIGEST_LENGTH * 2 + 1];
+        for (int i = 0; i < SHA512_DIGEST_LENGTH; i++)
+            sprintf(&mdString[i * 2], "%02x", (unsigned int) hash[i]);
+
+        QString out = mdString;
+        return out;
+    }
+
+    return "";
 }
 
-QString BinaryMetadataExtractor::getBinaryArch() const {
-    auto process = new QProcess();
-    QStringList arguments;
-    arguments << "-b" << "-e" << "ascii" << "-e" << "apptype" << "-e" << "encoding" <<
-              "-e" << "elf" << "-e" << "tokens" << "-e" << "tar" << "-e" << "cdf" <<
-              "-e" << "compress" << target;
-
-    process->start("file", arguments);
-    process->waitForFinished();
-    if (process->exitCode() != 0)
-        throw std::runtime_error(process->errorString().toStdString());
-    QString rawOutput = process->readAll();
-    QString arch = rawOutput.section(",", 1, 1).trimmed();
-
-    process->deleteLater();
+std::string BinaryMetadataExtractor::getBinaryArch() const {
+    std::string arch = abfd->arch_info->arch_name;
     return arch;
 }
 
 int BinaryMetadataExtractor::getAppImageType() const {
-    return appimage_get_type(target.toStdString().c_str(), false);
+    return appimage_get_type(target.c_str(), false);
 }
 
+BinaryMetadataExtractor::~BinaryMetadataExtractor() {
+    bfd_close(abfd);
+}
+
+BadFileFormat::BadFileFormat(const std::string &__arg) : runtime_error(__arg) {}
