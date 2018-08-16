@@ -21,16 +21,23 @@ public:
     void setPath(const QString& path);
     QVariantMap extractMetadata();
     QByteArray extractIcon();
+    QString getDesktopFileName(const QStringList& list) const;
+
+    void extractDesktopFile(const std::string &outputPath);
+
+    void extractAppStreamFile(const char *targetPath);
+
+    void extractIconFile(const char *targetPath, const char *iconSize);
+
 protected:
     QVariantMap extractDesktopFileData();
+    void tryExtractFile(const QString& filePath, const QDir* targetDir) const;
+
     QVariantMap extractAppStreamFileData();
     QVariantMap extractBinaryFileData();
-
-    QString getDesktopFileName(const QStringList& list) const;
     QString tryGetDesktopFileName(const QStringList& list) const;
     QDir* getTmpDir() const;
     QDir* tryGetTmpDir() const;
-    void tryExtractFile(const QString& filePath, const QDir* targetDir) const;
     QString tryGetAppStreamFileName(QStringList list);
 };
 

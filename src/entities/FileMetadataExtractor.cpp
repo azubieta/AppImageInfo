@@ -189,3 +189,29 @@ QByteArray FileMetadataExtractor::extractIcon() {
 
     return icon;
 }
+
+void FileMetadataExtractor::extractDesktopFile(const std::string &outputPath) {
+    auto desktopFileName = tryGetDesktopFileName(list);
+    appimage_extract_file_following_symlinks(path.toStdString().c_str(), desktopFileName.toStdString().c_str(),
+                                             outputPath.c_str());
+}
+
+void FileMetadataExtractor::extractAppStreamFile(const char *targetPath) {
+    auto appstreamFileName = tryGetAppStreamFileName(list);
+    appimage_extract_file_following_symlinks(path.toStdString().c_str(), appstreamFileName.toStdString().c_str(),
+                                             targetPath);
+}
+
+void FileMetadataExtractor::extractIconFile(const char *targetPath, const char *iconSize) {
+    // Search for an icon of the required size in
+    for (const auto &file: list) {
+        if (file.contains("/usr/share/icons/hicolor") && file.contains(iconSize)) {
+            appimage_extract_file_following_symlinks(path.toStdString().c_str(), file.toStdString().c_str(),
+                                                     targetPath);
+            return;
+        }
+    }
+
+    // Fallback to the .AppIcon
+    appimage_extract_file_following_symlinks(path.toStdString().c_str(), ".DirIcon", targetPath);
+}
