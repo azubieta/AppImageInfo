@@ -2,170 +2,192 @@
 // Created by alexis on 6/6/18.
 //
 
-#include <QFile>
-#include <QDebug>
-#include <QXmlStreamReader>
+#include <set>
+#include <nlohmann/json.hpp>
 #include "AppStreamMetadataExtractor.h"
-AppStreamMetadataExtractor::AppStreamMetadataExtractor(const QString& filePath)
-        :filePath(filePath)
-{
 
+using namespace nlohmann;
+
+AppStreamMetadataExtractor::AppStreamMetadataExtractor(const std::string &filePath)
+        : filePath(filePath) {
 }
-QVariantMap AppStreamMetadataExtractor::getContent()
-{
-    data = QVariantMap();
-    QByteArray rawData = readFile();
-    xml.addData(rawData);
 
-    QSet<QString> simpleEntries{"id", "name", "summary", "metadata_license", "project_group", "project_license",
-                                "developer_name", "update_contact"};
-    while (!xml.atEnd()) {
-        token = xml.readNext();
-        tokenName = xml.name().toString();
-        if (token==QXmlStreamReader::StartDocument)
-            continue;
-
-        if (token==QXmlStreamReader::StartElement) {
-            if (simpleEntries.contains(tokenName))
-                data[tokenName] = xml.readElementText();
-
-            if ("screenshots"==tokenName)
-                data[tokenName] = readScreenshots();
-
-            if ("description"==tokenName)
-                data[tokenName] = readHtml();
-
-            if ("url"==tokenName)
-                readUrl();
-
-            if ("releases"==tokenName)
-                data["releases"] = readReleases();
-        }
+nlohmann::json AppStreamMetadataExtractor::getContent() {
+    LIBXML_TEST_VERSION
+    if ((doc = xmlReadFile(filePath.c_str(), nullptr, 0)) == nullptr) {
+        throw AppStreamReadError("Could not parse file " + filePath);
     }
-    if (xml.hasError())
-        qWarning() << "Error found in AppStream file: " << xml.errorString();
 
-    xml.clear();
+    data = json::object();
+    root_element = xmlDocGetRootElement(doc);
+    xmlNode *cur_node = nullptr;
+
+    for (cur_node = root_element; cur_node; cur_node = cur_node->next) {
+        std::string nodeName = reinterpret_cast<const char *>(cur_node->name);
+        if (cur_node->type == XML_ELEMENT_NODE && "component" == nodeName)
+            parseComponent(cur_node->children);
+
+    }
+    xmlFreeDoc(doc);       // free document
+    xmlCleanupParser();    // Free globals
     return data;
 }
-QVariantList AppStreamMetadataExtractor::readReleases()
-{
-    QVariantList releases;
-    while (!xml.atEnd() && !(token==QXmlStreamReader::EndElement && tokenName=="releases")) {
-        if (token==QXmlStreamReader::StartElement && tokenName=="release")
-            releases << readRelease();
 
-        token = xml.readNext();
-        tokenName = xml.name().toString();
-    }
-    return releases;
-}
-QVariantMap AppStreamMetadataExtractor::readRelease()
-{
-    QVariantMap release;
-    release["version"] = xml.attributes().value("version").toString();
-    release["date"] = xml.attributes().value("date").toString();
-    release["urgency"] = xml.attributes().value("urgency").toString();
-    release["timestamp"] = xml.attributes().value("timestamp").toString();
+void AppStreamMetadataExtractor::parseComponent(_xmlNode *childern) {
+    xmlNode *cur_node = nullptr;
 
-    while (!xml.atEnd() && !(token==QXmlStreamReader::EndElement && tokenName=="release")) {
-        if (token==QXmlStreamReader::StartElement) {
-            if (tokenName=="location")
-                release["location"] = xml.readElementText();
+    std::set<std::string> simpleEntries{"id", "name", "summary", "metadata_license", "project_group", "project_license",
+                                        "developer_name", "update_contact"};
 
-            if (tokenName=="checksum") {
-                auto checksumType = xml.attributes().value("type").toString();
-                release[checksumType] = xml.readElementText();
+    for (cur_node = childern; cur_node; cur_node = cur_node->next) {
+        if (cur_node->name == nullptr)
+            continue;
+
+        std::string nodeName = reinterpret_cast<const char *>(cur_node->name);
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            if (simpleEntries.find(nodeName) != simpleEntries.end()) {
+
+                auto rawValue = xmlNodeGetContent(cur_node->children);
+                data[nodeName] = getString(rawValue);
+                free(rawValue);
             }
 
-            if (tokenName=="description")
-                release["description"] = readHtml();
-        }
-        token = xml.readNext();
-        tokenName = xml.name().toString();
-    }
-    return release;
-}
-void AppStreamMetadataExtractor::readUrl()
-{
-    auto urls = data.value("urls", QVariantMap()).toMap();
-    auto type = xml.attributes().value("type").toString();
-    urls[type] = xml.readElementText();
-    data["urls"] = urls;
-}
-QVariantList AppStreamMetadataExtractor::readScreenshots()
-{
-    QVariantList screenShots;
-    while (!xml.atEnd() && !(token==QXmlStreamReader::EndElement && tokenName=="screenshots")) {
-        if (token==QXmlStreamReader::StartElement && tokenName=="screenshot")
-            screenShots << readScreenShot();
+            if ("description" == nodeName)
+                data[nodeName] = readDescriptionNode(cur_node);
 
-        token = xml.readNext();
-        tokenName = xml.name().toString();
+            if ("screenshots" == nodeName)
+                data[nodeName] = readScreenshots(cur_node);
+
+            if ("url" == nodeName) {
+                auto urlType = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("type"));
+                auto value = xmlNodeGetContent(cur_node);
+                data["urls"][getString(urlType)] = getString(value);
+                free(urlType);
+                free(value);
+            }
+
+            if ("releases" == nodeName) {
+                data[nodeName] = readReleases(cur_node);
+            }
+
+        }
+    }
+}
+
+std::string AppStreamMetadataExtractor::readDescriptionNode(const xmlNode *cur_node) const {
+    xmlBufferPtr buff = xmlBufferCreate();
+
+    for (auto cur_sub_node = cur_node->children; cur_sub_node; cur_sub_node = cur_sub_node->next)
+        xmlNodeDump(buff, doc, cur_sub_node, 0, 0);
+
+    auto value = getString(buff->content);
+    xmlBufferFree(buff);
+    return value;
+}
+
+std::string AppStreamMetadataExtractor::getString(const xmlChar *rawValue) const {
+    std::string value;
+    if (rawValue)
+        value = reinterpret_cast<const char *>(rawValue);
+
+    return value;
+}
+
+nlohmann::json AppStreamMetadataExtractor::readScreenshots(xmlNode *node) {
+    json screenShots;
+
+    for (auto cur_node = node->children; cur_node; cur_node = cur_node->next) {
+        auto nodeName = getString(cur_node->name);
+        if (cur_node->type == XML_ELEMENT_NODE && "screenshot" == nodeName) {
+            json scrrenshot = readScreenshot(cur_node);
+            screenShots.push_back(scrrenshot);
+        }
     }
 
     return screenShots;
 }
-QVariantMap AppStreamMetadataExtractor::readScreenShot()
-{
-    QVariantMap screenshot;
-    while (!xml.atEnd() && !(token==QXmlStreamReader::EndElement && tokenName=="screenshot")) {
-        if (token==QXmlStreamReader::StartElement) {
-            if (tokenName=="caption")
-                screenshot["caption"] = xml.readElementText();
 
-            if (tokenName=="image") {
-                screenshot["url"] = xml.readElementText();
-                screenshot["type"] = xml.attributes().value("type", "source").toString();
-                screenshot["width"] = xml.attributes().value("width").toInt();
-                screenshot["height"] = xml.attributes().value("height").toInt();
-                screenshot["language"] = xml.attributes().value("xml:lang").toInt();
-            }
+nlohmann::json AppStreamMetadataExtractor::readScreenshot(_xmlNode *node) {
+    json screenshot = json::object();
+    for (auto cur_node = node->children; cur_node; cur_node = cur_node->next) {
+        auto nodeName = getString(cur_node->name);
+        if (nodeName == "caption") {
+            auto value = getString(cur_node->content);
+            screenshot[nodeName] = value;
         }
-        token = xml.readNext();
-        tokenName = xml.name().toString();
+
+        if (nodeName == "image") {
+            screenshot["url"] = getString(cur_node->content);
+            xmlChar *type = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("type"));
+            xmlChar *width = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("width"));
+            xmlChar *height = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("height"));
+            xmlChar *language = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("xml:lang"));
+            screenshot["type"] = getString(type);
+            screenshot["width"] = getString(width);
+            screenshot["height"] = getString(height);
+            screenshot["language"] = getString(language);
+            free(type);
+            free(width);
+            free(height);
+            free(language);
+        }
     }
     return screenshot;
 }
-QByteArray AppStreamMetadataExtractor::readFile() const
-{
-    QByteArray data;
-    QFile f(filePath);
-    if (f.open(QIODevice::ReadOnly))
-        data = f.readAll();
-    else
-        throw std::runtime_error("Unable to open: "+filePath.toStdString());
-    f.close();
-    return data;
-}
-QString AppStreamMetadataExtractor::readHtml()
-{
-//    if (xml.namespaceUri().toString()!="http://www.w3.org/1999/xhtml") {
-//        return xml.readElementText(QXmlStreamReader::IncludeChildElements);
-//    }
-    QString terminatingElement = xml.name().toString();
-    QString html;
-    QXmlStreamWriter writer(&html);
-    do {
-        xml.readNext();
-        switch (xml.tokenType()) {
-        case QXmlStreamReader::StartElement:writer.writeStartElement(xml.name().toString());
-            writer.writeAttributes(xml.attributes());
-            break;
-        case QXmlStreamReader::EndElement:writer.writeEndElement();
-            break;
-        case QXmlStreamReader::Characters:writer.writeCharacters(xml.text().toString());
-            break;
-        case QXmlStreamReader::NoToken:break;
-        case QXmlStreamReader::Invalid:break;
-        case QXmlStreamReader::StartDocument:break;
-        case QXmlStreamReader::EndDocument:break;
-        case QXmlStreamReader::Comment:break;
-        case QXmlStreamReader::DTD:break;
-        case QXmlStreamReader::EntityReference:break;
-        case QXmlStreamReader::ProcessingInstruction:break;
+
+nlohmann::json AppStreamMetadataExtractor::readReleases(xmlNode *node) {
+    json releases;
+    for (auto cur_node = node->children; cur_node; cur_node = cur_node->next) {
+        auto nodeName = getString(cur_node->name);
+        if (nodeName == "release") {
+            json release = readRealease(cur_node);
+            releases.push_back(release);
         }
     }
-    while (!xml.atEnd() && xml.name()!=terminatingElement);
-    return html.simplified().trimmed();
+    return releases;
 }
+
+nlohmann::json AppStreamMetadataExtractor::readRealease(_xmlNode *node) {
+    json release;
+    xmlChar *version = xmlGetProp(node, reinterpret_cast<const xmlChar *>("version"));
+    xmlChar *date = xmlGetProp(node, reinterpret_cast<const xmlChar *>("date"));
+    xmlChar *urgency = xmlGetProp(node, reinterpret_cast<const xmlChar *>("urgency"));
+    xmlChar *timestamp = xmlGetProp(node, reinterpret_cast<const xmlChar *>("timestamp"));
+
+    release["date"] = getString(date);
+    release["version"] = getString(version);
+    release["urgency"] = getString(urgency);
+    release["timestamp"] = getString(timestamp);
+
+
+    free(version);
+    free(date);
+    free(urgency);
+    free(timestamp);
+
+    for (auto cur_node = node->children; cur_node; cur_node = cur_node->next) {
+        auto nodeName = getString(cur_node->name);
+        if (nodeName == "location") {
+            xmlChar *value = xmlNodeGetContent(cur_node);
+            release["location"] = getString(value);
+            free(value);
+        }
+
+        if (nodeName == "checksum") {
+            xmlChar *type = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("type"));
+            xmlChar *value = xmlNodeGetContent(cur_node);
+            release[getString(type)] = getString(value);
+            free(type);
+            free(value);
+        }
+
+        if (nodeName == "description") {
+            xmlChar *value = xmlNodeGetContent(cur_node);
+            release["description"] = getString(value);
+            free(value);
+        }
+    }
+    return release;
+}
+
+AppStreamReadError::AppStreamReadError(const std::string &__arg) : runtime_error(__arg) {}
