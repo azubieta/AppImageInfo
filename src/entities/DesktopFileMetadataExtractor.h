@@ -5,33 +5,35 @@
 #ifndef APPIMAGE_RELEASES_INDEXER_DESKTOPFILEMETADATAEXTRACTOR_H
 #define APPIMAGE_RELEASES_INDEXER_DESKTOPFILEMETADATAEXTRACTOR_H
 
-#include <QString>
-#include <QVariant>
+
+#include <list>
+#include <nlohmann/json.hpp>
 
 class DesktopFileMetadataExtractor {
-    QString filePath;
-    QStringList fileContent;
-    QString currentGroupName;
-    QVariantMap currentGroup;
-    QVariantMap data;
+    std::string filePath;
+    std::list<std::string> fileContent;
+    std::string currentGroupName;
+    nlohmann::json currentGroup;
+    nlohmann::json data;
 public:
-    explicit DesktopFileMetadataExtractor(const QString& filePath);
-    QVariantMap getContent();
+    explicit DesktopFileMetadataExtractor(const std::string &filePath);
+    nlohmann::json getContent();
 protected:
     void tryReadLines();
     void parseLines();
-    QString removeComments(const QString& cleanLine) const;
-    bool isGroupEntry(const QString& cleanLine) const;
-    bool isKeyEntry(const QString& cleanLine) const;
-    QVariant extractValue(const QString& cleanLine, const QString& key) const;
-    bool isLocaleStringKey(const QString& key) const;
-    QString extractKey(const QString& full_key) const;
-    QString extractLocale(const QString& full_key) const;
+    std::string removeComments(const std::string &cleanLine) const;
+    bool isGroupEntry(const std::string &cleanLine) const;
+    bool isKeyEntry(const std::string &cleanLine) const;
+    nlohmann::json extractValue(const std::string &cleanLine, const std::string &key) const;
+    bool isLocaleStringKey(const std::string &key) const;
+
     void saveCurrentGroup();
-    void handleKeyEntry(const QString& cleanLine);
-    void handleGroupEntry(const QString& cleanLine);
+    void handleKeyEntry(const std::string &cleanLine);
+    void handleGroupEntry(const std::string &cleanLine);
     void saveLastGroup();
     void parseApplicationId();
+
+    std::string extractLocale(const std::string &full_key) const;
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_DESKTOPFILEMETADATAEXTRACTOR_H
