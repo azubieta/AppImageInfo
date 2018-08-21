@@ -5,52 +5,55 @@
 #ifndef APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H
 #define APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H
 
-#include <QVariantMap>
+static const char *const DEFUALT_LOCALE_NAME = "default";
+
+#include <list>
+#include <nlohmann/json.hpp>
 
 class MetadataMerger {
-    QVariantMap desktop;
-    QVariantMap appStream;
-    QVariantMap binary;
-    QVariantMap data;
+    nlohmann::json desktop;
+    nlohmann::json appStream;
+    nlohmann::json binary;
+    nlohmann::json data;
 public:
 
     MetadataMerger();
-    void setDesktop(const QVariantMap& desktop);
-    void setAppStream(const QVariantMap& appstream);
-    void setBinary(const QVariantMap& binary);
+    void setDesktop(const nlohmann::json &desktop);
+    void setAppStream(const nlohmann::json &appstream);
+    void setBinary(const nlohmann::json &binary);
 
-    QVariantMap getOutput();
+    nlohmann::json getOutput();
 protected:
 
-    QStringList getKeywords() const;
+    std::list<std::string> getKeywords() const;
 
-    const QVariant getName() const;
+    const nlohmann::json getName() const;
 
-    QMap<QString, QVariant> getAbstract() const;
+    nlohmann::json getAbstract() const;
 
-    QVariantMap getDescription() const;
+    nlohmann::json getDescription() const;
 
-    QVariant getIcon();
+    std::string getIcon();
 
-    QVariant getLicense();
+    nlohmann::json getLicense();
 
-    QVariantList getCategories() const;
+    nlohmann::json getCategories() const;
 
-    QVariantMap getDeveloper();
+    nlohmann::json getDeveloper();
 
-    QVariantMap getRelease();
+    nlohmann::json getRelease();
 
-    QVariantMap getFile();
+    nlohmann::json getFile();
 
-    QVariantList getLanguages();
+    std::list<std::string> getLanguages();
 
-    QVariantList getScreenShots();
+    nlohmann::json getScreenShots();
 
-    QVariantMap getLinks();
+    nlohmann::json getLinks();
 
-    QVariantList getMimeTypes();
+    nlohmann::json getMimeTypes();
 
-    QVariant removeEmptyFields(QVariant variant);
+    nlohmann::json removeEmptyFields(nlohmann::json json);
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H

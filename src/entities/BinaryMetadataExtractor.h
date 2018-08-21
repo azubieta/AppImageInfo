@@ -5,9 +5,8 @@
 #ifndef APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H
 #define APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H
 
-#include <QString>
-#include <QVariantMap>
 #include <bfd.h>
+#include <nlohmann/json.hpp>
 
 class BadFileFormat : public std::runtime_error {
 public:
@@ -22,18 +21,18 @@ public:
 
     virtual ~BinaryMetadataExtractor();
 
-    QVariantMap getMetadata();
+    nlohmann::json getMetadata();
 
 protected:
-    QString getSha512CheckSum() const;
+    std::string getSha512CheckSum() const;
 
     std::string getBinaryArch() const;
 
-    qint64 getFileSize() const;
+    int64_t getFileSize() const;
 
     int getAppImageType() const;
 
-    QDateTime getTime() const;
+    time_t getTime() const;
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H

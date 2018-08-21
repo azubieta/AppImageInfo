@@ -28,8 +28,18 @@ target_include_directories(libappimage-info
         ${APPIMAGEKIT_INCLUDE_DIRS}
         ${Qt5Core_INCLUDE_DIRS}
         ${Qt5Gui_INCLUDE_DIRS}
-        ${LIBBFD_INCLUDE_DIRS})
-target_link_libraries(libappimage-info ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES} ${LIBMD_LIBRARIES})
+        ${LIBBFD_INCLUDE_DIRS}
+        ${LIBXML2_INCLUDE_DIR})
+target_link_libraries(libappimage-info
+        ${APPIMAGEKIT_LIBRARIES}
+        ${LIBBFD_LIBRARIES}
+        ${LIBMD_LIBRARIES}
+        ${LIBXML2_LIBRARIES}
+        ${Boost_LOG_LIBRARY}
+        ${Boost_FILESYSTEM_LIBRARY}
+        ${Boost_SYSTEM_LIBRARY}
+        )
+target_compile_definitions(libappimage-info PRIVATE ${LIBXML2_DEFINITIONS})
 
 set_target_properties(libappimage-info PROPERTIES VERSION ${LIBAPPIMAGE-INFO_VERSION}
         SOVERSION ${LIBAPPIMAGE-INFO_VERSION_MAJOR} )

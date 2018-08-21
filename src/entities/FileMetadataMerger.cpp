@@ -4,21 +4,21 @@
 
 #include "FileMetadataMerger.h"
 
-void MetadataMerger::setDesktop(const QVariantMap &desktop) {
+void MetadataMerger::setDesktop(const nlohmann::json &desktop) {
     MetadataMerger::desktop = desktop;
 }
 
-void MetadataMerger::setAppStream(const QVariantMap &appstream) {
+void MetadataMerger::setAppStream(const nlohmann::json &appstream) {
     MetadataMerger::appStream = appstream;
 }
 
 MetadataMerger::MetadataMerger() {}
 
-QVariantMap MetadataMerger::getOutput() {
+nlohmann::json MetadataMerger::getOutput() {
     data.clear();
 
     data["format"] = 1;
-    data["id"] = appStream.contains("id") ? appStream.value("id") : desktop.value("id");
+    data["id"] = appStream.find("id") != appStream.end() ? appStream["id"] : desktop["id"];
     data["name"] = getName();
     data["icon"] = getIcon();
     data["abstract"] = getAbstract();
@@ -34,110 +34,104 @@ QVariantMap MetadataMerger::getOutput() {
     data["mime-types"] = getMimeTypes();
     data["links"] = getLinks();
 
-    data = removeEmptyFields(data).toMap();
+    data = removeEmptyFields(data);
     return data;
 }
 
-QVariantList MetadataMerger::getCategories() const {
-    const auto desktopEntry = desktop["Desktop Entry"].toMap();
-    return desktopEntry.value("Categories").toList();
+nlohmann::json MetadataMerger::getCategories() const {
+    const auto desktopEntry = desktop["Desktop Entry"];
+    return desktopEntry["Categories"];
 }
 
-QVariantMap MetadataMerger::getDescription() const {
-    QVariantMap description;
-    if (appStream.contains("description"))
-        description["null"] = appStream.value("description");
+nlohmann::json MetadataMerger::getDescription() const {
+    nlohmann::json description;
+    if (appStream.find("description") != appStream.end())
+        description[DEFUALT_LOCALE_NAME] = appStream["description"];
     return description;
 }
 
-QMap<QString, QVariant> MetadataMerger::getAbstract() const {
-    const auto desktopEntry = desktop["Desktop Entry"].toMap();
-    return desktopEntry.value("Comment").toMap();
+nlohmann::json MetadataMerger::getAbstract() const {
+    const auto desktopEntry = desktop["Desktop Entry"];
+    return desktopEntry["Comment"];
 }
 
-const QVariant MetadataMerger::getName() const {
-    const auto desktopEntry = desktop["Desktop Entry"].toMap();
-    return desktopEntry.value("Name");
+const nlohmann::json MetadataMerger::getName() const {
+    const auto desktopEntry = desktop["Desktop Entry"];
+    return desktopEntry["Name"];
 }
 
-QStringList MetadataMerger::getKeywords() const {
-    QStringList keywords;
-    const auto desktopEntry = desktop["Desktop Entry"].toMap();
-    const auto genericNames = desktopEntry["GenericName"].toMap();
-    for (auto value: genericNames.values())
-        keywords << value.toString();
+std::list<std::string> MetadataMerger::getKeywords() const {
+    std::list<std::string> keywords;
+    if (desktop.find("Desktop Entry") != desktop.end() &&
+        desktop["Desktop Entry"].find("GenericName") != desktop["Desktop Entry"].end()) {
+
+        auto ptr = "/Desktop Entry/GenericName"_json_pointer;
+
+        const nlohmann::json genericNames = desktop[ptr];
+        for (const auto it: genericNames) {
+            keywords.push_back(it.get<std::string>());
+        }
+    }
     return keywords;
 }
 
-QVariant MetadataMerger::removeEmptyFields(QVariant variant) {
-    if (variant.type() == QVariant::Map) {
-        auto variantMap = variant.toMap();
-        for (auto key: variantMap.keys()) {
-            variantMap[key] = removeEmptyFields(variantMap[key]);
-            if (variantMap[key].isNull())
-                variantMap.remove(key);
+nlohmann::json MetadataMerger::removeEmptyFields(nlohmann::json json) {
+    if (json.is_object()) {
+        for (auto it = json.begin(); it != json.end(); ++it) {
+            json[it.key()] = removeEmptyFields(it.value());
+
+            if (json[it.key()].empty())
+                json.erase(it.key());
         }
-
-        if (variantMap.isEmpty())
-            return QVariant();
-        else
-            return variantMap;
     }
 
-    if (variant.type() == QVariant::List) {
-        auto variantList = variant.toList();
-        for (auto &i : variantList)
-            i = removeEmptyFields(i);
-
-        variantList.removeAll(QVariant());
-        if (variantList.isEmpty())
-            return QVariant();
-        else
-            return variantList;
-    }
-
-    return variant;
+    if (json.empty())
+        return nlohmann::json{};
+    else
+        return json;
 }
 
-void MetadataMerger::setBinary(const QVariantMap &binary) {
+void MetadataMerger::setBinary(const nlohmann::json &binary) {
     MetadataMerger::binary = binary;
 }
 
-QVariant MetadataMerger::getIcon() {
+std::string MetadataMerger::getIcon() {
     // TODO: Implement icon url extraction from AppStream
-    return QVariant();
+    return std::string();
 }
 
-QVariant MetadataMerger::getLicense() {
-    QVariantMap license;
+nlohmann::json MetadataMerger::getLicense() {
+    nlohmann::json license;
     license["id"] = appStream["project_license"];
     return license;
 }
 
-QVariantMap MetadataMerger::getDeveloper() {
-    QVariantMap developer;
+nlohmann::json MetadataMerger::getDeveloper() {
+    nlohmann::json developer;
     developer["name"] = appStream["developer_name"];
 
     return developer;
 }
 
-QVariantMap MetadataMerger::getRelease() {
-    QVariantMap release;
-    const auto appStreamReleases = data["releases"].toList();
-    if (!appStreamReleases.isEmpty()) {
-        auto appStreamLatestRelease = appStreamReleases.first().toMap();
+nlohmann::json MetadataMerger::getRelease() {
+    nlohmann::json release;
+    const auto appStreamReleases = data["releases"];
+    if (!appStreamReleases.empty()) {
+        auto appStreamLatestRelease = appStreamReleases.front();
         release["version"] = appStreamLatestRelease["version"];
-        release["date"] = appStreamLatestRelease.contains("date") ? appStreamLatestRelease["date"] : binary["date"];
+        release["date"] =
+                appStreamLatestRelease.find("date") != appStreamLatestRelease.end() ? appStreamLatestRelease["date"]
+                                                                                    : binary["date"];
 
-        QVariantMap changeLog;
+        nlohmann::json changeLog;
         changeLog["null"] = appStreamLatestRelease["description"];
         release["changelog"] = changeLog;
     }
     return release;
 }
 
-QVariantMap MetadataMerger::getFile() {
-    QVariantMap file;
+nlohmann::json MetadataMerger::getFile() {
+    nlohmann::json file;
     file["type"] = binary["type"];
     file["size"] = binary["size"];
     file["architecture"] = binary["architecture"];
@@ -145,40 +139,41 @@ QVariantMap MetadataMerger::getFile() {
     return file;
 }
 
-QVariantList MetadataMerger::getLanguages() {
-    QVariantList languages;
-    const auto desktopEntry = desktop["Desktop Entry"].toMap();
-    const auto genericNames = desktopEntry["Name"].toMap();
-    for (auto value: genericNames.keys())
-        languages << value;
+std::list<std::string> MetadataMerger::getLanguages() {
+    std::list<std::string> languages;
+    const auto desktopEntry = desktop["Desktop Entry"];
+    const auto names = desktopEntry["Name"];
+    for (auto it = names.begin(); it != names.end(); it++)
+        languages.push_back(it.key());
 
-    languages.removeAll("null");
+    languages.remove(DEFUALT_LOCALE_NAME);
     return languages;
 }
 
-QVariantList MetadataMerger::getScreenShots() {
-    QVariantList screenShots;
-    const auto appStreamScreenShots = appStream.value("screenshots").toList();
-    for (const auto &variant: appStreamScreenShots) {
-        const auto &appStreamScreenShot = variant.toMap();
-
-        QVariantMap screenShot;
+nlohmann::json MetadataMerger::getScreenShots() {
+    nlohmann::json screenShots;
+    const auto appStreamScreenShots = appStream["screenshots"];
+    for (const auto &appStreamScreenShot: appStreamScreenShots) {
+        nlohmann::json screenShot;
         screenShot["height"] = appStreamScreenShot["height"];
         screenShot["width"] = appStreamScreenShot["width"];
         screenShot["language"] = appStreamScreenShot["language"];
         screenShot["caption"] = appStreamScreenShot["caption"];
         screenShot["url"] = appStreamScreenShot["url"];
+
+        screenShots.push_back(screenShot);
     }
 
     return screenShots;
 }
 
-QVariantMap MetadataMerger::getLinks() {
-    return appStream.value("urls").toMap();
+nlohmann::json MetadataMerger::getLinks() {
+    return appStream["urls"];
 }
 
-QVariantList MetadataMerger::getMimeTypes() {
-    const auto desktopEntry = desktop["Desktop Entry"].toMap();
-    auto mimeTypes = desktopEntry.value("MimeType").toList();
-    return mimeTypes;
+nlohmann::json MetadataMerger::getMimeTypes() {
+    if (desktop.find("Desktop Entry") != desktop.end() &&
+        desktop["Desktop Entry"].find("MimeType") != desktop["Desktop Entry"].end())
+        return desktop["/Desktop Entry/MimeType"_json_pointer];
+    return nlohmann::json();
 }

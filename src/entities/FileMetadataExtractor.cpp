@@ -2,12 +2,9 @@
 // Created by alexis on 6/5/18.
 //
 
-#include <QStringList>
-#include <QDir>
-#include <QDebug>
-#include <QSettings>
-#include <QtCore/QUuid>
 #include <appimage/appimage.h>
+#include <boost/filesystem.hpp>
+#include <iostream>
 
 #include "FileMetadataExtractor.h"
 #include "DesktopFileMetadataExtractor.h"
@@ -15,108 +12,96 @@
 #include "BinaryMetadataExtractor.h"
 #include "FileMetadataMerger.h"
 
-FileMetadataExtractor::FileMetadataExtractor(const QString &path)
+using namespace boost;
+
+FileMetadataExtractor::FileMetadataExtractor(const std::string &path)
         : path(path) {}
 
-QStringList FileMetadataExtractor::loadFileList() {
-    QStringList fileList;
-    char **rawFileList = appimage_list_files(path.toStdString().c_str());
+std::list<std::string> FileMetadataExtractor::loadFileList() {
+    std::list<std::string> fileList;
+    char **rawFileList = appimage_list_files(path.c_str());
     if (rawFileList == nullptr || *rawFileList == nullptr)
-        throw std::runtime_error(std::string("Unable to list files in ") + path.toStdString());
+        throw std::runtime_error(std::string("Unable to list files in ") + path);
 
     for (int i = 0; rawFileList[i] != nullptr; i++)
-        fileList << QString(rawFileList[i]);
+        fileList.push_back(std::string(rawFileList[i]));
 
     appimage_string_list_free(rawFileList);
     return fileList;
 }
 
-QVariantMap FileMetadataExtractor::extractDesktopFileData() {
-    QSharedPointer<QDir> tmpDir{tryGetTmpDir(), [](QDir *dir) {
-        dir->removeRecursively();
-        delete dir;
-    }};
+nlohmann::json FileMetadataExtractor::extractDesktopFileData() {
+    auto tmpFilePath =
+            filesystem::temp_directory_path() / filesystem::unique_path("appimage-info-%%%%%%%%%%%%.desktop");
 
     auto desktopFileName = tryGetDesktopFileName(list);
-    tryExtractFile(desktopFileName, tmpDir.data());
+    tryExtractFile(desktopFileName, tmpFilePath);
 
-    auto tmpDesktopFileName = tmpDir->absoluteFilePath(desktopFileName);
-
-    DesktopFileMetadataExtractor extractor(tmpDesktopFileName);
+    DesktopFileMetadataExtractor extractor(tmpFilePath.string());
     auto data = extractor.getContent();
+
+    filesystem::remove(tmpFilePath);
 
     return data;
 }
 
-QDir *FileMetadataExtractor::getTmpDir() const {
-    const char *tmp_dir_path = "/tmp/appimage_indexer";
-    auto tmpDir = new QDir(tmp_dir_path);
-    if (!tmpDir->exists())
-        tmpDir->mkpath(tmp_dir_path);
+boost::filesystem::path FileMetadataExtractor::getTmpDir() const {
+    filesystem::path tmpDir{"/tmp/appimage_indexer"};
+    if (!filesystem::exists(tmpDir))
+        create_directories(tmpDir);
 
     return tmpDir;
 }
 
-QString FileMetadataExtractor::getDesktopFileName(const QStringList &list) const {
-    QString desktopfileName;
+std::string FileMetadataExtractor::getDesktopFileName(const std::list<std::string> &list) const {
+    std::string desktopfileName;
 
-    for (auto file : list) {
-        if (!file.contains("/") && file.endsWith(".desktop", Qt::CaseInsensitive))
+    for (const auto &file : list) {
+        if (file.find('/') == std::string::npos && file.find(".desktop") != std::string::npos)
             desktopfileName = file;
     }
 
     return desktopfileName;
 }
 
-QDir *FileMetadataExtractor::tryGetTmpDir() const {
-    auto dir = getTmpDir();
-
-    if (dir == nullptr || !dir->exists())
-        throw std::runtime_error(std::string("Unable to create tmp dir: ") + dir->absolutePath().toStdString());
-
-    return dir;
-}
-
-QString FileMetadataExtractor::tryGetDesktopFileName(const QStringList &list) const {
+std::string FileMetadataExtractor::tryGetDesktopFileName(const std::list<std::string> &list) const {
     auto fileName = getDesktopFileName(list);
-    if (fileName.isEmpty())
+    if (fileName.empty())
         throw std::runtime_error(std::string("Not .desktop file found."));
 
     return fileName;
 }
 
-void FileMetadataExtractor::tryExtractFile(const QString &filePath, const QDir *targetDir) const {
-    appimage_extract_file_following_symlinks(path.toStdString().c_str(), filePath.toStdString().c_str(),
-                                             targetDir->absoluteFilePath(filePath).toStdString().c_str());
+void FileMetadataExtractor::tryExtractFile(const filesystem::path &filePath, boost::filesystem::path targetPath) const {
+    appimage_extract_file_following_symlinks(path.c_str(), filePath.c_str(), targetPath.c_str());
 
-    if (!targetDir->exists(filePath))
-        throw std::runtime_error(std::string("Failed to extract file: ") + filePath.toStdString());
+    if (!filesystem::exists(targetPath))
+        throw std::runtime_error("Failed to extract file: " + filePath.string());
 }
 
-QVariantMap FileMetadataExtractor::extractAppStreamFileData() {
-
-    QSharedPointer<QDir> tmpDir{tryGetTmpDir(), [](QDir *dir) {
-        dir->removeRecursively();
-        delete dir;
-    }};
+nlohmann::json FileMetadataExtractor::extractAppStreamFileData() {
+    auto tmpFilePath =
+            filesystem::temp_directory_path() / filesystem::unique_path("appimage-info-appstream-%%%%%%%%.xml");
 
     auto appStreamFileName = tryGetAppStreamFileName(list);
-    tryExtractFile(appStreamFileName, tmpDir.data());
+    tryExtractFile(appStreamFileName, tmpFilePath);
+    AppStreamMetadataExtractor extractor(tmpFilePath.string());
+    auto content = extractor.getContent();
 
-    AppStreamMetadataExtractor extractor(tmpDir->absoluteFilePath(appStreamFileName));
-    return extractor.getContent();
+    filesystem::remove(tmpFilePath);
+    return content;
 }
 
-QString FileMetadataExtractor::tryGetAppStreamFileName(QStringList list) {
-    QString fileName;
+filesystem::path FileMetadataExtractor::tryGetAppStreamFileName(std::list<std::string> list) {
+    filesystem::path fileName;
 
     for (auto file : list)
-        if (file.contains("usr/share/metainfo") && file.endsWith(".appdata.xml", Qt::CaseInsensitive)) {
+        if (file.find("usr/share/metainfo") != file.npos && file.find(".appdata.xml") != file.npos) {
             fileName = file;
             break;
         }
 
-    if (fileName.isEmpty())
+    if (fileName.empty())
         throw std::runtime_error(std::string("Not .appdata.xml file found."));
 
     return fileName;
@@ -126,38 +111,38 @@ FileMetadataExtractor::FileMetadataExtractor() {
 
 }
 
-const QString &FileMetadataExtractor::getPath() const {
+const std::string &FileMetadataExtractor::getPath() const {
     return path;
 }
 
-void FileMetadataExtractor::setPath(const QString &path) {
+void FileMetadataExtractor::setPath(const std::string &path) {
     FileMetadataExtractor::path = path;
 }
 
-QVariantMap FileMetadataExtractor::extractMetadata() {
+nlohmann::json FileMetadataExtractor::extractMetadata() {
     list = loadFileList();
-    QVariantMap desktop;
-    QVariantMap appStream;
-    QVariantMap binary;
+    nlohmann::json desktop;
+    nlohmann::json appStream;
+    nlohmann::json binary;
     try {
         desktop = extractDesktopFileData();
     }
     catch (std::runtime_error &e) {
-        qWarning() << e.what();
+        std::cerr << e.what();
     }
 
     try {
         appStream = extractAppStreamFileData();
     }
     catch (std::runtime_error &e) {
-        qWarning() << e.what();
+        std::cerr << e.what();
     }
 
     try {
         binary = extractBinaryFileData();
     }
     catch (std::runtime_error &e) {
-        qWarning() << e.what();
+        std::cerr << e.what();
     }
 
     MetadataMerger merger;
@@ -168,50 +153,30 @@ QVariantMap FileMetadataExtractor::extractMetadata() {
     return merger.getOutput();
 }
 
-QVariantMap FileMetadataExtractor::extractBinaryFileData() {
-    BinaryMetadataExtractor extractor(path.toStdString());
+nlohmann::json FileMetadataExtractor::extractBinaryFileData() {
+    BinaryMetadataExtractor extractor(path);
     return extractor.getMetadata();
-}
-
-QByteArray FileMetadataExtractor::extractIcon() {
-    auto tmpFile = "/tmp/appimage-icon-" + QUuid::createUuid().toString().remove('{').remove('}');
-
-    appimage_extract_file_following_symlinks(path.toStdString().c_str(), ".DirIcon", tmpFile.toStdString().c_str());
-
-    QByteArray icon;
-    QFile f(tmpFile);
-    if (f.open(QIODevice::ReadOnly)) {
-        icon = f.readAll();
-        f.close();
-        f.remove();
-    } else
-        qWarning() << "Unable to extract application icon.";
-
-    return icon;
 }
 
 void FileMetadataExtractor::extractDesktopFile(const std::string &outputPath) {
     auto desktopFileName = tryGetDesktopFileName(list);
-    appimage_extract_file_following_symlinks(path.toStdString().c_str(), desktopFileName.toStdString().c_str(),
-                                             outputPath.c_str());
+    appimage_extract_file_following_symlinks(path.c_str(), desktopFileName.c_str(), outputPath.c_str());
 }
 
 void FileMetadataExtractor::extractAppStreamFile(const char *targetPath) {
     auto appstreamFileName = tryGetAppStreamFileName(list);
-    appimage_extract_file_following_symlinks(path.toStdString().c_str(), appstreamFileName.toStdString().c_str(),
-                                             targetPath);
+    appimage_extract_file_following_symlinks(path.c_str(), appstreamFileName.c_str(), targetPath);
 }
 
 void FileMetadataExtractor::extractIconFile(const char *targetPath, const char *iconSize) {
     // Search for an icon of the required size in
     for (const auto &file: list) {
-        if (file.contains("/usr/share/icons/hicolor") && file.contains(iconSize)) {
-            appimage_extract_file_following_symlinks(path.toStdString().c_str(), file.toStdString().c_str(),
-                                                     targetPath);
+        if (file.find("/usr/share/icons/hicolor") == std::string::npos && file.find(iconSize) != std::string::npos) {
+            appimage_extract_file_following_symlinks(path.c_str(), file.c_str(), targetPath);
             return;
         }
     }
 
     // Fallback to the .AppIcon
-    appimage_extract_file_following_symlinks(path.toStdString().c_str(), ".DirIcon", targetPath);
+    appimage_extract_file_following_symlinks(path.c_str(), ".DirIcon", targetPath);
 }

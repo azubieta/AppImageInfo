@@ -8,11 +8,11 @@
 #include "../entities/FileMetadataExtractor.h"
 
 struct {
-    QString appImagePath;
-    QString outputDirPath;
+    std::string appImagePath;
+    std::string outputDirPath;
 } typedef AppConfig;
 
-void writeAppImageInfo(const QVariantMap &metadata, const QString &outputDirPath);
+void writeAppImageInfo(const nlohmann::json &metadata, const std::string &outputDirPath);
 
 void writeAppImageIcon(QByteArray icon, const QString &outputDirPath);
 
@@ -30,10 +30,9 @@ int main(int argc, char **argv) {
     fileMetadataExtractor.setPath(config.appImagePath);
 
     auto metadata = fileMetadataExtractor.extractMetadata();
-    auto icon = fileMetadataExtractor.extractIcon();
 
     writeAppImageInfo(metadata, config.outputDirPath);
-    writeAppImageIcon(icon, config.outputDirPath);
+    fileMetadataExtractor.extractIconFile(config.outputDirPath.c_str(), "256x256");
 
     return 0;
 }
@@ -79,7 +78,7 @@ AppConfig parseArguments(const QCoreApplication &app) {
     return config;
 }
 
-void writeAppImageInfo(const QVariantMap &metadata, const QString &outputDirPath) {
+void writeAppImageInfo(const nlohmann::json &metadata, const std::string &outputDirPath) {
     auto doc = QJsonDocument::fromVariant(metadata);
     QFile output(outputDirPath + "/AppImageInfo.json");
     if (output.open(QIODevice::WriteOnly)) {

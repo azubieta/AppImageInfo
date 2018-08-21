@@ -3,11 +3,9 @@
 //
 
 
-#include <QDebug>
-#include <QFileInfo>
-#include <QtCore/QDateTime>
 #include <appimage/appimage.h>
 #include <fstream>
+#include <nlohmann/json.hpp>
 #include "sha512.h"
 #include "BinaryMetadataExtractor.h"
 
@@ -20,9 +18,9 @@ BinaryMetadataExtractor::BinaryMetadataExtractor(const std::string &target)
         throw BadFileFormat(bfd_errmsg(bfd_get_error()));
 }
 
-QVariantMap BinaryMetadataExtractor::getMetadata() {
-    QVariantMap data;
-    data["architecture"] = QString::fromStdString(getBinaryArch());
+nlohmann::json BinaryMetadataExtractor::getMetadata() {
+    nlohmann::json data;
+    data["architecture"] = getBinaryArch();
     data["sha512checksum"] = getSha512CheckSum();
     data["size"] = getFileSize();
     data["type"] = getAppImageType();
@@ -31,16 +29,16 @@ QVariantMap BinaryMetadataExtractor::getMetadata() {
     return data;
 }
 
-QDateTime BinaryMetadataExtractor::getTime() const {
+time_t BinaryMetadataExtractor::getTime() const {
     auto date = bfd_get_mtime(abfd);
-    return QDateTime::fromSecsSinceEpoch(date);
+    return  static_cast<time_t>(date);;
 }
 
-qint64 BinaryMetadataExtractor::getFileSize() const {
-    return static_cast<qint64>(bfd_get_file_size(abfd));
+int64_t BinaryMetadataExtractor::getFileSize() const {
+    return bfd_get_file_size(abfd);
 }
 
-QString BinaryMetadataExtractor::getSha512CheckSum() const {
+std::string BinaryMetadataExtractor::getSha512CheckSum() const {
     FILE *file = fopen(target.c_str(), "r");
     if (file) {
         SHA512_CTX sha512;
@@ -60,7 +58,7 @@ QString BinaryMetadataExtractor::getSha512CheckSum() const {
         for (int i = 0; i < SHA512_DIGEST_LENGTH; i++)
             sprintf(&mdString[i * 2], "%02x", (unsigned int) hash[i]);
 
-        QString out = mdString;
+        std::string out = mdString;
         return out;
     }
 
