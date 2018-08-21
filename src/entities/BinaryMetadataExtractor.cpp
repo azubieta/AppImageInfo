@@ -3,15 +3,15 @@
 //
 
 
-#include <appimage/appimage.h>
 #include <fstream>
+#include <appimage/appimage.h>
+#include <openssl/sha.h>
 #include <nlohmann/json.hpp>
-#include "sha512.h"
 #include "BinaryMetadataExtractor.h"
 
 BinaryMetadataExtractor::BinaryMetadataExtractor(const std::string &target)
-        : target(target), abfd(NULL) {
-    abfd = bfd_openr(target.c_str(), NULL);
+        : target(target), abfd(nullptr) {
+    abfd = bfd_openr(target.c_str(), nullptr);
 
     // no section info is loaded unless we call bfd_check_format!:
     if (!bfd_check_format(abfd, bfd_object))

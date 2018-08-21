@@ -7,16 +7,14 @@ addons:
   apt:
     packages:
     - dpkg
-    - git
     - wget
     - cmake
-    - libcurl4-openssl-dev
     - librsvg2-bin
     - libfuse-dev
     - desktop-file-utils
     - binutils-dev
-    - libmd-dev
     - libxml2-dev
+    - libcurl4-openssl-dev
 
 notifications:
   email: false
@@ -33,14 +31,14 @@ script:
   - #find AppDir -type f -iname '*.so*' -print0 | xargs -0 -i -n1 sh -c 'echo {}; strip {}' \;
   - export NO_STRIP=1
   - ./linuxdeploy-x86_64.AppImage --init-appdir --appdir=linuxdeploy.AppDir --plugin qt --output appimage
-  - mv AppImage_Metadata_Extractor*.AppImage AppImage_Metadata_Extractor.linuxdeploy.AppImage
+  - mv AppImage_Info*.AppImage AppImage_Info.linuxdeploy.AppImage
   - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
   - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
   - export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
   - ./linuxdeployqt-continuous-x86_64.AppImage linuxdeployqt.AppDir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip
   - ./linuxdeployqt-continuous-x86_64.AppImage linuxdeployqt.AppDir/usr/share/applications/*.desktop -appimage -no-strip
-  - mv AppImage_Metadata_Extractor-*x86_64.AppImage AppImage_Metadata_Extractor.linuxdeployqt.AppImage
+  - mv AppImage_Info-*x86_64.AppImage AppImage_Info.linuxdeployqt.AppImage
 
 after_success:
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh

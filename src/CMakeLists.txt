@@ -22,14 +22,13 @@ target_include_directories(libappimage-info
         ${PROJECT_SOURCE_DIR}/include
         PRIVATE
         ${APPIMAGEKIT_INCLUDE_DIRS}
-        ${Qt5Core_INCLUDE_DIRS}
-        ${Qt5Gui_INCLUDE_DIRS}
         ${LIBBFD_INCLUDE_DIRS}
-        ${LIBXML2_INCLUDE_DIR})
+        ${LIBXML2_INCLUDE_DIRS}
+        ${OPENSSL_INCLUDE_DIRS})
 target_link_libraries(libappimage-info
         ${APPIMAGEKIT_LIBRARIES}
         ${LIBBFD_LIBRARIES}
-        ${LIBMD_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
         ${LIBXML2_LIBRARIES}
         ${Boost_LIBRARIES}
         )
@@ -55,7 +54,7 @@ if (NOT AppImageKit_FOUND)
 endif ()
 
 add_executable(appimage-info app/main.cpp)
-target_link_libraries(appimage-info libappimage-info ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES} ${LIBMD_LIBRARIES})
+target_link_libraries(appimage-info libappimage-info ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES})
 target_compile_definitions(appimage-info PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 install(TARGETS appimage-info DESTINATION bin COMPONENT binaries)
