@@ -1,7 +1,3 @@
-find_package(Qt5 REQUIRED Core)
-find_package(OpenSSL REQUIRED)
-
-set(CMAKE_AUTOMOC ON)
 
 add_library(libappimage-info SHARED
         entities/FileMetadataExtractor.cpp
@@ -35,9 +31,7 @@ target_link_libraries(libappimage-info
         ${LIBBFD_LIBRARIES}
         ${LIBMD_LIBRARIES}
         ${LIBXML2_LIBRARIES}
-        ${Boost_LOG_LIBRARY}
-        ${Boost_FILESYSTEM_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_LIBRARIES}
         )
 target_compile_definitions(libappimage-info PRIVATE ${LIBXML2_DEFINITIONS})
 
@@ -61,7 +55,7 @@ if (NOT AppImageKit_FOUND)
 endif ()
 
 add_executable(appimage-info app/main.cpp)
-target_link_libraries(appimage-info libappimage-info ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES} ${LIBMD_LIBRARIES} Qt5::Core)
+target_link_libraries(appimage-info libappimage-info ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES} ${LIBMD_LIBRARIES})
 target_compile_definitions(appimage-info PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 install(TARGETS appimage-info DESTINATION bin COMPONENT binaries)

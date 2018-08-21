@@ -102,7 +102,7 @@ filesystem::path FileMetadataExtractor::tryGetAppStreamFileName(std::list<std::s
         }
 
     if (fileName.empty())
-        throw std::runtime_error(std::string("Not .appdata.xml file found."));
+        throw std::runtime_error(std::string("Not .appdata.xml file found.\n"));
 
     return fileName;
 }

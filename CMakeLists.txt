@@ -11,7 +11,7 @@ include(thirdparty/AppImageKit.cmake)
 include(thirdparty/FindBfd.cmake)
 find_package(LibXml2 REQUIRED)
 find_package(PkgConfig REQUIRED)
-find_package(Boost COMPONENTS filesystem system REQUIRED)
+find_package(Boost COMPONENTS program_options filesystem system REQUIRED)
 pkg_check_modules(LIBMD REQUIRED libmd)
 
 set(LIBAPPIMAGE-INFO_VERSION_MAJOR 0)

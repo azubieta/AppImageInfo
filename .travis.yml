@@ -5,9 +5,6 @@ sudo: required
 
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    - sourceline: 'ppa:beineri/opt-qt-5.10.1-trusty'
     packages:
     - dpkg
     - git
@@ -16,7 +13,6 @@ addons:
     - libcurl4-openssl-dev
     - librsvg2-bin
     - libfuse-dev
-    - qt510base
     - desktop-file-utils
     - binutils-dev
     - libmd-dev
@@ -26,15 +22,13 @@ notifications:
   email: false
 
 script:
-  - source /opt/qt*/bin/qt*-env.sh
-  - export QT_SELECT=qt5
   - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release .
   - make
   - DESTDIR=AppDir make install
   - cp -R AppDir linuxdeploy.AppDir
   - cp -R AppDir linuxdeployqt.AppDir
-  - wget https://github.com/TheAssassin/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-  - wget https://github.com/TheAssassin/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+  - wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+  - wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
   - chmod +x linuxdeploy*-x86_64.AppImage
   - #find AppDir -type f -iname '*.so*' -print0 | xargs -0 -i -n1 sh -c 'echo {}; strip {}' \;
   - export NO_STRIP=1

@@ -1,98 +1,86 @@
-#include <QCoreApplication>
-#include <QJsonDocument>
-#include <QTextStream>
-#include <QCommandLineParser>
-#include <QDebug>
-#include <QFile>
+#include <iostream>
+#include <fstream>
+#include <boost/program_options.hpp>
+
+using namespace boost::program_options;
+
 
 #include "../entities/FileMetadataExtractor.h"
 
 struct {
-    std::string appImagePath;
-    std::string outputDirPath;
+    std::string AppImagePath;
+    std::string AppImageInfoOutputPath;
+    std::string AppIconOutputPath;
 } typedef AppConfig;
 
 void writeAppImageInfo(const nlohmann::json &metadata, const std::string &outputDirPath);
 
-void writeAppImageIcon(QByteArray icon, const QString &outputDirPath);
 
-AppConfig parseArguments(const QCoreApplication &app);
+AppConfig parseArguments(int argc, char **argv) {
+    AppConfig config{};
+    try {
+        options_description desc{"Options"};
+        desc.add_options()
+                ("help,h", "Help screen")
+                ("appImage", value<std::string>(&config.AppImagePath)->required(), "Target AppImage file")
+                ("appImageInfo,o", value<std::string>(), "Output the AppImage info to <appImageInfo>")
+                ("appImageIcon,i", value<std::string>(), "Output the AppImage Icon to <appImageIcon>");
 
+        positional_options_description pos_desc;
+        pos_desc.add("appImage", 1);
 
-int main(int argc, char **argv) {
-    QCoreApplication app(argc, argv);
-    QCoreApplication::setApplicationName(PROJECT_NAME);
-    QCoreApplication::setApplicationVersion(PROJECT_VERSION);
+        command_line_parser parser{argc, argv};
+        parser.positional(pos_desc).options(desc);
+        parsed_options parsed_options = parser.run();
 
-    AppConfig config = parseArguments(app);
+        variables_map vm;
+        store(parsed_options, vm);
+        notify(vm);
 
-    FileMetadataExtractor fileMetadataExtractor;
-    fileMetadataExtractor.setPath(config.appImagePath);
+        if (!vm.count("appImage")) {
+            std::cout << "Missing AppImage file." << std::endl;
+            std::cout << desc << '\n';
+            exit(1);
+        }
 
-    auto metadata = fileMetadataExtractor.extractMetadata();
+        if (vm.count("help")) {
+            std::cout << desc << '\n';
+            exit(0);
+        } else {
+            if (vm.count("appImage"))
+                config.AppImagePath = vm["appImage"].as<std::string>();
 
-    writeAppImageInfo(metadata, config.outputDirPath);
-    fileMetadataExtractor.extractIconFile(config.outputDirPath.c_str(), "256x256");
+            if (vm.count("appImageInfo"))
+                config.AppImageInfoOutputPath = vm["appImageInfo"].as<std::string>();
 
-    return 0;
-}
-
-
-AppConfig parseArguments(const QCoreApplication &app) {
-    QCommandLineParser parser;
-    parser.setApplicationDescription(
-            "Utility to extract metadata and icon from AppImage files."
-            "\n\nOutputs:"
-            "\n\t<directory>/AppImageInfo.json\t Mix of \".Desktop\" and \".appdata.xml\" files."
-            "\n\t<directory>/AppImageIcon.png\t Application icon.");
-
-    parser.addHelpOption();
-    parser.addVersionOption();
-    parser.addPositionalArgument("path", QCoreApplication::translate("main", "AppImage file <path>."));
-    QCommandLineOption targetDirOption({{"t", "output-directory"},
-                                        QCoreApplication::translate("main", "Write files into <directory>."),
-                                        QCoreApplication::translate("main", "directory")});
-    parser.addOption(targetDirOption);
-
-    parser.process(app);
-
-    AppConfig config;
-    const QStringList args = parser.positionalArguments();
-    if (args.length() == 1)
-        config.appImagePath = args.at(0);
-    else
-        parser.showHelp(1);
-
-    if (!QFile::exists(config.appImagePath)) {
-        qCritical() << "Invalid path: " << config.appImagePath;
-        parser.showHelp(1);
+            if (vm.count("appImageIcon"))
+                config.AppIconOutputPath = vm["appImageIcon"].as<std::string>();
+        }
     }
-
-
-    config.outputDirPath = parser.value(targetDirOption);
-    if (!QFile::exists(config.outputDirPath)) {
-        qCritical() << "Invalid path: " << config.appImagePath;
-        parser.showHelp(1);
+    catch (const error &ex) {
+        std::cerr << ex.what() << '\n';
     }
-
     return config;
 }
 
-void writeAppImageInfo(const nlohmann::json &metadata, const std::string &outputDirPath) {
-    auto doc = QJsonDocument::fromVariant(metadata);
-    QFile output(outputDirPath + "/AppImageInfo.json");
-    if (output.open(QIODevice::WriteOnly)) {
-        output.write(doc.toJson());
-        output.close();
-    }
-}
+int main(int argc, char **argv) {
+    AppConfig config = parseArguments(argc, argv);
 
-void writeAppImageIcon(QByteArray icon, const QString &outputDirPath) {
-    QString path = outputDirPath + "/AppImageIcon";
-    QFile f(path);
-    if (f.open(QIODevice::WriteOnly)) {
-        f.write(icon);
+    FileMetadataExtractor fileMetadataExtractor;
+    fileMetadataExtractor.setPath(config.AppImagePath);
+
+    auto metadata = fileMetadataExtractor.extractMetadata();
+
+    if (config.AppImageInfoOutputPath.empty())
+        std::cout << metadata.dump(2, ' ', true) << std::endl;
+    else {
+        std::ofstream f(config.AppImageInfoOutputPath, std::ofstream::out | std::ofstream::app);
+        f << metadata.dump(2, ' ', true) << std::endl;
         f.close();
-    } else
-        qWarning() << "Unable to write icon file";
+    }
+
+    if (!config.AppIconOutputPath.empty())
+        fileMetadataExtractor.extractIconFile(config.AppIconOutputPath.c_str(), "256x256");
+
+    return 0;
 }
