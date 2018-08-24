@@ -4,11 +4,9 @@ project(appimage_info VERSION 0.2)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty")
+add_subdirectory(thirdparty)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty")
 
-
-include(thirdparty/LibAppImage.cmake)
-include(thirdparty/FindBfd.cmake)
 find_package(LibXml2 REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Boost COMPONENTS program_options filesystem system REQUIRED)

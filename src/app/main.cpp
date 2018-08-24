@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <boost/program_options.hpp>
+#include <nlohmann/json.hpp>
 
 using namespace boost::program_options;
 
@@ -72,10 +73,10 @@ int main(int argc, char **argv) {
     auto metadata = fileMetadataExtractor.extractMetadata();
 
     if (config.AppImageInfoOutputPath.empty())
-        std::cout << metadata.dump(2, ' ', true) << std::endl;
+        std::cout << metadata.dump(2) << std::endl;
     else {
         std::ofstream f(config.AppImageInfoOutputPath, std::ofstream::out | std::ofstream::app);
-        f << metadata.dump(2, ' ', true) << std::endl;
+        f << metadata.dump(2) << std::endl;
         f.close();
     }
 

@@ -1,3 +1,4 @@
+find_package(Bfd REQUIRED)
 
 add_library(libappimage-info SHARED
         entities/FileMetadataExtractor.cpp
@@ -24,7 +25,9 @@ target_include_directories(libappimage-info
         ${LIBAPPIMAGE_INCLUDE_DIRS}
         ${LIBBFD_INCLUDE_DIRS}
         ${LIBXML2_INCLUDE_DIRS}
-        ${OPENSSL_INCLUDE_DIRS})
+        ${OPENSSL_INCLUDE_DIRS}
+        ${NLOHMANN_JSON_INCLUDE_DIRS})
+
 target_link_libraries(libappimage-info
         ${LIBAPPIMAGE_LIBRARIES}
         ${LIBBFD_LIBRARIES}
@@ -55,6 +58,7 @@ endif ()
 
 add_executable(appimage-info app/main.cpp)
 target_link_libraries(appimage-info libappimage-info ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES})
+target_include_directories(appimage-info PRIVATE ${NLOHMANN_JSON_INCLUDE_DIRS})
 target_compile_definitions(appimage-info PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 install(TARGETS appimage-info DESTINATION bin COMPONENT binaries)
