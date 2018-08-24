@@ -2,6 +2,9 @@
 // Created by alexis on 6/8/18.
 //
 
+extern "C" {
+#include <sys/stat.h>
+}
 
 #include <fstream>
 #include <appimage/appimage.h>
@@ -31,11 +34,18 @@ nlohmann::json BinaryMetadataExtractor::getMetadata() {
 
 time_t BinaryMetadataExtractor::getTime() const {
     auto date = bfd_get_mtime(abfd);
-    return  static_cast<time_t>(date);;
+    return static_cast<time_t>(date);;
 }
 
 int64_t BinaryMetadataExtractor::getFileSize() const {
-    return bfd_get_file_size(abfd);
+    struct stat statbuf{};
+
+    if (stat("file.dat", &statbuf) == -1) {
+        /* check the value of errno */
+    }
+
+
+    return statbuf.st_size;
 }
 
 std::string BinaryMetadataExtractor::getSha512CheckSum() const {
