@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty")
 
 
-include(thirdparty/AppImageKit.cmake)
+include(thirdparty/LibAppImage.cmake)
 include(thirdparty/FindBfd.cmake)
 find_package(LibXml2 REQUIRED)
 find_package(OpenSSL REQUIRED)

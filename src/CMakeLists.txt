@@ -21,12 +21,12 @@ target_include_directories(libappimage-info
         PUBLIC
         ${PROJECT_SOURCE_DIR}/include
         PRIVATE
-        ${APPIMAGEKIT_INCLUDE_DIRS}
+        ${LIBAPPIMAGE_INCLUDE_DIRS}
         ${LIBBFD_INCLUDE_DIRS}
         ${LIBXML2_INCLUDE_DIRS}
         ${OPENSSL_INCLUDE_DIRS})
 target_link_libraries(libappimage-info
-        ${APPIMAGEKIT_LIBRARIES}
+        ${LIBAPPIMAGE_LIBRARIES}
         ${LIBBFD_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${LIBXML2_LIBRARIES}
@@ -50,7 +50,7 @@ install(TARGETS libappimage-info
 
 
 if (NOT AppImageKit_FOUND)
-    add_dependencies(libappimage-info AppImageKit)
+    add_dependencies(libappimage-info libappimage)
 endif ()
 
 add_executable(appimage-info app/main.cpp)
@@ -60,3 +60,5 @@ target_compile_definitions(appimage-info PRIVATE PROJECT_NAME="${PROJECT_NAME}" 
 install(TARGETS appimage-info DESTINATION bin COMPONENT binaries)
 install(FILES app/res/appimage-info.desktop DESTINATION share/applications/ COMPONENT desktop)
 install(FILES app/res/appimage-info.svg DESTINATION share/icons/hicolor/scalable/apps/ COMPONENT desktop)
+
+add_dependencies(appimage-info libappimage-info)

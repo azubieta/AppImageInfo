@@ -4,15 +4,16 @@ add_executable(test_appstreamMetadatadExtractor
         ${CMAKE_SOURCE_DIR}/src/entities/AppStreamMetadataExtractor.cpp)
 
 target_link_libraries(test_appstreamMetadatadExtractor
-        ${APPIMAGEKIT_LIBRARIES}
+        ${LIBAPPIMAGE_LIBRARIES}
         ${LIBBFD_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${LIBXML2_LIBRARIES}
         ${Boost_LIBRARIES}
         gtest)
-target_include_directories(test_appstreamMetadatadExtractor PRIVATE ${CMAKE_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include ${LIBXML2_INCLUDE_DIR})
+target_include_directories(test_appstreamMetadatadExtractor PRIVATE ${CMAKE_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include ${LIBAPPIMAGE_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
 target_compile_definitions(test_appstreamMetadatadExtractor PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data" ${LIBXML2_DEFINITIONS})
 
+add_dependencies(test_appstreamMetadatadExtractor libappimage)
 add_test(AppstreamMetadatadExtractorTest test_appstreamMetadatadExtractor)
 
 add_executable(test_fileMetadatadExtractor
@@ -23,16 +24,16 @@ add_executable(test_fileMetadatadExtractor
         ${CMAKE_SOURCE_DIR}/src/entities/AppStreamMetadataExtractor.cpp
         ${CMAKE_SOURCE_DIR}/src/entities/DesktopFileMetadataExtractor.cpp)
 
-message("BOOST LOG: " ${Boost_LOG_LIBRARY})
 
 target_link_libraries(test_fileMetadatadExtractor
-        ${APPIMAGEKIT_LIBRARIES}
+        ${LIBAPPIMAGE_LIBRARIES}
         ${LIBBFD_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${LIBXML2_LIBRARIES}
         ${Boost_LIBRARIES}
         gtest)
-target_include_directories(test_fileMetadatadExtractor PRIVATE ${CMAKE_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include ${LIBXML2_INCLUDE_DIR})
+target_include_directories(test_fileMetadatadExtractor PRIVATE ${CMAKE_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include ${LIBAPPIMAGE_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
 target_compile_definitions(test_fileMetadatadExtractor PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data" ${LIBXML2_DEFINITIONS})
 
+add_dependencies(test_fileMetadatadExtractor libappimage)
 add_test(FileMetadatadExtractorTest test_fileMetadatadExtractor)
