@@ -24,7 +24,7 @@ target_include_directories(libappimage-info
         PRIVATE
         ${LIBAPPIMAGE_INCLUDE_DIRS}
         ${LIBBFD_INCLUDE_DIRS}
-        ${LIBXML2_INCLUDE_DIRS}
+        ${LIBXML2_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_DIRS}
         ${NLOHMANN_JSON_INCLUDE_DIRS})
 
