@@ -103,12 +103,12 @@ nlohmann::json DesktopFileMetadataExtractor::extractValue(const std::string &cle
         unsigned long prev_ptr = 0;
         auto ptr = valueField.find(';');
         while (ptr != std::string::npos) {
-            auto item = valueField.substr(prev_ptr, ptr);
+            auto item = valueField.substr(prev_ptr, ptr - prev_ptr);
             if (!item.empty())
                 value.push_back(item);
 
-            prev_ptr = ptr;
-            ptr = valueField.find(';', prev_ptr + 1);
+            prev_ptr = ptr + 1 /* to skip the ';' */;
+            ptr = valueField.find(';', prev_ptr);
         }
         return value;
     } else
