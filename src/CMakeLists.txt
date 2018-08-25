@@ -50,7 +50,6 @@ install(TARGETS libappimage-info
         COMPONENT Development)
 
 set_target_properties(libappimage-info PROPERTIES
-        BUILD_WITH_INSTALL_RPATH TRUE
         INSTALL_RPATH_USE_LINK_PATH TRUE
         INSTALL_RPATH "\$ORIGIN/../lib:${CMAKE_INSTALL_PREFIX}/lib")
 
@@ -64,7 +63,6 @@ target_include_directories(appimage-info PRIVATE ${NLOHMANN_JSON_INCLUDE_DIRS})
 target_compile_definitions(appimage-info PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 set_target_properties(appimage-info PROPERTIES
-        BUILD_WITH_INSTALL_RPATH TRUE
         INSTALL_RPATH_USE_LINK_PATH TRUE
         INSTALL_RPATH "\$ORIGIN/../lib:${CMAKE_INSTALL_PREFIX}/lib")
 
