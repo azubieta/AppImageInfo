@@ -1,3 +1,4 @@
+enable_testing()
 add_executable(test_appstreamMetadatadExtractor
         testAppstreamMetadataExtractor.cpp
         ${CMAKE_SOURCE_DIR}/src/entities/AppStreamMetadataExtractor.h
@@ -10,7 +11,12 @@ target_link_libraries(test_appstreamMetadatadExtractor
         ${LIBXML2_LIBRARIES}
         ${Boost_LIBRARIES}
         gtest)
-target_include_directories(test_appstreamMetadatadExtractor PRIVATE ${CMAKE_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include ${LIBAPPIMAGE_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
+target_include_directories(test_appstreamMetadatadExtractor PRIVATE
+        ${CMAKE_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include
+        ${LIBAPPIMAGE_INCLUDE_DIRS}
+        ${LIBXML2_INCLUDE_DIR}
+        ${NLOHMANN_JSON_INCLUDE_DIRS})
+
 target_compile_definitions(test_appstreamMetadatadExtractor PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data" ${LIBXML2_DEFINITIONS})
 
 add_dependencies(test_appstreamMetadatadExtractor libappimage)
@@ -24,6 +30,12 @@ add_executable(test_fileMetadatadExtractor
         ${CMAKE_SOURCE_DIR}/src/entities/AppStreamMetadataExtractor.cpp
         ${CMAKE_SOURCE_DIR}/src/entities/DesktopFileMetadataExtractor.cpp)
 
+target_include_directories(test_fileMetadatadExtractor PRIVATE
+        ${CMAKE_SOURCE_DIR}/src
+        ${PROJECT_SOURCE_DIR}/include
+        ${LIBAPPIMAGE_INCLUDE_DIRS}
+        ${LIBXML2_INCLUDE_DIR}
+        ${NLOHMANN_JSON_INCLUDE_DIRS})
 
 target_link_libraries(test_fileMetadatadExtractor
         ${LIBAPPIMAGE_LIBRARIES}
@@ -32,7 +44,8 @@ target_link_libraries(test_fileMetadatadExtractor
         ${LIBXML2_LIBRARIES}
         ${Boost_LIBRARIES}
         gtest)
-target_include_directories(test_fileMetadatadExtractor PRIVATE ${CMAKE_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include ${LIBAPPIMAGE_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
+
+
 target_compile_definitions(test_fileMetadatadExtractor PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data" ${LIBXML2_DEFINITIONS})
 
 add_dependencies(test_fileMetadatadExtractor libappimage)

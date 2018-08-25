@@ -1,4 +1,3 @@
-find_package(Bfd REQUIRED)
 
 add_library(libappimage-info SHARED
         entities/FileMetadataExtractor.cpp
