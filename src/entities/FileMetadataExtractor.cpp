@@ -24,7 +24,7 @@ std::list<std::string> FileMetadataExtractor::loadFileList() {
         throw std::runtime_error(std::string("Unable to list files in ") + path);
 
     for (int i = 0; rawFileList[i] != nullptr; i++)
-        fileList.push_back(std::string(rawFileList[i]));
+        fileList.emplace_back(rawFileList[i]);
 
     appimage_string_list_free(rawFileList);
     return fileList;
@@ -107,9 +107,7 @@ filesystem::path FileMetadataExtractor::tryGetAppStreamFileName(std::list<std::s
     return fileName;
 }
 
-FileMetadataExtractor::FileMetadataExtractor() {
-
-}
+FileMetadataExtractor::FileMetadataExtractor() = default;
 
 const std::string &FileMetadataExtractor::getPath() const {
     return path;
@@ -120,6 +118,16 @@ void FileMetadataExtractor::setPath(const std::string &path) {
 }
 
 nlohmann::json FileMetadataExtractor::extractMetadata() {
+    if (!filesystem::exists(path))
+        throw std::runtime_error(path + " doesn't exists.");
+
+    if (!filesystem::is_regular_file(path))
+        throw std::runtime_error(path + " is not a file.");
+
+    auto type = appimage_get_type(path.c_str(), false);
+    if (type <= 0)
+        throw std::runtime_error("Is not a valid AppImage file");
+
     list = loadFileList();
     nlohmann::json desktop;
     nlohmann::json appStream;
@@ -128,21 +136,21 @@ nlohmann::json FileMetadataExtractor::extractMetadata() {
         desktop = extractDesktopFileData();
     }
     catch (std::runtime_error &e) {
-        std::cerr << e.what();
+        std::cerr << e.what() << std::endl;
     }
 
     try {
         appStream = extractAppStreamFileData();
     }
     catch (std::runtime_error &e) {
-        std::cerr << e.what();
+        std::cerr << e.what() << std::endl;
     }
 
     try {
         binary = extractBinaryFileData();
     }
     catch (std::runtime_error &e) {
-        std::cerr << e.what();
+        std::cerr << e.what() << std::endl;
     }
 
     MetadataMerger merger;

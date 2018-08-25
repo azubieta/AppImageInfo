@@ -26,8 +26,10 @@ AppConfig parseArguments(int argc, char **argv) {
     desc.add_options()
             ("help,h", "Help screen")
             ("appImage", value<std::string>(&config.AppImagePath)->required(), "Target AppImage file")
-            ("appImageInfo,o", value<std::string>(&config.AppImageInfoOutputPath), "Output the AppImage info to <appImageInfo>")
-            ("appImageIcon,i", value<std::string>(&config.AppIconOutputPath), "Output the AppImage Icon to <appImageIcon>");
+            ("appImageInfo,o", value<std::string>(&config.AppImageInfoOutputPath),
+             "Output the AppImage info to <appImageInfo>")
+            ("appImageIcon,i", value<std::string>(&config.AppIconOutputPath),
+             "Output the AppImage Icon to <appImageIcon>");
 
     positional_options_description pos_desc;
     pos_desc.add("appImage", 1);
@@ -58,20 +60,27 @@ int main(int argc, char **argv) {
         FileMetadataExtractor fileMetadataExtractor;
         fileMetadataExtractor.setPath(config.AppImagePath);
 
-        auto metadata = fileMetadataExtractor.extractMetadata();
+        try {
+            auto metadata = fileMetadataExtractor.extractMetadata();
 
-        if (config.AppImageInfoOutputPath.empty())
-            std::cout << metadata.dump(2) << std::endl;
-        else {
-            std::ofstream f(config.AppImageInfoOutputPath, std::ofstream::out | std::ofstream::app);
-            f << metadata.dump(2) << std::endl;
-            f.close();
+            if (config.AppImageInfoOutputPath.empty())
+                std::cout << metadata.dump(2) << std::endl;
+            else {
+                std::ofstream f(config.AppImageInfoOutputPath, std::ofstream::out | std::ofstream::app);
+                f << metadata.dump(2) << std::endl;
+                f.close();
+            }
+
+            if (!config.AppIconOutputPath.empty())
+                fileMetadataExtractor.extractIconFile(config.AppIconOutputPath.c_str(), "256x256");
+
+            return 0;
+        }
+        catch (std::runtime_error &e) {
+            std::cerr << e.what() << std::endl;
+            return 1;
         }
 
-        if (!config.AppIconOutputPath.empty())
-            fileMetadataExtractor.extractIconFile(config.AppIconOutputPath.c_str(), "256x256");
-
-        return 0;
     } else
         return 1;
 }
