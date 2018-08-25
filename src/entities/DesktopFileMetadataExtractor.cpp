@@ -74,8 +74,9 @@ void DesktopFileMetadataExtractor::handleKeyEntry(const std::string &cleanLine) 
 
 std::string DesktopFileMetadataExtractor::extractLocale(const std::string &full_key) const {
     auto sIdx = full_key.find('[');
+    auto eIdx = full_key.find(']');
     if (sIdx != std::string::npos) {
-        auto locale = full_key.substr(+1, full_key.size() - 1);
+        auto locale = full_key.substr(sIdx+1, eIdx - sIdx -1);
         return locale;
     } else
         return DEFUALT_LOCALE_NAME;
