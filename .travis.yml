@@ -34,7 +34,7 @@ script:
   - chmod +x linuxdeploy*-x86_64.AppImage
   - #find AppDir -type f -iname '*.so*' -print0 | xargs -0 -i -n1 sh -c 'echo {}; strip {}' \;
   - export NO_STRIP=1
-  - ./linuxdeploy-x86_64.AppImage --init-appdir --appdir=linuxdeploy.AppDir --plugin qt --output appimage
+  - ./linuxdeploy-x86_64.AppImage --init-appdir --appdir=linuxdeploy.AppDir --output appimage
   - mv AppImage_Info*.AppImage AppImage_Info.linuxdeploy.AppImage
   - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
