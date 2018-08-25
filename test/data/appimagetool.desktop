@@ -3,7 +3,8 @@ Type=Application
 Name=appimagetool
 Exec=appimagetool
 Comment=Tool to generate AppImages from AppDirs
+Comment[es]=Herramienta para generar AppImages a partir de AppDirs
 Icon=appimagetool
-Categories=Development;
+Categories=Development;Utils;
 Terminal=true
 
