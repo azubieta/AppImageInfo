@@ -39,8 +39,13 @@ nlohmann::json MetadataMerger::getOutput() {
 }
 
 nlohmann::json MetadataMerger::getCategories() const {
-    const auto desktopEntry = desktop["Desktop Entry"];
-    return desktopEntry["Categories"];
+    nlohmann::json categories;
+    if (desktop.find("Desktop Entry") != desktop.end() &&
+        desktop["Desktop Entry"].find("Categories") != desktop["Desktop Entry"].end()) {
+        const auto desktopEntry = desktop["Desktop Entry"];
+        categories = desktopEntry["Categories"];
+    }
+    return categories;
 }
 
 nlohmann::json MetadataMerger::getDescription() const {
@@ -51,13 +56,25 @@ nlohmann::json MetadataMerger::getDescription() const {
 }
 
 nlohmann::json MetadataMerger::getAbstract() const {
-    const auto desktopEntry = desktop["Desktop Entry"];
-    return desktopEntry["Comment"];
+    nlohmann::json abstract;
+    if (desktop.find("Desktop Entry") != desktop.end() &&
+        desktop["Desktop Entry"].find("Comment") != desktop["Desktop Entry"].end()) {
+        const auto desktopEntry = desktop["Desktop Entry"];
+        abstract = desktopEntry["Comment"];
+    }
+
+    return abstract;
 }
 
 const nlohmann::json MetadataMerger::getName() const {
-    const auto desktopEntry = desktop["Desktop Entry"];
-    return desktopEntry["Name"];
+    nlohmann::json name;
+    if (desktop.find("Desktop Entry") != desktop.end() &&
+        desktop["Desktop Entry"].find("Name") != desktop["Desktop Entry"].end()) {
+        const auto desktopEntry = desktop["Desktop Entry"];
+        name = desktopEntry["Name"];
+    }
+
+    return name;
 }
 
 std::list<std::string> MetadataMerger::getKeywords() const {
