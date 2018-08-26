@@ -16,7 +16,7 @@ file managers or others to improve the user experience when dealing
 with AppImages.
 
 ## Requires/Depends
- - libstd++
+ - libstdc++
  - boost algorithms 
  - boost filesystem 
  - boost program_options
