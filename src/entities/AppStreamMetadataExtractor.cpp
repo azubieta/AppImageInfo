@@ -3,6 +3,7 @@
 //
 
 #include <set>
+#include <boost/algorithm/string/trim.hpp>
 #include <nlohmann/json.hpp>
 #include "AppStreamMetadataExtractor.h"
 
@@ -112,12 +113,16 @@ nlohmann::json AppStreamMetadataExtractor::readScreenshot(_xmlNode *node) {
     for (auto cur_node = node->children; cur_node; cur_node = cur_node->next) {
         auto nodeName = getString(cur_node->name);
         if (nodeName == "caption") {
-            auto value = getString(cur_node->content);
-            screenshot[nodeName] = value;
+            xmlChar *value = xmlNodeGetContent(cur_node);
+            screenshot[nodeName] = getString(value);
+            free(value);
         }
 
         if (nodeName == "image") {
-            screenshot["url"] = getString(cur_node->content);
+            xmlChar *url = xmlNodeGetContent(cur_node);
+            auto urlString = getString(url);
+            boost::algorithm::trim(urlString);
+            screenshot["url"] = urlString;
             xmlChar *type = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("type"));
             xmlChar *width = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("width"));
             xmlChar *height = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("height"));
@@ -126,6 +131,7 @@ nlohmann::json AppStreamMetadataExtractor::readScreenshot(_xmlNode *node) {
             screenshot["width"] = getString(width);
             screenshot["height"] = getString(height);
             screenshot["language"] = getString(language);
+            free(url);
             free(type);
             free(width);
             free(height);
