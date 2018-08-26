@@ -32,7 +32,7 @@ script:
   - chmod +x linuxdeploy*-x86_64.AppImage
   - #find AppDir -type f -iname '*.so*' -print0 | xargs -0 -i -n1 sh -c 'echo {}; strip {}' \;
   - export NO_STRIP=1
-  - ./linuxdeploy-x86_64.AppImage --init-appdir --appdir=AppDir --output appimage
+  - ./linuxdeploy-x86_64.AppImage --appdir=AppDir --output appimage
 
 after_success:
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
