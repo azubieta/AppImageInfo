@@ -15,8 +15,6 @@ struct {
     bool isOk;
 } typedef AppConfig;
 
-void writeAppImageInfo(const nlohmann::json &metadata, const std::string &outputDirPath);
-
 
 AppConfig parseArguments(int argc, char **argv) {
     AppConfig config;
