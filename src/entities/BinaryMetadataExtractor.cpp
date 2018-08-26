@@ -7,6 +7,9 @@ extern "C" {
 }
 
 #include <fstream>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 #include <appimage/appimage.h>
 #include <openssl/sha.h>
 #include <nlohmann/json.hpp>
@@ -76,8 +79,12 @@ std::string BinaryMetadataExtractor::getSha512CheckSum() const {
 }
 
 std::string BinaryMetadataExtractor::getBinaryArch() const {
-    std::string arch = abfd->arch_info->arch_name;
-    return arch;
+    std::string arch = bfd_printable_name(abfd);
+    /* The printable name output is composed by the architecture name and machine name.
+     * Only Machine name (also know as 'Target Platform') will be returned.*/
+    std::vector<std::string> sections;
+    boost::algorithm::split(sections, arch, boost::is_any_of(":"));
+    return sections.back();
 }
 
 int BinaryMetadataExtractor::getAppImageType() const {
