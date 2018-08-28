@@ -34,7 +34,7 @@ find_path(LIBBFD_INCLUDE_DIRS
 # Ugly, yes ugly...
 find_library(LIBBFD_BFD_LIBRARY
         NAMES
-        bfd
+        bfd-multiarch
         PATHS
         /usr/lib
         /usr/lib64
