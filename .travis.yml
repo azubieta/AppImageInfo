@@ -12,7 +12,7 @@ addons:
     - librsvg2-bin
     - libfuse-dev
     - desktop-file-utils
-    - binutils-dev
+    - binutils-multiarch-dev
     - libxml2-dev
     - libcurl4-openssl-dev
     - libboost-program-options-dev
