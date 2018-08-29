@@ -10,8 +10,8 @@ add_library(libappimageinfo SHARED
         entities/FileMetadataMerger.h
         entities/BinaryMetadataExtractor.cpp
         entities/BinaryMetadataExtractor.h
-        ${PROJECT_SOURCE_DIR}/include/appimage/appimageinfo.h
-        lib/appimageinfo.cpp)
+        ${PROJECT_SOURCE_DIR}/include/appimage/appimage_info.h
+        lib/appimage_info.cpp)
 
 
 target_compile_options(libappimageinfo PUBLIC -fPIC -fexceptions)
@@ -44,7 +44,7 @@ install(TARGETS libappimageinfo
 
 set_target_properties(libappimageinfo PROPERTIES
         VERSION ${LIBAPPIMAGE-INFO_VERSION} SOVERSION ${LIBAPPIMAGE-INFO_VERSION_MAJOR}
-        PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/appimage/appimageinfo.h
+        PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/appimage/appimage_info.h
         PREFIX "" # Prevent CMake from adding the 'lib' prefix to the library.
         INSTALL_RPATH_USE_LINK_PATH TRUE
         INSTALL_RPATH "\$ORIGIN/../lib:${CMAKE_INSTALL_PREFIX}/lib")
