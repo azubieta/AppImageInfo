@@ -3,7 +3,7 @@
 //
 
 
-#include "appimage/appimage-info.h"
+#include "appimage/appimageinfo.h"
 #include "../entities/FileMetadataExtractor.h"
 
 void extract_desktop_file(const char *appimage_path, const char *output_path) {
