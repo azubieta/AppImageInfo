@@ -10,10 +10,11 @@ add_library(libappimageinfo SHARED
         entities/FileMetadataMerger.h
         entities/BinaryMetadataExtractor.cpp
         entities/BinaryMetadataExtractor.h
-        ${PROJECT_SOURCE_DIR}/include/appimage/appimage_info.h
-        lib/appimage_info.cpp)
+        ${PROJECT_SOURCE_DIR}/include/appimage/info.h
+        lib/info.cpp)
 
 
+set_target_properties(libappimageinfo PROPERTIES PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/appimage/info.h)
 target_compile_options(libappimageinfo PUBLIC -fPIC -fexceptions)
 target_include_directories(libappimageinfo
         PUBLIC
