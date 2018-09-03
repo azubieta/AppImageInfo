@@ -1,6 +1,6 @@
 find_package(libappimage QUIET)
 
-if (NOT libappimage_FOUND)
+if (NOT TARGET libappimage)
     message(STATUS "Downloading and building libappimage")
     include(ExternalProject)
 

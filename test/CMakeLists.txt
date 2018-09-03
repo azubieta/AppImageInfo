@@ -1,8 +1,8 @@
 enable_testing()
 add_executable(test_desktopFileMetadatadExtractor
         testDesktopFileMetadataExtractor.cpp
-        ${CMAKE_SOURCE_DIR}/src/entities/DesktopFileMetadataExtractor.h
-        ${CMAKE_SOURCE_DIR}/src/entities/DesktopFileMetadataExtractor.cpp )
+        ${PROJECT_SOURCE_DIR}/src/entities/DesktopFileMetadataExtractor.h
+        ${PROJECT_SOURCE_DIR}/src/entities/DesktopFileMetadataExtractor.cpp )
 
 target_link_libraries(test_desktopFileMetadatadExtractor
         ${LIBAPPIMAGE_LIBRARIES}
@@ -12,7 +12,7 @@ target_link_libraries(test_desktopFileMetadatadExtractor
         ${Boost_LIBRARIES}
         gtest)
 target_include_directories(test_desktopFileMetadatadExtractor PRIVATE
-        ${CMAKE_SOURCE_DIR}/src
+        ${PROJECT_SOURCE_DIR}/src
         ${NLOHMANN_JSON_INCLUDE_DIRS})
 
 target_compile_definitions(test_desktopFileMetadatadExtractor PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data" ${LIBXML2_DEFINITIONS})
@@ -22,8 +22,8 @@ add_test(AppstreamMetadatadExtractorTest test_appstreamMetadatadExtractor)
 
 add_executable(test_appstreamMetadatadExtractor
         testAppstreamMetadataExtractor.cpp
-        ${CMAKE_SOURCE_DIR}/src/entities/AppStreamMetadataExtractor.h
-        ${CMAKE_SOURCE_DIR}/src/entities/AppStreamMetadataExtractor.cpp)
+        ${PROJECT_SOURCE_DIR}/src/entities/AppStreamMetadataExtractor.h
+        ${PROJECT_SOURCE_DIR}/src/entities/AppStreamMetadataExtractor.cpp)
 
 target_link_libraries(test_appstreamMetadatadExtractor
         ${LIBAPPIMAGE_LIBRARIES}
@@ -33,7 +33,7 @@ target_link_libraries(test_appstreamMetadatadExtractor
         ${Boost_LIBRARIES}
         gtest)
 target_include_directories(test_appstreamMetadatadExtractor PRIVATE
-        ${CMAKE_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}}/src ${PROJECT_SOURCE_DIR}/include
         ${LIBAPPIMAGE_INCLUDE_DIRS}
         ${LIBXML2_INCLUDE_DIR}
         ${NLOHMANN_JSON_INCLUDE_DIRS})
@@ -45,14 +45,14 @@ add_test(AppstreamMetadatadExtractorTest test_appstreamMetadatadExtractor)
 
 add_executable(test_fileMetadatadExtractor
         testFileMetadaExtractor.cpp
-        ${CMAKE_SOURCE_DIR}/src/entities/FileMetadataMerger.cpp
-        ${CMAKE_SOURCE_DIR}/src/entities/FileMetadataExtractor.cpp
-        ${CMAKE_SOURCE_DIR}/src/entities/BinaryMetadataExtractor.cpp
-        ${CMAKE_SOURCE_DIR}/src/entities/AppStreamMetadataExtractor.cpp
-        ${CMAKE_SOURCE_DIR}/src/entities/DesktopFileMetadataExtractor.cpp)
+        ${PROJECT_SOURCE_DIR}/src/entities/FileMetadataMerger.cpp
+        ${PROJECT_SOURCE_DIR}/src/entities/FileMetadataExtractor.cpp
+        ${PROJECT_SOURCE_DIR}/src/entities/BinaryMetadataExtractor.cpp
+        ${PROJECT_SOURCE_DIR}/src/entities/AppStreamMetadataExtractor.cpp
+        ${PROJECT_SOURCE_DIR}/src/entities/DesktopFileMetadataExtractor.cpp)
 
 target_include_directories(test_fileMetadatadExtractor PRIVATE
-        ${CMAKE_SOURCE_DIR}/src
+        ${PROJECT_SOURCE_DIR}/src
         ${PROJECT_SOURCE_DIR}/include
         ${LIBAPPIMAGE_INCLUDE_DIRS}
         ${LIBXML2_INCLUDE_DIR}

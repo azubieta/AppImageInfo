@@ -27,7 +27,7 @@ target_include_directories(libappimageinfo
         ${NLOHMANN_JSON_INCLUDE_DIRS})
 
 target_link_libraries(libappimageinfo
-        ${LIBAPPIMAGE_LIBRARIES}
+        libappimage
         ${LIBBFD_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${LIBXML2_LIBRARIES}
@@ -55,7 +55,7 @@ add_dependencies(libappimageinfo libappimage libappimageinfo)
 
 add_executable(appimageinfotool app/main.cpp)
 target_link_libraries(appimageinfotool libappimageinfo ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES})
-target_include_directories(appimageinfotool PRIVATE ${NLOHMANN_JSON_INCLUDE_DIRS})
+target_include_directories(appimageinfotool PRIVATE ${NLOHMANN_JSON_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include)
 target_compile_definitions(appimageinfotool PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 set_target_properties(appimageinfotool PROPERTIES
