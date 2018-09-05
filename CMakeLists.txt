@@ -20,5 +20,7 @@ set(LIBAPPIMAGE-INFO_VERSION ${LIBAPPIMAGE-INFO_VERSION_MAJOR}.${LIBAPPIMAGE-INF
 
 add_subdirectory(src)
 
-add_subdirectory(thirdparty/googletest EXCLUDE_FROM_ALL)
+if (NOT TARGET gtest)
+    add_subdirectory(thirdparty/googletest EXCLUDE_FROM_ALL)
+endif()
 add_subdirectory(test EXCLUDE_FROM_ALL)
