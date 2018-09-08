@@ -43,7 +43,7 @@ time_t BinaryMetadataExtractor::getTime() const {
 int64_t BinaryMetadataExtractor::getFileSize() const {
     struct stat statbuf{};
 
-    if (stat("file.dat", &statbuf) == -1) {
+    if (stat(target.c_str(), &statbuf) == -1) {
         /* check the value of errno */
     }
 
