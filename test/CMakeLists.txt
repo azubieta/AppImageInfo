@@ -54,12 +54,12 @@ add_executable(test_fileMetadatadExtractor
 target_include_directories(test_fileMetadatadExtractor PRIVATE
         ${PROJECT_SOURCE_DIR}/src
         ${PROJECT_SOURCE_DIR}/include
-        ${LIBAPPIMAGE_INCLUDE_DIRS}
         ${LIBXML2_INCLUDE_DIR}
         ${NLOHMANN_JSON_INCLUDE_DIRS})
 
 target_link_libraries(test_fileMetadatadExtractor
-        ${LIBAPPIMAGE_LIBRARIES}
+        libappimage
+        libappimageinfo
         ${LIBBFD_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${LIBXML2_LIBRARIES}
