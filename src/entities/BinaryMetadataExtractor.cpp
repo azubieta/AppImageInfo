@@ -80,11 +80,14 @@ std::string BinaryMetadataExtractor::getSha512CheckSum() const {
 
 std::string BinaryMetadataExtractor::getBinaryArch() const {
     std::string arch = bfd_printable_name(abfd);
-    /* The printable name output is composed by the architecture name and machine name.
-     * Only Machine name (also know as 'Target Platform') will be returned.*/
+    /* The printable name output is composed by the architecture family, the architecture name
+     * and machine name. Only architecture name (also know as 'Target Platform') will be returned.*/
     std::vector<std::string> sections;
     boost::algorithm::split(sections, arch, boost::is_any_of(":"));
-    return sections.back();
+    if (sections.size() > 1)
+        return sections[1];
+    else
+        return sections[0];
 }
 
 int BinaryMetadataExtractor::getAppImageType() const {
