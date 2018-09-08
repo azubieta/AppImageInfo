@@ -1,14 +1,14 @@
-# appimage-info
+# AppImageInfo
 Provides a convenient set of functions to retrieve information
 about the application inside an AppImage file. By inspecting 
 and merging the contents of the ".Desktop" and 
 ".appstream.xml" files into JSON formatted document.
 
 It has two interfaces:
- - libappimage-info (pure [C interface](https://github.com/azubieta/appimage-info/blob/master/include/appimage/appimage-info.h))
- - appimage-info (cli application)
+ - libappimageinfo (pure [C interface](https://github.com/azubieta/AppImageInfo/blob/master/include/appimage/info.h))
+ - appimageinfotool (cli application)
  
-An example of the JSON formatted output can be found [here](https://github.com/azubieta/appimage-info/blob/master/output-example.json).
+An example of the JSON formatted output can be found [here](https://github.com/azubieta/AppImageInfo/blob/master/output-example.json).
 
 ## Target
 It's meant to be used by third party tools like software centers, 
