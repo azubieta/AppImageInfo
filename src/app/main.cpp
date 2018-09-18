@@ -2,6 +2,7 @@
 #include <fstream>
 #include <boost/program_options.hpp>
 #include <nlohmann/json.hpp>
+#include <config.h>
 
 using namespace boost::program_options;
 
@@ -12,7 +13,7 @@ struct {
     std::string AppImagePath;
     std::string AppImageInfoOutputPath;
     std::string AppIconOutputPath;
-    bool isOk;
+    bool isOk{false};
 } typedef AppConfig;
 
 
@@ -52,6 +53,7 @@ AppConfig parseArguments(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
+    std::cout << "appimageinfotool version: " << APPIMAGEINFO_VERSION << std::endl;
     AppConfig config = parseArguments(argc, argv);
 
     if (config.isOk) {

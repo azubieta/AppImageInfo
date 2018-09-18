@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
-project(AppImageInfo VERSION 0.2)
+project(AppImageInfo
+        VERSION 1.0.2
+        LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,11 +14,8 @@ find_package(LibXml2 REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Boost COMPONENTS program_options filesystem system REQUIRED)
 
-set(LIBAPPIMAGE-INFO_VERSION_MAJOR 1)
-set(LIBAPPIMAGE-INFO_VERSION_MINOR 0)
-set(LIBAPPIMAGE-INFO_VERSION_PATCH 1)
-set(LIBAPPIMAGE-INFO_VERSION ${LIBAPPIMAGE-INFO_VERSION_MAJOR}.${LIBAPPIMAGE-INFO_VERSION_MINOR}.${LIBAPPIMAGE-INFO_VERSION_PATCH} )
-
+include(FeatureSummary)
+feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
 add_subdirectory(src)
 

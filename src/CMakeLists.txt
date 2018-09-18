@@ -1,3 +1,6 @@
+# configure a header file to pass some of the CMake settings to the source code
+configure_file ( "config.h.in" "${PROJECT_BINARY_DIR}/config.h")
+include_directories("${PROJECT_BINARY_DIR}")
 
 add_library(libappimageinfo SHARED
         entities/FileMetadataExtractor.cpp
@@ -43,7 +46,7 @@ install(TARGETS libappimageinfo
         COMPONENT Development)
 
 set_target_properties(libappimageinfo PROPERTIES
-        VERSION ${LIBAPPIMAGE-INFO_VERSION} SOVERSION ${LIBAPPIMAGE-INFO_VERSION_MAJOR}
+        VERSION  ${AppImageInfo_VERSION} SOVERSION ${AppImageInfo_VERSION_MAJOR}
         PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/appimage/appimage_info.h
         PREFIX "" # Prevent CMake from adding the 'lib' prefix to the library.
         INSTALL_RPATH_USE_LINK_PATH TRUE
@@ -52,12 +55,13 @@ set_target_properties(libappimageinfo PROPERTIES
 
 add_dependencies(libappimageinfo libappimage libappimageinfo)
 
-add_executable(appimageinfotool app/main.cpp)
+add_executable(appimageinfotool app/main.cpp config.h.in)
 target_link_libraries(appimageinfotool libappimage libappimageinfo ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES})
 target_include_directories(appimageinfotool PRIVATE ${NLOHMANN_JSON_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include)
 target_compile_definitions(appimageinfotool PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 set_target_properties(appimageinfotool PROPERTIES
+        VERSION  ${AppImageInfo_VERSION} SOVERSION ${AppImageInfo_VERSION_MAJOR}
         INSTALL_RPATH_USE_LINK_PATH TRUE
         INSTALL_RPATH "\$ORIGIN/../lib:${CMAKE_INSTALL_PREFIX}/lib")
 
