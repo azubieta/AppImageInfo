@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(AppImageInfo
-        VERSION 1.0.2
+        VERSION 1.0.3
         LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 11)
