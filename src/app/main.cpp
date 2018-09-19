@@ -2,7 +2,7 @@
 #include <fstream>
 #include <boost/program_options.hpp>
 #include <nlohmann/json.hpp>
-#include <config.h>
+#include "appimage/info-config.h"
 
 using namespace boost::program_options;
 

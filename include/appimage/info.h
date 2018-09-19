@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <appimage/info-config.h>
 
 void appimage_extract_desktop_file(const char *appimage_path, const char *output_path);
 

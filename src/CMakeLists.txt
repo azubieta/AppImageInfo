@@ -1,6 +1,7 @@
 # configure a header file to pass some of the CMake settings to the source code
-configure_file ( "config.h.in" "${PROJECT_BINARY_DIR}/config.h")
-include_directories("${PROJECT_BINARY_DIR}")
+configure_file ( "config.h.in" "${PROJECT_BINARY_DIR}/include/appimage/info-config.h")
+include_directories("${PROJECT_BINARY_DIR}/include")
+include_directories("${PROJECT_SOURCE_DIR}/include")
 
 add_library(libappimageinfo SHARED
         entities/FileMetadataExtractor.cpp
@@ -17,19 +18,17 @@ add_library(libappimageinfo SHARED
         lib/info.cpp)
 
 
-set_target_properties(libappimageinfo PROPERTIES PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/appimage/info.h)
 target_compile_options(libappimageinfo PUBLIC -fPIC -fexceptions)
 target_include_directories(libappimageinfo
-        PUBLIC
-        ${PROJECT_SOURCE_DIR}/include
         PRIVATE
+        ${APPIMAGE_INCLUDE_DIRS}
         ${LIBBFD_INCLUDE_DIRS}
         ${LIBXML2_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_DIRS}
         ${NLOHMANN_JSON_INCLUDE_DIRS})
 
 target_link_libraries(libappimageinfo
-        libappimage
+        ${APPIMAGE_LIBRARIES}
         ${LIBBFD_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${LIBXML2_LIBRARIES}
@@ -37,17 +36,9 @@ target_link_libraries(libappimageinfo
         )
 target_compile_definitions(libappimageinfo PRIVATE ${LIBXML2_DEFINITIONS})
 
-install(TARGETS libappimageinfo
-        LIBRARY
-        DESTINATION lib
-        COMPONENT Libraries
-        PUBLIC_HEADER
-        DESTINATION include
-        COMPONENT Development)
-
 set_target_properties(libappimageinfo PROPERTIES
         VERSION  ${AppImageInfo_VERSION} SOVERSION ${AppImageInfo_VERSION_MAJOR}
-        PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/appimage/appimage_info.h
+        PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/include/appimage/info.h;${PROJECT_BINARY_DIR}/info-config.h"
         PREFIX "" # Prevent CMake from adding the 'lib' prefix to the library.
         INSTALL_RPATH_USE_LINK_PATH TRUE
         INSTALL_RPATH "\$ORIGIN/../lib:${CMAKE_INSTALL_PREFIX}/lib")
@@ -65,7 +56,13 @@ set_target_properties(appimageinfotool PROPERTIES
         INSTALL_RPATH_USE_LINK_PATH TRUE
         INSTALL_RPATH "\$ORIGIN/../lib:${CMAKE_INSTALL_PREFIX}/lib")
 
-install(TARGETS appimageinfotool DESTINATION bin COMPONENT binaries)
+install(TARGETS libappimageinfo appimageinfotool
+        EXPORT AppImageInfoTargets
+        RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
+        PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/appimage" COMPONENT dev)
+
+
 install(FILES app/res/appimageinfotool.desktop DESTINATION share/applications/ COMPONENT desktop)
 install(FILES app/res/appimageinfotool.svg DESTINATION share/icons/hicolor/scalable/apps/ COMPONENT desktop)
 add_dependencies(appimageinfotool libappimageinfo)

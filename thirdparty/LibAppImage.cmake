@@ -1,7 +1,6 @@
 find_package(libappimage QUIET)
 
 if (NOT TARGET libappimage)
-    message(STATUS "Downloading and building libappimage")
     include(ExternalProject)
 
     ExternalProject_Add(libappimage_project
@@ -24,8 +23,11 @@ if (NOT TARGET libappimage)
 
     set_target_properties(libappimage PROPERTIES
             IMPORTED_LOCATION ${LIBAPPIMAGE_PROJECT_INSTALL_LIB_DIR}/libappimage.so
-            INTERFACE_INCLUDE_DIRECTORIES ${LIBAPPIMAGE_PROJECT_INSTALL_INCLUDE_DIR})
+            INTERFACE_INCLUDE_DIRECTORIES ${LIBAPPIMAGE_PROJECT_INSTALL_INCLUDE_DIR}
+            PREFIX "")
 
+    set(APPIMAGE_LIBRARIES ${LIBAPPIMAGE_PROJECT_INSTALL_LIB_DIR}/libappimage.so PARENT_SCOPE)
+    set(APPIMAGE_INCLUDE_DIRS ${LIBAPPIMAGE_PROJECT_INSTALL_INCLUDE_DIR} PARENT_SCOPE)
     add_dependencies(libappimage libappimage_project)
     install(FILES "${LIBAPPIMAGE_PROJECT_INSTALL_DIR}${CMAKE_INSTALL_PREFIX}/lib/libappimage.so" DESTINATION lib COMPONENT desktop)
 endif (NOT TARGET libappimage)
