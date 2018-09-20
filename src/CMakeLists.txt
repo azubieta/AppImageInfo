@@ -1,5 +1,6 @@
 # configure a header file to pass some of the CMake settings to the source code
-configure_file ( "config.h.in" "${PROJECT_BINARY_DIR}/include/appimage/info-config.h")
+set(PROJECT_CONFIG_HEADER_PATH "${PROJECT_BINARY_DIR}/include/appimage/info-config.h")
+configure_file ("config.h.in" ${PROJECT_CONFIG_HEADER_PATH})
 
 add_library(libappimageinfo SHARED
         entities/FileMetadataExtractor.cpp
@@ -39,7 +40,7 @@ target_compile_definitions(libappimageinfo PRIVATE ${LIBXML2_DEFINITIONS})
 
 set_target_properties(libappimageinfo PROPERTIES
         VERSION  ${AppImageInfo_VERSION} SOVERSION ${AppImageInfo_VERSION_MAJOR}
-        PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/include/appimage/info.h;${PROJECT_BINARY_DIR}/info-config.h"
+        PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/include/appimage/info.h;${PROJECT_CONFIG_HEADER_PATH}"
         PREFIX "" # Prevent CMake from adding the 'lib' prefix to the library.
         INSTALL_RPATH_USE_LINK_PATH TRUE
         INSTALL_RPATH "\$ORIGIN/../lib:${CMAKE_INSTALL_PREFIX}/lib")
