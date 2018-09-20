@@ -128,7 +128,14 @@ nlohmann::json FileMetadataExtractor::extractMetadata() {
     if (type <= 0)
         throw std::runtime_error("Is not a valid AppImage file");
 
-    list = loadFileList();
+    try {
+        list = loadFileList();
+    }
+    catch (std::runtime_error &e) {
+        std::cerr << e.what() << std::endl;
+        return "{}";
+    }
+    
     nlohmann::json desktop;
     nlohmann::json appStream;
     nlohmann::json binary;
