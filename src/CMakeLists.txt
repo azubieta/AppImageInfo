@@ -1,7 +1,5 @@
 # configure a header file to pass some of the CMake settings to the source code
 configure_file ( "config.h.in" "${PROJECT_BINARY_DIR}/include/appimage/info-config.h")
-include_directories("${PROJECT_BINARY_DIR}/include")
-include_directories("${PROJECT_SOURCE_DIR}/include")
 
 add_library(libappimageinfo SHARED
         entities/FileMetadataExtractor.cpp
