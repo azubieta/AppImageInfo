@@ -50,7 +50,7 @@ set_target_properties(libappimageinfo PROPERTIES
 add_dependencies(libappimageinfo libappimage libappimageinfo)
 
 add_executable(appimageinfotool app/main.cpp config.h.in)
-target_link_libraries(appimageinfotool libappimage libappimageinfo ${APPIMAGEKIT_LIBRARIES} ${LIBBFD_LIBRARIES})
+target_link_libraries(appimageinfotool libappimage libappimageinfo ${Boost_LIBRARIES} ${LIBBFD_LIBRARIES})
 target_include_directories(appimageinfotool PRIVATE ${NLOHMANN_JSON_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include)
 target_compile_definitions(appimageinfotool PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
