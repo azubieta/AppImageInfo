@@ -17,18 +17,21 @@ add_library(libappimageinfo SHARED
         ${PROJECT_SOURCE_DIR}/include/appimage/info.h
         lib/info.cpp)
 
-
 target_compile_options(libappimageinfo PUBLIC -fPIC -fexceptions)
 target_include_directories(libappimageinfo
+        PUBLIC ${APPIMAGE_INCLUDE_DIRS}
+        PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+        INTERFACE $<INSTALL_INTERFACE:include/>
         PRIVATE
-        ${APPIMAGE_INCLUDE_DIRS}
         ${LIBBFD_INCLUDE_DIRS}
         ${LIBXML2_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_DIRS}
         ${NLOHMANN_JSON_INCLUDE_DIRS})
 
 target_link_libraries(libappimageinfo
-        ${APPIMAGE_LIBRARIES}
+        PUBLIC libappimage
+        PRIVATE
         ${LIBBFD_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${LIBXML2_LIBRARIES}
