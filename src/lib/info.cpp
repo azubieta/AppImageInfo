@@ -16,7 +16,7 @@ void appimage_extract_appstream_file(const char *appimage_path, const char *outp
     extractor.extractAppStreamFile(output_path);
 }
 
-void appimage_extract_appinamge_icon_file(const char *appimage_path, const char *output_path, const char *size) {
+void appimage_extract_icon_file(const char* appimage_path, const char* output_path, const char* size) {
     FileMetadataExtractor extractor(appimage_path);
     extractor.extractIconFile(output_path, size);
 }
