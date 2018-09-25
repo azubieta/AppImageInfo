@@ -1,5 +1,5 @@
 include(LibAppImage.cmake)
 
-add_target(json INTERFACE)
-set_property(TARGET json INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/nlohmann_json/include")
-target_sources(json "${CMAKE_CURRENT_SOURCE_DIR}/nlohmann_json/include/json.h")
+add_library(nlohmann_json INTERFACE)
+target_include_directories(nlohmann_json INTERFACE "${PROJECT_SOURCE_DIR}/thirdparty/nlohmann_json/include")
+target_sources(nlohmann_json INTERFACE "${PROJECT_SOURCE_DIR}/thirdparty/nlohmann_json/include/nlohmann/json.hpp")
