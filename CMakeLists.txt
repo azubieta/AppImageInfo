@@ -15,7 +15,6 @@ set(INSTALL_CMAKE_DIR lib/cmake/AppImageInfo CACHE PATH "Installation directory 
 add_subdirectory(thirdparty)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty")
 
-find_package(LibBfd REQUIRED)
 find_package(LibXml2 REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Boost COMPONENTS program_options filesystem system REQUIRED)

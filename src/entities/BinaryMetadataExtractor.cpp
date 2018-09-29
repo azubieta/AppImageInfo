@@ -4,8 +4,10 @@
 
 extern "C" {
 #include <sys/stat.h>
+#include <time.h>
 }
 
+#include <iostream>
 #include <fstream>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -15,13 +17,10 @@ extern "C" {
 #include <nlohmann/json.hpp>
 #include "BinaryMetadataExtractor.h"
 
-BinaryMetadataExtractor::BinaryMetadataExtractor(const std::string &target)
-        : target(target), abfd(nullptr) {
-    abfd = bfd_openr(target.c_str(), nullptr);
+using namespace std;
 
-    // no section info is loaded unless we call bfd_check_format!:
-    if (!bfd_check_format(abfd, bfd_object))
-        throw BadFileFormat(bfd_errmsg(bfd_get_error()));
+BinaryMetadataExtractor::BinaryMetadataExtractor(const std::string& target) : target(target) {
+
 }
 
 nlohmann::json BinaryMetadataExtractor::getMetadata() {
@@ -36,8 +35,9 @@ nlohmann::json BinaryMetadataExtractor::getMetadata() {
 }
 
 time_t BinaryMetadataExtractor::getTime() const {
-    auto date = bfd_get_mtime(abfd);
-    return static_cast<time_t>(date);;
+    struct stat t_stat;
+    stat(target.c_str(), &t_stat);
+    return t_stat.st_mtim.tv_sec;
 }
 
 int64_t BinaryMetadataExtractor::getFileSize() const {
@@ -52,7 +52,7 @@ int64_t BinaryMetadataExtractor::getFileSize() const {
 }
 
 std::string BinaryMetadataExtractor::getSha512CheckSum() const {
-    FILE *file = fopen(target.c_str(), "r");
+    FILE* file = fopen(target.c_str(), "r");
     if (file) {
         SHA512_CTX sha512;
         SHA512_Init(&sha512);
@@ -79,23 +79,49 @@ std::string BinaryMetadataExtractor::getSha512CheckSum() const {
 }
 
 std::string BinaryMetadataExtractor::getBinaryArch() const {
-    std::string arch = bfd_printable_name(abfd);
-    /* The printable name output is composed by the architecture family, the architecture name
-     * and machine name. Only architecture name (also know as 'Target Platform') will be returned.*/
-    std::vector<std::string> sections;
-    boost::algorithm::split(sections, arch, boost::is_any_of(":"));
-    if (sections.size() > 1)
-        return sections[1];
-    else
-        return sections[0];
+    auto e_machine = read_elf_e_machine_field(target);
+    auto e_machine_str = map_e_machine_code_to_string(e_machine);
+    return e_machine_str;
 }
 
 int BinaryMetadataExtractor::getAppImageType() const {
     return appimage_get_type(target.c_str(), false);
 }
 
-BinaryMetadataExtractor::~BinaryMetadataExtractor() {
-    bfd_close(abfd);
+int16_t BinaryMetadataExtractor::read_elf_e_machine_field(std::string file_path) const {
+    int16_t e_machine = 0x00;
+    ifstream file(file_path, ios_base::in | ios_base::binary | ios_base::ate);
+    if (file.is_open()) {
+        file.seekg(0x12, ios_base::beg);
+        file.read(reinterpret_cast<char*>(&e_machine), 0x02);
+
+        file.close();
+
+    } else throw BadFileFormat("Unable to open file.");
+    return e_machine;
+
 }
 
-BadFileFormat::BadFileFormat(const std::string &__arg) : runtime_error(__arg) {}
+std::string BinaryMetadataExtractor::map_e_machine_code_to_string(int16_t e_machine) const {
+    static std::map<int16_t, std::string> map = {
+        {0x02, "SPARC"},
+        {0x03, "i386"},
+        {0x08, "MIPS"},
+        {0x14, "PowerPC"},
+        {0x16, "S390"},
+        {0x28, "ARM"},
+        {0x2A, "SuperH"},
+        {0x32, "IA-64"},
+        {0x3E, "x86_64"},
+        {0xB7, "AArch64"},
+        {0xF3, "RISC-V"}
+    };
+
+    if (map.find(e_machine) != map.end())
+        return map[e_machine];
+    else return "unknown";
+
+}
+
+
+BadFileFormat::BadFileFormat(const std::string& __arg) : runtime_error(__arg) {}

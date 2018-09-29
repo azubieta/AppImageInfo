@@ -5,7 +5,6 @@
 #ifndef APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H
 #define APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H
 
-#include <bfd.h>
 #include <nlohmann/json.hpp>
 
 class BadFileFormat : public std::runtime_error {
@@ -15,11 +14,8 @@ public:
 
 class BinaryMetadataExtractor {
     std::string target;
-    bfd *abfd;
 public:
     explicit BinaryMetadataExtractor(const std::string &target);
-
-    virtual ~BinaryMetadataExtractor();
 
     nlohmann::json getMetadata();
 
@@ -33,6 +29,12 @@ protected:
     int getAppImageType() const;
 
     time_t getTime() const;
+
+private:
+
+    int16_t read_elf_e_machine_field(std::string file_path) const;
+
+    std::string map_e_machine_code_to_string(int16_t e_machine) const;
 };
 
 #endif //APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H
