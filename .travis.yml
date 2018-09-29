@@ -12,7 +12,6 @@ addons:
     - librsvg2-bin
     - libfuse-dev
     - desktop-file-utils
-    - binutils-multiarch-dev
     - libxml2-dev
     - libcurl4-openssl-dev
     - libboost-program-options-dev
