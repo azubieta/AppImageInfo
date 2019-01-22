@@ -12,21 +12,20 @@ set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 set(INSTALL_CMAKE_DIR lib/cmake/AppImageInfo CACHE PATH "Installation directory for CMake files")
 
+ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+ conan_basic_setup()
+
 add_subdirectory(thirdparty)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty")
 
 find_package(LibXml2 REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(Boost COMPONENTS program_options filesystem system REQUIRED)
 
 include(FeatureSummary)
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
 add_subdirectory(src)
 
-if (NOT TARGET gtest)
-    add_subdirectory(thirdparty/googletest EXCLUDE_FROM_ALL)
-endif()
 add_subdirectory(test EXCLUDE_FROM_ALL)
 
 export(TARGETS libappimageinfo appimageinfotool

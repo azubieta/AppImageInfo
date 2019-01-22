@@ -10,7 +10,7 @@ target_link_libraries(test_desktopFileMetadatadExtractor
     ${LIBBFD_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
-    ${Boost_LIBRARIES}
+    ${CONAN_LIBS}
     gtest)
 target_include_directories(test_desktopFileMetadatadExtractor PRIVATE
     ${PROJECT_SOURCE_DIR}/src)
@@ -30,7 +30,7 @@ target_link_libraries(test_appstreamMetadatadExtractor
     ${LIBBFD_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
-    ${Boost_LIBRARIES}
+    ${CONAN_LIBS}
     nlohmann_json
     gtest)
 target_include_directories(test_appstreamMetadatadExtractor PRIVATE
@@ -64,7 +64,7 @@ target_link_libraries(test_fileMetadatadExtractor
     ${LIBBFD_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
-    ${Boost_LIBRARIES}
+    ${CONAN_LIBS}
     gtest)
 
 

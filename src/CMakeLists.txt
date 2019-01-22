@@ -17,15 +17,16 @@ add_library(libappimageinfo SHARED
     lib/info.cpp)
 
 target_compile_options(libappimageinfo PUBLIC -fPIC -fexceptions)
-target_include_directories(libappimageinfo
+target_include_directories(
+    libappimageinfo
     PUBLIC ${APPIMAGE_INCLUDE_DIRS}
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    PRIVATE ${LIBBFD_INCLUDE_DIRS}
+    PRIVATE ${LIBXML2_INCLUDE_DIR}
+    PRIVATE ${OPENSSL_INCLUDE_DIRS}
     INTERFACE $<INSTALL_INTERFACE:include/>
-    PRIVATE
-    ${LIBBFD_INCLUDE_DIRS}
-    ${LIBXML2_INCLUDE_DIR}
-    ${OPENSSL_INCLUDE_DIRS})
+)
 
 target_link_libraries(libappimageinfo
     PUBLIC libappimage
@@ -34,7 +35,7 @@ target_link_libraries(libappimageinfo
     ${LIBBFD_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${LIBXML2_LIBRARIES}
-    ${Boost_LIBRARIES}
+    ${CONAN_LIBS}
     )
 target_compile_definitions(libappimageinfo PRIVATE ${LIBXML2_DEFINITIONS})
 
@@ -49,7 +50,7 @@ set_target_properties(libappimageinfo PROPERTIES
 add_dependencies(libappimageinfo libappimage libappimageinfo)
 
 add_executable(appimageinfotool app/main.cpp config.h.in)
-target_link_libraries(appimageinfotool libappimage libappimageinfo nlohmann_json ${Boost_LIBRARIES} ${LIBBFD_LIBRARIES})
+target_link_libraries(appimageinfotool libappimage libappimageinfo nlohmann_json ${Boost_LIBRARIES} ${LIBBFD_LIBRARIES} ${CONAN_LIBS})
 target_include_directories(appimageinfotool PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_compile_definitions(appimageinfotool PRIVATE PROJECT_NAME="${PROJECT_NAME}" PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
