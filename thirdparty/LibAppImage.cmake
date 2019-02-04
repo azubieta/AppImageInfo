@@ -5,7 +5,7 @@ if (NOT TARGET libappimage)
 
     ExternalProject_Add(libappimage_project
             GIT_REPOSITORY https://github.com/AppImage/libappimage.git
-            GIT_TAG master
+            GIT_TAG rewrite_in_cpp
             GIT_SUBMODULES ""
             GIT_SHALLOW 1
             CONFIGURE_COMMAND ${CMAKE_COMMAND} -G${CMAKE_GENERATOR} -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} <SOURCE_DIR>
