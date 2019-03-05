@@ -16,27 +16,24 @@ add_library(libappimageinfo SHARED
     ${PROJECT_SOURCE_DIR}/include/appimage/info.h
     lib/info.cpp)
 
-target_compile_options(libappimageinfo PUBLIC -fPIC -fexceptions)
+target_compile_options(libappimageinfo PUBLIC -fexceptions)
+target_compile_definitions(libappimageinfo PRIVATE ${LIBXML2_DEFINITIONS})
+
 target_include_directories(libappimageinfo
-    PUBLIC ${APPIMAGE_INCLUDE_DIRS}
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     INTERFACE $<INSTALL_INTERFACE:include/>
-    PRIVATE
-    ${LIBBFD_INCLUDE_DIRS}
-    ${LIBXML2_INCLUDE_DIR}
-    ${OPENSSL_INCLUDE_DIRS})
+    PRIVATE ${LIBBFD_INCLUDE_DIRS}
+    PRIVATE ${LIBXML2_INCLUDE_DIR})
 
 target_link_libraries(libappimageinfo
     PUBLIC libappimage
-    PRIVATE
-    nlohmann_json
-    ${LIBBFD_LIBRARIES}
-    ${OPENSSL_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${Boost_LIBRARIES}
+    PRIVATE nlohmann_json
+    PRIVATE ${LIBBFD_LIBRARIES}
+    PRIVATE ${OPENSSL_LIBRARIES}
+    PRIVATE ${LIBXML2_LIBRARIES}
+    PRIVATE ${Boost_LIBRARIES}
     )
-target_compile_definitions(libappimageinfo PRIVATE ${LIBXML2_DEFINITIONS})
 
 set_target_properties(libappimageinfo PROPERTIES
     VERSION ${AppImageInfo_VERSION} SOVERSION ${AppImageInfo_VERSION_MAJOR}
@@ -45,8 +42,6 @@ set_target_properties(libappimageinfo PROPERTIES
     INSTALL_RPATH_USE_LINK_PATH TRUE
     INSTALL_RPATH "\$ORIGIN/../lib:${CMAKE_INSTALL_PREFIX}/lib")
 
-
-add_dependencies(libappimageinfo libappimage libappimageinfo)
 
 add_executable(appimageinfotool app/main.cpp config.h.in)
 target_link_libraries(appimageinfotool libappimage libappimageinfo nlohmann_json ${Boost_LIBRARIES} ${LIBBFD_LIBRARIES})
