@@ -1,7 +1,3 @@
-//
-// Created by alexis on 6/5/18.
-//
-
 #include <appimage/appimage.h>
 #include <boost/filesystem.hpp>
 #include <iostream>
@@ -14,12 +10,12 @@
 
 using namespace boost;
 
-FileMetadataExtractor::FileMetadataExtractor(const std::string &path)
-        : path(path) {}
+FileMetadataExtractor::FileMetadataExtractor(const std::string& path)
+    : path(path) {}
 
 std::list<std::string> FileMetadataExtractor::loadFileList() {
     std::list<std::string> fileList;
-    char **rawFileList = appimage_list_files(path.c_str());
+    char** rawFileList = appimage_list_files(path.c_str());
     if (rawFileList == nullptr || *rawFileList == nullptr)
         throw std::runtime_error(std::string("Unable to list files in ") + path);
 
@@ -32,7 +28,7 @@ std::list<std::string> FileMetadataExtractor::loadFileList() {
 
 nlohmann::json FileMetadataExtractor::extractDesktopFileData() {
     auto tmpFilePath =
-            filesystem::temp_directory_path() / filesystem::unique_path("appimage-info-%%%%%%%%%%%%.desktop");
+        filesystem::temp_directory_path() / filesystem::unique_path("appimage-info-%%%%%%%%%%%%.desktop");
 
     auto desktopFileName = tryGetDesktopFileName(list);
     tryExtractFile(desktopFileName, tmpFilePath);
@@ -53,10 +49,10 @@ boost::filesystem::path FileMetadataExtractor::getTmpDir() const {
     return tmpDir;
 }
 
-std::string FileMetadataExtractor::getDesktopFileName(const std::list<std::string> &list) const {
+std::string FileMetadataExtractor::getDesktopFileName(const std::list<std::string>& list) const {
     std::string desktopfileName;
 
-    for (const auto &file : list) {
+    for (const auto& file : list) {
         if (file.find('/') == std::string::npos && file.find(".desktop") != std::string::npos)
             desktopfileName = file;
     }
@@ -64,7 +60,7 @@ std::string FileMetadataExtractor::getDesktopFileName(const std::list<std::strin
     return desktopfileName;
 }
 
-std::string FileMetadataExtractor::tryGetDesktopFileName(const std::list<std::string> &list) const {
+std::string FileMetadataExtractor::tryGetDesktopFileName(const std::list<std::string>& list) const {
     auto fileName = getDesktopFileName(list);
     if (fileName.empty())
         throw std::runtime_error(std::string("Not .desktop file found."));
@@ -72,7 +68,7 @@ std::string FileMetadataExtractor::tryGetDesktopFileName(const std::list<std::st
     return fileName;
 }
 
-void FileMetadataExtractor::tryExtractFile(const filesystem::path &filePath, boost::filesystem::path targetPath) const {
+void FileMetadataExtractor::tryExtractFile(const filesystem::path& filePath, boost::filesystem::path targetPath) const {
     appimage_extract_file_following_symlinks(path.c_str(), filePath.c_str(), targetPath.c_str());
 
     if (!filesystem::exists(targetPath))
@@ -81,7 +77,7 @@ void FileMetadataExtractor::tryExtractFile(const filesystem::path &filePath, boo
 
 nlohmann::json FileMetadataExtractor::extractAppStreamFileData() {
     auto tmpFilePath =
-            filesystem::temp_directory_path() / filesystem::unique_path("appimage-info-appstream-%%%%%%%%.xml");
+        filesystem::temp_directory_path() / filesystem::unique_path("appimage-info-appstream-%%%%%%%%.xml");
 
     auto appStreamFileName = tryGetAppStreamFileName(list);
     tryExtractFile(appStreamFileName, tmpFilePath);
@@ -109,11 +105,11 @@ filesystem::path FileMetadataExtractor::tryGetAppStreamFileName(std::list<std::s
 
 FileMetadataExtractor::FileMetadataExtractor() = default;
 
-const std::string &FileMetadataExtractor::getPath() const {
+const std::string& FileMetadataExtractor::getPath() const {
     return path;
 }
 
-void FileMetadataExtractor::setPath(const std::string &path) {
+void FileMetadataExtractor::setPath(const std::string& path) {
     FileMetadataExtractor::path = path;
 }
 
@@ -131,32 +127,32 @@ nlohmann::json FileMetadataExtractor::extractMetadata() {
     try {
         list = loadFileList();
     }
-    catch (std::runtime_error &e) {
+    catch (std::runtime_error& e) {
         std::cerr << e.what() << std::endl;
         return "{}";
     }
-    
+
     nlohmann::json desktop;
     nlohmann::json appStream;
     nlohmann::json binary;
     try {
         desktop = extractDesktopFileData();
     }
-    catch (std::runtime_error &e) {
+    catch (std::runtime_error& e) {
         std::cerr << e.what() << std::endl;
     }
 
     try {
         appStream = extractAppStreamFileData();
     }
-    catch (std::runtime_error &e) {
+    catch (std::runtime_error& e) {
         std::cerr << e.what() << std::endl;
     }
 
     try {
         binary = extractBinaryFileData();
     }
-    catch (std::runtime_error &e) {
+    catch (std::runtime_error& e) {
         std::cerr << e.what() << std::endl;
     }
 
@@ -173,19 +169,19 @@ nlohmann::json FileMetadataExtractor::extractBinaryFileData() {
     return extractor.getMetadata();
 }
 
-void FileMetadataExtractor::extractDesktopFile(const std::string &outputPath) {
+void FileMetadataExtractor::extractDesktopFile(const std::string& outputPath) {
     auto desktopFileName = tryGetDesktopFileName(list);
     appimage_extract_file_following_symlinks(path.c_str(), desktopFileName.c_str(), outputPath.c_str());
 }
 
-void FileMetadataExtractor::extractAppStreamFile(const char *targetPath) {
+void FileMetadataExtractor::extractAppStreamFile(const char* targetPath) {
     auto appstreamFileName = tryGetAppStreamFileName(list);
     appimage_extract_file_following_symlinks(path.c_str(), appstreamFileName.c_str(), targetPath);
 }
 
-void FileMetadataExtractor::extractIconFile(const char *targetPath, const char *iconSize) {
+void FileMetadataExtractor::extractIconFile(const char* targetPath, const char* iconSize) {
     // Search for an icon of the required size in
-    for (const auto &file: list) {
+    for (const auto& file: list) {
         if (file.find("/usr/share/icons/hicolor") == std::string::npos && file.find(iconSize) != std::string::npos) {
             appimage_extract_file_following_symlinks(path.c_str(), file.c_str(), targetPath);
             return;

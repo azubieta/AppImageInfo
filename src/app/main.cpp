@@ -17,18 +17,18 @@ struct {
 } typedef AppConfig;
 
 
-AppConfig parseArguments(int argc, char **argv) {
+AppConfig parseArguments(int argc, char** argv) {
     AppConfig config;
     config.isOk = false;
 
     options_description desc{"Options"};
     desc.add_options()
-            ("help,h", "Help screen")
-            ("appImage", value<std::string>(&config.AppImagePath)->required(), "Target AppImage file")
-            ("appImageInfo,o", value<std::string>(&config.AppImageInfoOutputPath),
-             "Output the AppImage info to <appImageInfo>")
-            ("appImageIcon,i", value<std::string>(&config.AppIconOutputPath),
-             "Output the AppImage Icon to <appImageIcon>");
+        ("help,h", "Help screen")
+        ("appImage", value<std::string>(&config.AppImagePath)->required(), "Target AppImage file")
+        ("appImageInfo,o", value<std::string>(&config.AppImageInfoOutputPath),
+         "Output the AppImage info to <appImageInfo>")
+        ("appImageIcon,i", value<std::string>(&config.AppIconOutputPath),
+         "Output the AppImage Icon to <appImageIcon>");
 
     positional_options_description pos_desc;
     pos_desc.add("appImage", 1);
@@ -44,7 +44,7 @@ AppConfig parseArguments(int argc, char **argv) {
 
         config.isOk = true;
     }
-    catch (const error &ex) {
+    catch (const error& ex) {
         if (vm.find("help") == vm.end())
             std::cerr << ex.what() << std::endl;
         std::cout << desc << std::endl;
@@ -52,7 +52,7 @@ AppConfig parseArguments(int argc, char **argv) {
     return config;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     std::cout << "appimageinfotool version: " << APPIMAGEINFO_VERSION << std::endl;
     AppConfig config = parseArguments(argc, argv);
 
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 
             return 0;
         }
-        catch (std::runtime_error &e) {
+        catch (std::runtime_error& e) {
             std::cerr << e.what() << std::endl;
             return 1;
         }

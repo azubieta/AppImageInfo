@@ -1,7 +1,3 @@
-//
-// Created by alexis on 6/6/18.
-//
-
 #include <set>
 #include <boost/algorithm/string/trim.hpp>
 #include <nlohmann/json.hpp>
@@ -9,8 +5,8 @@
 
 using namespace nlohmann;
 
-AppStreamMetadataExtractor::AppStreamMetadataExtractor(const std::string &filePath)
-        : filePath(filePath) {
+AppStreamMetadataExtractor::AppStreamMetadataExtractor(const std::string& filePath)
+    : filePath(filePath) {
 }
 
 nlohmann::json AppStreamMetadataExtractor::getContent() {
@@ -21,10 +17,10 @@ nlohmann::json AppStreamMetadataExtractor::getContent() {
 
     data = json::object();
     root_element = xmlDocGetRootElement(doc);
-    xmlNode *cur_node = nullptr;
+    xmlNode* cur_node = nullptr;
 
     for (cur_node = root_element; cur_node; cur_node = cur_node->next) {
-        std::string nodeName = reinterpret_cast<const char *>(cur_node->name);
+        std::string nodeName = reinterpret_cast<const char*>(cur_node->name);
         if (cur_node->type == XML_ELEMENT_NODE && "component" == nodeName)
             parseComponent(cur_node->children);
 
@@ -34,8 +30,8 @@ nlohmann::json AppStreamMetadataExtractor::getContent() {
     return data;
 }
 
-void AppStreamMetadataExtractor::parseComponent(_xmlNode *childern) {
-    xmlNode *cur_node = nullptr;
+void AppStreamMetadataExtractor::parseComponent(_xmlNode* childern) {
+    xmlNode* cur_node = nullptr;
 
     std::set<std::string> simpleEntries{"id", "name", "summary", "metadata_license", "project_group", "project_license",
                                         "developer_name", "update_contact"};
@@ -44,7 +40,7 @@ void AppStreamMetadataExtractor::parseComponent(_xmlNode *childern) {
         if (cur_node->name == nullptr)
             continue;
 
-        std::string nodeName = reinterpret_cast<const char *>(cur_node->name);
+        std::string nodeName = reinterpret_cast<const char*>(cur_node->name);
         if (cur_node->type == XML_ELEMENT_NODE) {
             if (simpleEntries.find(nodeName) != simpleEntries.end()) {
 
@@ -60,7 +56,7 @@ void AppStreamMetadataExtractor::parseComponent(_xmlNode *childern) {
                 data[nodeName] = readScreenshots(cur_node);
 
             if ("url" == nodeName) {
-                auto urlType = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("type"));
+                auto urlType = xmlGetProp(cur_node, reinterpret_cast<const xmlChar*>("type"));
                 auto value = xmlNodeGetContent(cur_node);
                 data["urls"][getString(urlType)] = getString(value);
                 free(urlType);
@@ -75,7 +71,7 @@ void AppStreamMetadataExtractor::parseComponent(_xmlNode *childern) {
     }
 }
 
-std::string AppStreamMetadataExtractor::readDescriptionNode(const xmlNode *cur_node) const {
+std::string AppStreamMetadataExtractor::readDescriptionNode(const xmlNode* cur_node) const {
     xmlBufferPtr buff = xmlBufferCreate();
 
     for (auto cur_sub_node = cur_node->children; cur_sub_node; cur_sub_node = cur_sub_node->next)
@@ -86,15 +82,15 @@ std::string AppStreamMetadataExtractor::readDescriptionNode(const xmlNode *cur_n
     return value;
 }
 
-std::string AppStreamMetadataExtractor::getString(const xmlChar *rawValue) const {
+std::string AppStreamMetadataExtractor::getString(const xmlChar* rawValue) const {
     std::string value;
     if (rawValue)
-        value = reinterpret_cast<const char *>(rawValue);
+        value = reinterpret_cast<const char*>(rawValue);
 
     return value;
 }
 
-nlohmann::json AppStreamMetadataExtractor::readScreenshots(xmlNode *node) {
+nlohmann::json AppStreamMetadataExtractor::readScreenshots(xmlNode* node) {
     json screenShots;
 
     for (auto cur_node = node->children; cur_node; cur_node = cur_node->next) {
@@ -108,25 +104,25 @@ nlohmann::json AppStreamMetadataExtractor::readScreenshots(xmlNode *node) {
     return screenShots;
 }
 
-nlohmann::json AppStreamMetadataExtractor::readScreenshot(_xmlNode *node) {
+nlohmann::json AppStreamMetadataExtractor::readScreenshot(_xmlNode* node) {
     json screenshot = json::object();
     for (auto cur_node = node->children; cur_node; cur_node = cur_node->next) {
         auto nodeName = getString(cur_node->name);
         if (nodeName == "caption") {
-            xmlChar *value = xmlNodeGetContent(cur_node);
+            xmlChar* value = xmlNodeGetContent(cur_node);
             screenshot[nodeName] = getString(value);
             free(value);
         }
 
         if (nodeName == "image") {
-            xmlChar *url = xmlNodeGetContent(cur_node);
+            xmlChar* url = xmlNodeGetContent(cur_node);
             auto urlString = getString(url);
             boost::algorithm::trim(urlString);
             screenshot["url"] = urlString;
-            xmlChar *type = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("type"));
-            xmlChar *width = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("width"));
-            xmlChar *height = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("height"));
-            xmlChar *language = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("xml:lang"));
+            xmlChar* type = xmlGetProp(cur_node, reinterpret_cast<const xmlChar*>("type"));
+            xmlChar* width = xmlGetProp(cur_node, reinterpret_cast<const xmlChar*>("width"));
+            xmlChar* height = xmlGetProp(cur_node, reinterpret_cast<const xmlChar*>("height"));
+            xmlChar* language = xmlGetProp(cur_node, reinterpret_cast<const xmlChar*>("xml:lang"));
             screenshot["type"] = getString(type);
             screenshot["width"] = getString(width);
             screenshot["height"] = getString(height);
@@ -141,7 +137,7 @@ nlohmann::json AppStreamMetadataExtractor::readScreenshot(_xmlNode *node) {
     return screenshot;
 }
 
-nlohmann::json AppStreamMetadataExtractor::readReleases(xmlNode *node) {
+nlohmann::json AppStreamMetadataExtractor::readReleases(xmlNode* node) {
     json releases;
     for (auto cur_node = node->children; cur_node; cur_node = cur_node->next) {
         auto nodeName = getString(cur_node->name);
@@ -153,12 +149,12 @@ nlohmann::json AppStreamMetadataExtractor::readReleases(xmlNode *node) {
     return releases;
 }
 
-nlohmann::json AppStreamMetadataExtractor::readRealease(_xmlNode *node) {
+nlohmann::json AppStreamMetadataExtractor::readRealease(_xmlNode* node) {
     json release;
-    xmlChar *version = xmlGetProp(node, reinterpret_cast<const xmlChar *>("version"));
-    xmlChar *date = xmlGetProp(node, reinterpret_cast<const xmlChar *>("date"));
-    xmlChar *urgency = xmlGetProp(node, reinterpret_cast<const xmlChar *>("urgency"));
-    xmlChar *timestamp = xmlGetProp(node, reinterpret_cast<const xmlChar *>("timestamp"));
+    xmlChar* version = xmlGetProp(node, reinterpret_cast<const xmlChar*>("version"));
+    xmlChar* date = xmlGetProp(node, reinterpret_cast<const xmlChar*>("date"));
+    xmlChar* urgency = xmlGetProp(node, reinterpret_cast<const xmlChar*>("urgency"));
+    xmlChar* timestamp = xmlGetProp(node, reinterpret_cast<const xmlChar*>("timestamp"));
 
     release["date"] = getString(date);
     release["version"] = getString(version);
@@ -174,21 +170,21 @@ nlohmann::json AppStreamMetadataExtractor::readRealease(_xmlNode *node) {
     for (auto cur_node = node->children; cur_node; cur_node = cur_node->next) {
         auto nodeName = getString(cur_node->name);
         if (nodeName == "location") {
-            xmlChar *value = xmlNodeGetContent(cur_node);
+            xmlChar* value = xmlNodeGetContent(cur_node);
             release["location"] = getString(value);
             free(value);
         }
 
         if (nodeName == "checksum") {
-            xmlChar *type = xmlGetProp(cur_node, reinterpret_cast<const xmlChar *>("type"));
-            xmlChar *value = xmlNodeGetContent(cur_node);
+            xmlChar* type = xmlGetProp(cur_node, reinterpret_cast<const xmlChar*>("type"));
+            xmlChar* value = xmlNodeGetContent(cur_node);
             release[getString(type)] = getString(value);
             free(type);
             free(value);
         }
 
         if (nodeName == "description") {
-            xmlChar *value = xmlNodeGetContent(cur_node);
+            xmlChar* value = xmlNodeGetContent(cur_node);
             release["description"] = getString(value);
             free(value);
         }
@@ -196,4 +192,4 @@ nlohmann::json AppStreamMetadataExtractor::readRealease(_xmlNode *node) {
     return release;
 }
 
-AppStreamReadError::AppStreamReadError(const std::string &__arg) : runtime_error(__arg) {}
+AppStreamReadError::AppStreamReadError(const std::string& __arg) : runtime_error(__arg) {}

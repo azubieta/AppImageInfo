@@ -1,11 +1,6 @@
-//
-// Created by alexis on 6/7/18.
-//
+#pragma once
 
-#ifndef APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H
-#define APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H
-
-static const char *const DEFUALT_LOCALE_NAME = "default";
+static const char* const DEFUALT_LOCALE_NAME = "default";
 
 #include <list>
 #include <nlohmann/json.hpp>
@@ -18,11 +13,15 @@ class MetadataMerger {
 public:
 
     MetadataMerger();
-    void setDesktop(const nlohmann::json &desktop);
-    void setAppStream(const nlohmann::json &appstream);
-    void setBinary(const nlohmann::json &binary);
+
+    void setDesktop(const nlohmann::json& desktop);
+
+    void setAppStream(const nlohmann::json& appstream);
+
+    void setBinary(const nlohmann::json& binary);
 
     nlohmann::json getOutput();
+
 protected:
 
     std::list<std::string> getKeywords() const;
@@ -55,5 +54,3 @@ protected:
 
     nlohmann::json removeEmptyFields(nlohmann::json json);
 };
-
-#endif //APPIMAGE_RELEASES_INDEXER_METADATAMERGER_H

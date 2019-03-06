@@ -1,21 +1,16 @@
-//
-// Created by alexis on 6/8/18.
-//
-
-#ifndef APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H
-#define APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H
+#pragma once
 
 #include <nlohmann/json.hpp>
 
 class BadFileFormat : public std::runtime_error {
 public:
-    explicit BadFileFormat(const std::string &__arg);
+    explicit BadFileFormat(const std::string& __arg);
 };
 
 class BinaryMetadataExtractor {
     std::string target;
 public:
-    explicit BinaryMetadataExtractor(const std::string &target);
+    explicit BinaryMetadataExtractor(const std::string& target);
 
     nlohmann::json getMetadata();
 
@@ -36,5 +31,3 @@ private:
 
     std::string map_e_machine_code_to_string(int16_t e_machine) const;
 };
-
-#endif //APPIMAGE_RELEASES_INDEXER_BINARYMETADATAEXTRACTOR_H

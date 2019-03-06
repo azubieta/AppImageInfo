@@ -1,14 +1,10 @@
-//
-// Created by alexis on 6/7/18.
-//
-
 #include "FileMetadataMerger.h"
 
-void MetadataMerger::setDesktop(const nlohmann::json &desktop) {
+void MetadataMerger::setDesktop(const nlohmann::json& desktop) {
     MetadataMerger::desktop = desktop;
 }
 
-void MetadataMerger::setAppStream(const nlohmann::json &appstream) {
+void MetadataMerger::setAppStream(const nlohmann::json& appstream) {
     MetadataMerger::appStream = appstream;
 }
 
@@ -108,7 +104,7 @@ nlohmann::json MetadataMerger::removeEmptyFields(nlohmann::json json) {
         return json;
 }
 
-void MetadataMerger::setBinary(const nlohmann::json &binary) {
+void MetadataMerger::setBinary(const nlohmann::json& binary) {
     MetadataMerger::binary = binary;
 }
 
@@ -137,8 +133,8 @@ nlohmann::json MetadataMerger::getRelease() {
         auto appStreamLatestRelease = appStreamReleases.front();
         release["version"] = appStreamLatestRelease["version"];
         release["date"] =
-                appStreamLatestRelease.find("date") != appStreamLatestRelease.end() ? appStreamLatestRelease["date"]
-                                                                                    : binary["date"];
+            appStreamLatestRelease.find("date") != appStreamLatestRelease.end() ? appStreamLatestRelease["date"]
+                                                                                : binary["date"];
 
         nlohmann::json changeLog;
         changeLog["null"] = appStreamLatestRelease["description"];
@@ -170,7 +166,7 @@ std::list<std::string> MetadataMerger::getLanguages() {
 nlohmann::json MetadataMerger::getScreenShots() {
     nlohmann::json screenShots;
     const auto appStreamScreenShots = appStream["screenshots"];
-    for (const auto &appStreamScreenShot: appStreamScreenShots) {
+    for (const auto& appStreamScreenShot: appStreamScreenShots) {
         nlohmann::json screenShot;
         screenShot["height"] = appStreamScreenShot["height"];
         screenShot["width"] = appStreamScreenShot["width"];
