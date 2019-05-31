@@ -1,7 +1,3 @@
-//
-// Created by alexis on 6/8/18.
-//
-
 extern "C" {
 #include <sys/stat.h>
 #include <time.h>

@@ -1,7 +1,3 @@
-//
-// Created by alexis on 6/5/18.
-//
-
 #include <set>
 #include <fstream>
 #include "DesktopFileMetadataExtractor.h"
@@ -10,8 +6,8 @@
 using namespace std;
 using namespace nlohmann;
 
-DesktopFileMetadataExtractor::DesktopFileMetadataExtractor(const std::string &filePath)
-        : filePath(filePath) {}
+DesktopFileMetadataExtractor::DesktopFileMetadataExtractor(const std::string& filePath)
+    : filePath(filePath) {}
 
 nlohmann::json DesktopFileMetadataExtractor::getContent() {
     tryReadLines();
@@ -31,7 +27,7 @@ void DesktopFileMetadataExtractor::parseLines() {
 
     parseApplicationId();
 
-    for (const auto &line: fileContent) {
+    for (const auto& line: fileContent) {
         auto cleanLine = removeComments(line);
         if (isGroupEntry(cleanLine))
             handleGroupEntry(cleanLine);
@@ -48,7 +44,7 @@ void DesktopFileMetadataExtractor::saveLastGroup() {
         saveCurrentGroup();
 }
 
-void DesktopFileMetadataExtractor::handleGroupEntry(const std::string &cleanLine) {
+void DesktopFileMetadataExtractor::handleGroupEntry(const std::string& cleanLine) {
     auto groupName = cleanLine.substr(1, cleanLine.length() - 2);
 
     if (!currentGroupName.empty())
@@ -58,7 +54,7 @@ void DesktopFileMetadataExtractor::handleGroupEntry(const std::string &cleanLine
         currentGroupName = groupName;
 }
 
-void DesktopFileMetadataExtractor::handleKeyEntry(const std::string &cleanLine) {
+void DesktopFileMetadataExtractor::handleKeyEntry(const std::string& cleanLine) {
     auto full_key = cleanLine.substr(0, cleanLine.find('='));
     auto key = full_key.substr(0, full_key.find('['));
     auto locale = extractLocale(full_key);
@@ -72,11 +68,11 @@ void DesktopFileMetadataExtractor::handleKeyEntry(const std::string &cleanLine) 
         currentGroup[key] = value;
 }
 
-std::string DesktopFileMetadataExtractor::extractLocale(const std::string &full_key) const {
+std::string DesktopFileMetadataExtractor::extractLocale(const std::string& full_key) const {
     auto sIdx = full_key.find('[');
     auto eIdx = full_key.find(']');
     if (sIdx != std::string::npos) {
-        auto locale = full_key.substr(sIdx+1, eIdx - sIdx -1);
+        auto locale = full_key.substr(sIdx + 1, eIdx - sIdx - 1);
         return locale;
     } else
         return DEFUALT_LOCALE_NAME;
@@ -88,12 +84,12 @@ void DesktopFileMetadataExtractor::saveCurrentGroup() {
     currentGroup = nlohmann::json{};
 }
 
-bool DesktopFileMetadataExtractor::isLocaleStringKey(const std::string &key) const {
+bool DesktopFileMetadataExtractor::isLocaleStringKey(const std::string& key) const {
     static const std::set<std::string> localeStrings{"Name", "GenericName", "Comment", "Icon", "Keywords"};
     return localeStrings.find(key) != localeStrings.end();
 }
 
-nlohmann::json DesktopFileMetadataExtractor::extractValue(const std::string &cleanLine, const std::string &key) const {
+nlohmann::json DesktopFileMetadataExtractor::extractValue(const std::string& cleanLine, const std::string& key) const {
     static const std::set<std::string> arrayValues{"OnlyShowIn", "NotShowIn", "Actions", "MimeType", "Categories",
                                                    "Implements", "Keywords"};
 
@@ -116,15 +112,15 @@ nlohmann::json DesktopFileMetadataExtractor::extractValue(const std::string &cle
 
 }
 
-bool DesktopFileMetadataExtractor::isKeyEntry(const std::string &cleanLine) const {
+bool DesktopFileMetadataExtractor::isKeyEntry(const std::string& cleanLine) const {
     return cleanLine.find("=") != std::string::npos;
 }
 
-bool DesktopFileMetadataExtractor::isGroupEntry(const std::string &cleanLine) const {
+bool DesktopFileMetadataExtractor::isGroupEntry(const std::string& cleanLine) const {
     return cleanLine[0] == '[' && cleanLine[cleanLine.size() - 1] == ']';
 }
 
-std::string DesktopFileMetadataExtractor::removeComments(const std::string &cleanLine) const {
+std::string DesktopFileMetadataExtractor::removeComments(const std::string& cleanLine) const {
     return cleanLine.substr(0, cleanLine.find('#'));
 }
 

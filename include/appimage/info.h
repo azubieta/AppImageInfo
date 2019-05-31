@@ -18,7 +18,8 @@ void appimage_extract_appstream_file(const char *appimage_path, const char *outp
 void appimage_extract_icon_file(const char* appimage_path, const char* output_path, const char* size = "256");
 
 /* Combines contents from the application '.Desktop' file, the 'appstream.xml' file and information
- * about the binary file.
+ * about the binary file. It could take a while to compute the AppImage checksum so you may want to execute
+ * it in a different thread.
  *
  * Returns: JSon formatted string
  * */
